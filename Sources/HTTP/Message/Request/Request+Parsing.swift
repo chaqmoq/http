@@ -26,7 +26,7 @@ extension Request {
 
 extension Request {
     private func parseURLEncodedBody() -> ParameterBag<String, Any>? {
-        if let string = body.string?.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
+        if let string = body.string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
             var urlComponents = URLComponents()
             urlComponents.query = string
 
@@ -45,10 +45,6 @@ extension Request {
     }
 
     private func parseJSONBody() -> ParameterBag<String, Any>? {
-        if let data = body.data {
-            return try? JSONSerialization.jsonObject(with: data, options: []) as? ParameterBag<String, Any>
-        }
-
-        return nil
+        return try? JSONSerialization.jsonObject(with: body.data, options: []) as? ParameterBag<String, Any>
     }
 }
