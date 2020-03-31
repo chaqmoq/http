@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "chaqmoq-http",
     products: [
-        .library(name: "HTTP", targets: ["HTTP", "HTTPExample"])
+        .library(name: "HTTP", targets: ["HTTP"])
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.2.0"),
@@ -15,7 +15,6 @@ let package = Package(
     ],
     targets: [
         .target(name: "HTTP", dependencies: ["Logging", "NIO", "NIOHTTP1", "NIOHTTP2", "NIOSSL"]),
-        .target(name: "HTTPExample", dependencies: ["HTTP"]),
         .testTarget(name: "HTTPTests", dependencies: ["HTTP"])
     ],
     swiftLanguageVersions: [.v5]
