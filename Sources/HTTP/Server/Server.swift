@@ -4,6 +4,7 @@ import NIO
 
 public class Server {
     public let logger: Logger
+    public var onReceive: RequestHandler?
     private var channel: Channel?
 
     public init() {
@@ -21,7 +22,7 @@ public class Server {
             .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
             .childChannelInitializer { channel in
                 channel.pipeline.configureHTTPServerPipeline().flatMap {
-                    channel.pipeline.addHandler(RequestHandler(server: self))
+                    channel.pipeline.addHandler(ServerHandler(server: self))
                 }
             }
         let channel = try bootstrap.bind(host: host, port: port).wait()
@@ -32,8 +33,8 @@ public class Server {
 
     public func stop() {
         channel?.flush()
-        channel?.close().whenComplete { result in
-            self.logger.info("Server has stopped")
+        channel?.close().whenComplete { [weak self] result in
+            self?.logger.info("Server has stopped")
         }
     }
 }
