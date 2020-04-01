@@ -1,5 +1,3 @@
-import Foundation
-
 extension Response {
     public enum Status: Int {
         // 1xx Informational

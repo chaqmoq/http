@@ -1,5 +1,3 @@
-import Foundation
-
 extension Request {
     public var description: String {
         var description = ""

@@ -1,5 +1,3 @@
-import Foundation
-
 public enum Header: String {
     case accept = "Accept"
     case acceptCH = "Accept-CH"

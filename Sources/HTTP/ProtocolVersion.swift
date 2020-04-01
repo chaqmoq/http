@@ -1,5 +1,3 @@
-import Foundation
-
 public struct ProtocolVersion {
     public var major: Int
     public var minor: Int

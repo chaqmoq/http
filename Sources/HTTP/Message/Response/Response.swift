@@ -1,5 +1,3 @@
-import Foundation
-
 public struct Response: Message {
     public var version: ProtocolVersion
     public var status: Status

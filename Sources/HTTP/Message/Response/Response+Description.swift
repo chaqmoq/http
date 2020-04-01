@@ -1,5 +1,3 @@
-import Foundation
-
 extension Response {
     public var description: String {
         var description = ""

@@ -17,7 +17,6 @@ targets: [
 ## Usage
 
 ```swift
-import Foundation
 import HTTP
 
 let server = Server()

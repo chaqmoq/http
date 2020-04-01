@@ -1,5 +1,3 @@
-import Foundation
-
 extension Request {
     public enum Method: String, CaseIterable {
         case DELETE
