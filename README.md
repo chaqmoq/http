@@ -6,7 +6,6 @@ This is a part of Chaqmoq Web Framework in Swift language
 
 ```bash
 dependencies: [
-    # Other dependencies...
     .package(url: "https://github.com/chaqmoq/http.git", .branch("master"))
 ],
 targets: [
@@ -20,6 +19,9 @@ targets: [
 import HTTP
 
 let server = Server()
+server.onReceive = { request in
+    return Response(body: .init(string: "Hello World"))
+}
 
 do {
     try server.start()
