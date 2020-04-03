@@ -6,7 +6,7 @@ extension Response {
             description.append("\(header.rawValue): \(value)\n")
         }
 
-        description.append("\n\(body.description)")
+        description.append("\n\(body)")
 
         return "HTTP/\(version.major).\(version.minor) \(status)\n\(description)"
     }

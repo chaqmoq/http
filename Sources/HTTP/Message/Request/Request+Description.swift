@@ -6,7 +6,7 @@ extension Request {
             description.append("\(header.rawValue): \(value)\n")
         }
 
-        description.append("\n\(body.description)")
+        description.append("\n\(body)")
 
         return "\(method) \(uri) HTTP/\(version.major).\(version.minor)\n\(description)"
     }
