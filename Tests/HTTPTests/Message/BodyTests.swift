@@ -91,4 +91,26 @@ final class BodyTests: XCTestCase {
         XCTAssertEqual(body.data, data)
         XCTAssertEqual(body.bytes, bytes)
     }
+
+    func testAppend() {
+        // Arrange
+        let string1 = "Hello"
+        let string2 = " World"
+        var body = Body(string: string1)
+
+        // Act
+        body.append(bytes: [UInt8](string2.data(using: .utf8)!))
+
+        // Assert
+        XCTAssertEqual(body.string, "\(string1)\(string2)")
+    }
+
+    func testDescription() {
+        // Arrange
+        let string = "Hello World"
+        let body = Body(string: string)
+
+        // Assert
+        XCTAssertEqual("\(body)", string)
+    }
 }
