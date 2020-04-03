@@ -8,7 +8,9 @@ final class BodyTests: XCTestCase {
         ("testInitWithEmptyData", testInitWithEmptyData),
         ("testInitWithData", testInitWithData),
         ("testInitWithEmptyString", testInitWithEmptyString),
-        ("testInitWithString", testInitWithString)
+        ("testInitWithString", testInitWithString),
+        ("testAppend", testAppend),
+        ("testDescription", testDescription)
     ]
 
     func testInitWithEmptyBytes() {
