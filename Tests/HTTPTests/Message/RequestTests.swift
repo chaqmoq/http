@@ -78,21 +78,23 @@ final class RequestTests: XCTestCase {
     func testMethods() {
         // Assert
         for method in Request.Method.allCases {
+            let rawValue = method.rawValue
+
             switch method {
             case .DELETE:
-                XCTAssertEqual(method.rawValue, "DELETE")
+                XCTAssertEqual(rawValue, "DELETE")
             case .GET:
-                XCTAssertEqual(method.rawValue, "GET")
+                XCTAssertEqual(rawValue, "GET")
             case .HEAD:
-                XCTAssertEqual(method.rawValue, "HEAD")
+                XCTAssertEqual(rawValue, "HEAD")
             case .OPTIONS:
-                XCTAssertEqual(method.rawValue, "OPTIONS")
+                XCTAssertEqual(rawValue, "OPTIONS")
             case .PATCH:
-                XCTAssertEqual(method.rawValue, "PATCH")
+                XCTAssertEqual(rawValue, "PATCH")
             case .POST:
-                XCTAssertEqual(method.rawValue, "POST")
+                XCTAssertEqual(rawValue, "POST")
             case .PUT:
-                XCTAssertEqual(method.rawValue, "PUT")
+                XCTAssertEqual(rawValue, "PUT")
             }
         }
     }
