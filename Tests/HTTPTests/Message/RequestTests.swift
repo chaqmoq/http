@@ -12,8 +12,6 @@ final class RequestTests: XCTestCase {
     func testDescription() {
         // Arrange
         let request = Request()
-
-        // Act
         var string = ""
 
         for (header, value) in request.headers {
