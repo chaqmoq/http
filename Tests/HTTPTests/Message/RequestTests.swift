@@ -3,10 +3,31 @@ import XCTest
 
 final class RequestTests: XCTestCase {
     static var allTests = [
+        ("testDescription", testDescription),
         ("testInitWithDefaultValues", testInitWithDefaultValues),
         ("testInitWithCustomValues", testInitWithCustomValues),
-        ("testDescription", testDescription)
+        ("testMethods", testMethods)
     ]
+
+    func testDescription() {
+        // Arrange
+        let request = Request()
+
+        // Act
+        var string = ""
+
+        for (header, value) in request.headers {
+            string.append("\(header.rawValue): \(value)\n")
+        }
+
+        string.append("\n\(request.body)")
+        string = """
+        \(request.method) \(request.uri) HTTP/\(request.version.major).\(request.version.minor)\n\(string)
+        """
+
+        // Assert
+        XCTAssertEqual("\(request)", string)
+    }
 
     func testInitWithDefaultValues() {
         // Arrange
@@ -54,23 +75,25 @@ final class RequestTests: XCTestCase {
         XCTAssertNil(request.files)
     }
 
-    func testDescription() {
-        // Arrange
-        let request = Request()
-
-        // Act
-        var string = ""
-
-        for (header, value) in request.headers {
-            string.append("\(header.rawValue): \(value)\n")
-        }
-
-        string.append("\n\(request.body)")
-        string = """
-        \(request.method) \(request.uri) HTTP/\(request.version.major).\(request.version.minor)\n\(string)
-        """
-
+    func testMethods() {
         // Assert
-        XCTAssertEqual("\(request)", string)
+        for method in Request.Method.allCases {
+            switch method {
+            case .DELETE:
+                XCTAssertEqual(method.rawValue, "DELETE")
+            case .GET:
+                XCTAssertEqual(method.rawValue, "GET")
+            case .HEAD:
+                XCTAssertEqual(method.rawValue, "HEAD")
+            case .OPTIONS:
+                XCTAssertEqual(method.rawValue, "OPTIONS")
+            case .PATCH:
+                XCTAssertEqual(method.rawValue, "PATCH")
+            case .POST:
+                XCTAssertEqual(method.rawValue, "POST")
+            case .PUT:
+                XCTAssertEqual(method.rawValue, "PUT")
+            }
+        }
     }
 }
