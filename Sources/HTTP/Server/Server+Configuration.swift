@@ -8,6 +8,7 @@ extension Server {
         public var serverName: String? = nil
         public var tls: TLSConfiguration? = nil
         public var supportsVersions: Set<ProtocolVersion.Major>
+        public var supportsPipelining: Bool
         public var numberOfThreads: Int
         public var backlog: Int32
         public var reuseAddress: Bool
@@ -20,6 +21,7 @@ extension Server {
             serverName: String? = nil,
             tls: TLSConfiguration? = nil,
             supportsVersions: Set<ProtocolVersion.Major> = [.one, .two],
+            supportsPipelining: Bool = false,
             numberOfThreads: Int = System.coreCount,
             backlog: Int32 = 256,
             reuseAddress: Bool = true,
@@ -31,6 +33,7 @@ extension Server {
             self.serverName = serverName
             self.tls = tls
             self.supportsVersions = supportsVersions
+            self.supportsPipelining = supportsPipelining
             self.numberOfThreads = numberOfThreads
             self.backlog = backlog
             self.reuseAddress = reuseAddress

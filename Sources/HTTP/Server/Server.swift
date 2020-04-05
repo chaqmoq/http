@@ -29,33 +29,22 @@ public class Server {
             .childChannelInitializer { [weak self] channel in
                 guard let server = self else { return channel.close() }
                 let configuration = server.configuration
-                let logger = server.logger
 
                 if var tls = configuration.tls {
-                    if configuration.supportsVersions.contains(.one) {
-                        tls.applicationProtocols.append("http/1.1")
-                    }
-
-                    let sslContext: NIOSSLContext
-                    let sslHandler: NIOSSLServerHandler
-
-                    do {
-                        sslContext = try NIOSSLContext(configuration: tls)
-                        sslHandler = try NIOSSLServerHandler(context: sslContext)
-                    } catch {
-                        logger.error("Failed to configure TLS: \(error)")
-                        return channel.close()
-                    }
-
-                    return channel.pipeline.addHandler(sslHandler).flatMap { _ in
-                        return channel.pipeline.configureHTTPServerPipeline().flatMap {
-                            return channel.pipeline.addHandler(ServerHandler(server: server))
-                        }
+                    return server.configure(tls: &tls, for: channel).flatMap { _ in
+                        return channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
+                            return channel.configureHTTP2Pipeline(
+                                mode: .server,
+                                inboundStreamStateInitializer: { (channel, streamID) in
+                                    return server.addHandlers(to: channel, streamID: streamID)
+                                }
+                            ).map { _ in }
+                        }, http1ChannelConfigurator: { channel in
+                            return server.addHandlers(to: channel)
+                        })
                     }
                 } else {
-                    return channel.pipeline.configureHTTPServerPipeline().flatMap {
-                        return channel.pipeline.addHandler(ServerHandler(server: server))
-                    }
+                    return server.addHandlers(to: channel)
                 }
             }
         let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
