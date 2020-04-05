@@ -2,7 +2,7 @@ import NIO
 import NIOHTTP1
 
 extension Server {
-    final class ServerHandler: ChannelInboundHandler {
+    final class HTTPHandler: ChannelInboundHandler {
         typealias InboundIn = HTTPServerRequestPart
 
         let server: Server
@@ -31,7 +31,7 @@ extension Server {
     }
 }
 
-extension Server.ServerHandler {
+extension Server.HTTPHandler {
     private func handle(header: HTTPRequestHead) {
         let method = Request.Method(rawValue: header.method.rawValue)!
         let version = ProtocolVersion(major: header.version.major, minor: header.version.minor)
