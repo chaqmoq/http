@@ -7,3 +7,10 @@ public struct ProtocolVersion {
         self.minor = minor
     }
 }
+
+extension ProtocolVersion {
+    public enum Major: Int {
+        case one = 1
+        case two
+    }
+}

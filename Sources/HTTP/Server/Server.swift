@@ -1,5 +1,8 @@
 import Logging
 import NIO
+import NIOHTTP1
+import NIOHTTP2
+import NIOSSL
 
 public class Server {
     public let configuration: Configuration
@@ -23,14 +26,43 @@ public class Server {
             .childChannelOption(reuseAddressOption, value: reuseAddressOptionValue)
             .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: tcpNoDelayOptionValue)
             .childChannelOption(ChannelOptions.maxMessagesPerRead, value: configuration.maxMessagesPerRead)
-            .childChannelInitializer { channel in
-                channel.pipeline.configureHTTPServerPipeline().flatMap {
-                    channel.pipeline.addHandler(ServerHandler(server: self))
+            .childChannelInitializer { [weak self] channel in
+                guard let server = self else { return channel.close() }
+                let configuration = server.configuration
+                let logger = server.logger
+
+                if var tls = configuration.tls {
+                    if configuration.supportsVersions.contains(.one) {
+                        tls.applicationProtocols.append("http/1.1")
+                    }
+
+                    let sslContext: NIOSSLContext
+                    let sslHandler: NIOSSLServerHandler
+
+                    do {
+                        sslContext = try NIOSSLContext(configuration: tls)
+                        sslHandler = try NIOSSLServerHandler(context: sslContext)
+                    } catch {
+                        logger.error("Failed to configure TLS: \(error)")
+                        return channel.close()
+                    }
+
+                    return channel.pipeline.addHandler(sslHandler).flatMap { _ in
+                        return channel.pipeline.configureHTTPServerPipeline().flatMap {
+                            return channel.pipeline.addHandler(ServerHandler(server: server))
+                        }
+                    }
+                } else {
+                    return channel.pipeline.configureHTTPServerPipeline().flatMap {
+                        return channel.pipeline.addHandler(ServerHandler(server: server))
+                    }
                 }
             }
         let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
         self.channel = channel
-        logger.info("Server has started on: \(channel.localAddress!)")
+        let scheme = configuration.tls == nil ? "http" : "https"
+        let address = "\(scheme)://\(configuration.host):\(configuration.port)"
+        logger.info("Server has started on: \(address)")
         try channel.closeFuture.wait()
     }
 
