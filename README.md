@@ -19,6 +19,12 @@ targets: [
 import HTTP
 
 let server = Server()
+server.onStart = {
+    print("Server has started")
+}
+server.onStop = {
+    print("Server has stopped")
+}
 server.onReceive = { request in
     return Response(body: .init(string: "Hello World"))
 }

@@ -7,7 +7,11 @@ import NIOSSL
 public class Server {
     public let configuration: Configuration
     public let logger: Logger
+
+    public var onStart: (() -> Void)?
+    public var onStop: (() -> Void)?
     public var onReceive: RequestHandler?
+
     private var channel: Channel?
 
     public init(configuration: Configuration = .init()) {
@@ -28,30 +32,14 @@ public class Server {
             .childChannelOption(ChannelOptions.maxMessagesPerRead, value: configuration.maxMessagesPerRead)
             .childChannelInitializer { [weak self] channel in
                 guard let server = self else { return channel.close() }
-                let configuration = server.configuration
-
-                if var tls = configuration.tls {
-                    return server.configure(tls: &tls, for: channel).flatMap { _ in
-                        return channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
-                            return channel.configureHTTP2Pipeline(
-                                mode: .server,
-                                inboundStreamStateInitializer: { (channel, streamID) in
-                                    return server.addHandlers(to: channel, streamID: streamID)
-                                }
-                            ).map { _ in }
-                        }, http1ChannelConfigurator: { channel in
-                            return server.addHandlers(to: channel)
-                        })
-                    }
-                } else {
-                    return server.addHandlers(to: channel)
-                }
-            }
+                return server.initializeChild(channel: channel)
+        }
         let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
         self.channel = channel
         let scheme = configuration.tls == nil ? "http" : "https"
         let address = "\(scheme)://\(configuration.host):\(configuration.port)"
         logger.info("Server has started on: \(address)")
+        onStart?()
         try channel.closeFuture.wait()
     }
 
@@ -59,6 +47,80 @@ public class Server {
         channel?.flush()
         channel?.close().whenComplete { [weak self] result in
             self?.logger.info("Server has stopped")
+            self?.onStop?()
+        }
+    }
+}
+
+extension Server {
+    private func initializeChild(channel: Channel) -> EventLoopFuture<Void> {
+        if var tls = configuration.tls {
+            return configure(tls: &tls, for: channel).flatMap { _ in
+                return channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
+                    return channel.configureHTTP2Pipeline(
+                        mode: .server,
+                        inboundStreamStateInitializer: { [weak self] (channel, streamID) in
+                            guard let server = self else { return channel.close() }
+                            return server.addHandlers(to: channel, streamID: streamID)
+                        }
+                    ).map { _ in }
+                }, http1ChannelConfigurator: { [weak self] channel in
+                    guard let server = self else { return channel.close() }
+                    return server.addHandlers(to: channel)
+                })
+            }
+        }
+
+        return addHandlers(to: channel)
+    }
+
+    private func configure(tls: inout TLSConfiguration, for channel: Channel) -> EventLoopFuture<Void> {
+        if configuration.supportsVersions.contains(.two) {
+            tls.applicationProtocols.append("h2")
+        }
+
+        if configuration.supportsVersions.contains(.one) {
+            tls.applicationProtocols.append("http/1.1")
+        }
+
+        let sslContext: NIOSSLContext
+        let sslHandler: NIOSSLServerHandler
+
+        do {
+            sslContext = try NIOSSLContext(configuration: tls)
+            sslHandler = try NIOSSLServerHandler(context: sslContext)
+        } catch {
+            logger.error("Failed to configure TLS: \(error)")
+            return channel.close()
+        }
+
+        return channel.pipeline.addHandler(sslHandler)
+    }
+
+    private func addHandlers(to channel: Channel, streamID: HTTP2StreamID? = nil) -> EventLoopFuture<Void> {
+        if let streamID = streamID {
+            return channel.pipeline.configureHTTPServerPipeline().flatMap { [weak self] in
+                guard let server = self else { return channel.close() }
+                let handlers: [ChannelHandler] = [
+                    HTTP2ToHTTP1ServerCodec(streamID: streamID),
+                    HTTPHandler(server: server)
+                ]
+
+                return channel.pipeline.addHandlers(handlers)
+            }
+        }
+
+        return channel.pipeline.configureHTTPServerPipeline().flatMap { [weak self] in
+            guard let server = self else { return channel.close() }
+            var handlers: [ChannelHandler] = []
+
+            if server.configuration.supportsPipelining {
+                handlers.append(HTTPServerPipelineHandler())
+            }
+
+            handlers.append(HTTPHandler(server: server))
+
+            return channel.pipeline.addHandlers(handlers)
         }
     }
 }
