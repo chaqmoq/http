@@ -4,13 +4,22 @@ This is a part of Chaqmoq Web Framework in Swift language
 
 ## Installation
 
+### Package.swift
 ```swift
-dependencies: [
-    .package(url: "https://github.com/chaqmoq/http.git", .branch("master"))
-],
-targets: [
-    .target(name: "YourTarget", dependencies: ["HTTP"])
-]
+let package = Package(
+    name: "...",
+    products: [
+        # ...
+    ],
+    dependencies: [
+        # ...
+        .package(url: "https://github.com/chaqmoq/http.git", .branch("master"))
+    ],
+    targets: [
+        # ...
+        .target(name: "...", dependencies: ["HTTP"])
+    ]
+)
 ```
 
 ## Usage
