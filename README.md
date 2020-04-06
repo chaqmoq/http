@@ -4,7 +4,7 @@ This is a part of Chaqmoq Web Framework in Swift language
 
 ## Installation
 
-```bash
+```swift
 dependencies: [
     .package(url: "https://github.com/chaqmoq/http.git", .branch("master"))
 ],
