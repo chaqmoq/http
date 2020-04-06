@@ -59,6 +59,9 @@ extension Server.HTTPHandler {
             response = onReceive(request)
         }
 
+        // Server header
+        response.headers[.server] = server.configuration.serverName
+
         // Handle connection
         if request.version.major < 2 {
             if let connection = request.headers[.connection] {
