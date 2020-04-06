@@ -10,6 +10,7 @@ public class Server {
 
     public var onStart: (() -> Void)?
     public var onStop: (() -> Void)?
+    public var onError: ((Error) -> Void)?
     public var onReceive: RequestHandler?
 
     private var channel: Channel?
@@ -106,7 +107,9 @@ extension Server {
                     HTTPHandler(server: server)
                 ]
 
-                return channel.pipeline.addHandlers(handlers)
+                return channel.pipeline.addHandlers(handlers).flatMap {
+                    return channel.pipeline.addHandler(ErrorHandler(server: server))
+                }
             }
         }
 
@@ -120,7 +123,9 @@ extension Server {
 
             handlers.append(HTTPHandler(server: server))
 
-            return channel.pipeline.addHandlers(handlers)
+            return channel.pipeline.addHandlers(handlers).flatMap {
+                return channel.pipeline.addHandler(ErrorHandler(server: server))
+            }
         }
     }
 }
