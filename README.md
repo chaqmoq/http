@@ -25,6 +25,9 @@ server.onStart = {
 server.onStop = {
     print("Server has stopped")
 }
+server.onError = { error in
+    print("Error: \(error)")
+}
 server.onReceive = { request in
     return Response(body: .init(string: "Hello World"))
 }
