@@ -55,8 +55,8 @@ public class Server {
 
 extension Server {
     private func initializeChild(channel: Channel) -> EventLoopFuture<Void> {
-        if var tls = configuration.tls {
-            return configure(tls: &tls, for: channel).flatMap { _ in
+        if let tls = configuration.tls {
+            return configure(tls: tls, for: channel).flatMap { _ in
                 return channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
                     return channel.configureHTTP2Pipeline(
                         mode: .server,
@@ -75,20 +75,22 @@ extension Server {
         return addHandlers(to: channel)
     }
 
-    private func configure(tls: inout TLSConfiguration, for channel: Channel) -> EventLoopFuture<Void> {
+    private func configure(tls: TLS, for channel: Channel) -> EventLoopFuture<Void> {
+        var tlsConfiguration = tls.configuration
+
         if configuration.supportsVersions.contains(.two) {
-            tls.applicationProtocols.append("h2")
+            tlsConfiguration.applicationProtocols.append("h2")
         }
 
         if configuration.supportsVersions.contains(.one) {
-            tls.applicationProtocols.append("http/1.1")
+            tlsConfiguration.applicationProtocols.append("http/1.1")
         }
 
         let sslContext: NIOSSLContext
         let sslHandler: NIOSSLServerHandler
 
         do {
-            sslContext = try NIOSSLContext(configuration: tls)
+            sslContext = try NIOSSLContext(configuration: tlsConfiguration)
             sslHandler = try NIOSSLServerHandler(context: sslContext)
         } catch {
             logger.error("Failed to configure TLS: \(error)")

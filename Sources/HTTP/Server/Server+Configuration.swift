@@ -6,7 +6,7 @@ extension Server {
         public var host: String
         public var port: Int
         public var serverName: String? = nil
-        public var tls: TLSConfiguration? = nil
+        public var tls: TLS? = nil
         public var supportsVersions: Set<ProtocolVersion.Major>
         public var supportsPipelining: Bool
         public var numberOfThreads: Int
@@ -19,7 +19,7 @@ extension Server {
             host: String = "127.0.0.1",
             port: Int = 8080,
             serverName: String? = nil,
-            tls: TLSConfiguration? = nil,
+            tls: TLS? = nil,
             supportsVersions: Set<ProtocolVersion.Major> = [.one, .two],
             supportsPipelining: Bool = false,
             numberOfThreads: Int = System.coreCount,
@@ -29,7 +29,7 @@ extension Server {
             maxMessagesPerRead: UInt = 16
         ) {
             self.host = host
-            self.port = port
+            self.port = tls == nil ? port : 8443
             self.serverName = serverName
             self.tls = tls
             self.supportsVersions = supportsVersions
