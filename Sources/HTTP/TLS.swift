@@ -6,7 +6,11 @@ public struct TLS {
     public let encoding: Encoding
     let configuration: TLSConfiguration
 
-    public init(certificateFiles: [String], privateKeyFile: String, encoding: Encoding) throws {
+    public init?(certificateFiles: [String], privateKeyFile: String, encoding: Encoding) {
+        if certificateFiles.isEmpty || privateKeyFile.isEmpty {
+            return nil
+        }
+
         self.certificateFiles = certificateFiles
         self.privateKeyFile = privateKeyFile
         self.encoding = encoding
@@ -23,8 +27,11 @@ public struct TLS {
                 format = .der
             }
 
-            let certificate = try NIOSSLCertificate(file: certificateFile, format: format)
-            certificateChain.append(.certificate(certificate))
+            if let certificate = try? NIOSSLCertificate(file: certificateFile, format: format) {
+                certificateChain.append(.certificate(certificate))
+            } else {
+                return nil
+            }
         }
 
         configuration = TLSConfiguration.forServer(
