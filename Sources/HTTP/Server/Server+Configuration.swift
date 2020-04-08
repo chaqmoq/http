@@ -6,7 +6,7 @@ extension Server {
         public var host: String
         public var port: Int
         public var serverName: String? = nil
-        public var tls: TLS? = nil { didSet { port = tls == nil ? port : 8443 } }
+        public var tls: TLS? = nil { didSet { port = tls == nil ? 8080 : 8443 } }
         public var supportsVersions: Set<ProtocolVersion.Major>
         public var supportsPipelining: Bool
         public var numberOfThreads: Int
