@@ -6,6 +6,7 @@ final class RequestTests: XCTestCase {
         ("testDescription", testDescription),
         ("testInitWithDefaultValues", testInitWithDefaultValues),
         ("testInitWithCustomValues", testInitWithCustomValues),
+        ("testUpdateValues", testUpdateValues),
         ("testMethods", testMethods)
     ]
 
@@ -51,13 +52,37 @@ final class RequestTests: XCTestCase {
         let version: ProtocolVersion = .init(major: 2, minor: 0)
         let headers: ParameterBag<Header, String> = [.contentType: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
-        let request = Request(
-            method: .POST,
-            uri: "/posts",
-            version: version,
-            headers: headers,
-            body: body
-        )
+        let request = Request(method: method, uri: uri, version: version, headers: headers, body: body)
+
+        // Assert
+        XCTAssertEqual(request.method, method)
+        XCTAssertEqual(request.uri, uri)
+        XCTAssertEqual(request.version.major, version.major)
+        XCTAssertEqual(request.version.minor, version.minor)
+        XCTAssertEqual(request.headers, headers)
+        XCTAssertFalse(request.body.isEmpty)
+        XCTAssertNil(request.pathParameters)
+        XCTAssertNil(request.queryParameters)
+        XCTAssertEqual(request.bodyParameters?.count, 1)
+        XCTAssertEqual(request.bodyParameters?["title"] as? String, "New post")
+        XCTAssertNil(request.files)
+    }
+
+    func testUpdateValues() {
+        // Arrange
+        let method: Request.Method = .POST
+        let uri = "/posts"
+        let version: ProtocolVersion = .init(major: 2, minor: 0)
+        let headers: ParameterBag<Header, String> = [.contentType: "application/json"]
+        let body: Body = .init(string: "{\"title\": \"New post\"}")
+        var request = Request()
+
+        // Act
+        request.method = method
+        request.uri = uri
+        request.version = version
+        request.headers = headers
+        request.body = body
 
         // Assert
         XCTAssertEqual(request.method, method)
