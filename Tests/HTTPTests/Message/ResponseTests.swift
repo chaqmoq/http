@@ -6,6 +6,7 @@ final class ResponseTests: XCTestCase {
         ("testDescription", testDescription),
         ("testInitWithDefaultValues", testInitWithDefaultValues),
         ("testInitWithCustomValues", testInitWithCustomValues),
+        ("testUpdateValues", testUpdateValues),
         ("testStatuses", testStatuses)
     ]
 
@@ -45,6 +46,28 @@ final class ResponseTests: XCTestCase {
         let headers: ParameterBag<Header, String> = [.contentType: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         let response = Response(version: version, status: status, headers: headers, body: body)
+
+        // Assert
+        XCTAssertEqual(response.version.major, version.major)
+        XCTAssertEqual(response.version.minor, version.minor)
+        XCTAssertEqual(response.status, status)
+        XCTAssertEqual(response.headers, headers)
+        XCTAssertFalse(response.body.isEmpty)
+    }
+
+    func testUpdateValues() {
+        // Arrange
+        let status: Response.Status = .created
+        let version: ProtocolVersion = .init(major: 2, minor: 0)
+        let headers: ParameterBag<Header, String> = [.contentType: "application/json"]
+        let body: Body = .init(string: "{\"title\": \"New post\"}")
+        var response = Response()
+
+        // Act
+        response.version = version
+        response.status = status
+        response.headers = headers
+        response.body = body
 
         // Assert
         XCTAssertEqual(response.version.major, version.major)
