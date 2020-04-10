@@ -22,7 +22,5 @@ extension ProtocolVersion: Equatable {
 }
 
 extension ProtocolVersion: CustomStringConvertible {
-    public var description: String {
-        return "HTTP/\(major).\(minor)"
-    }
+    public var description: String { "HTTP/\(major).\(minor)" }
 }

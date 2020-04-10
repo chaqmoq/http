@@ -36,7 +36,5 @@ extension Body {
 }
 
 extension Body: CustomStringConvertible {
-    public var description: String {
-        return string
-    }
+    public var description: String { string }
 }
