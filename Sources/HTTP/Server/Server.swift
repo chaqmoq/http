@@ -37,9 +37,7 @@ public class Server {
         }
         let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
         self.channel = channel
-        let scheme = configuration.tls == nil ? "http" : "https"
-        let address = "\(scheme)://\(configuration.host):\(configuration.port)"
-        logger.info("Server has started on: \(address)")
+        logger.info("Server has started on: \(configuration.socketAddress)")
         onStart?()
         try channel.closeFuture.wait()
     }

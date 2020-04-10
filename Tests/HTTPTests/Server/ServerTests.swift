@@ -12,6 +12,8 @@ final class ServerTests: XCTestCase {
         let configuration = Server.Configuration()
 
         // Assert
+        XCTAssertEqual(configuration.scheme, "http")
+        XCTAssertEqual(configuration.socketAddress, "http://127.0.0.1:8080")
         XCTAssertEqual(configuration.host, "127.0.0.1")
         XCTAssertEqual(configuration.port, 8080)
         XCTAssertNil(configuration.serverName)

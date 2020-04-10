@@ -3,6 +3,8 @@ import NIOSSL
 
 extension Server {
     public struct Configuration {
+        public var scheme: String { tls == nil ? "http" : "https" }
+        public var socketAddress: String { "\(scheme)://\(host):\(port)" }
         public var host: String
         public var port: Int
         public var serverName: String? = nil
