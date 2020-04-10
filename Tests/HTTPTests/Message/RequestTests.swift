@@ -19,7 +19,7 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.uri, "/")
         XCTAssertEqual(request.version.major, 1)
         XCTAssertEqual(request.version.minor, 1)
-        XCTAssertEqual(request.headers, [.contentLength: String(request.body.bytes.count)])
+        XCTAssertEqual(request.headers, [.contentLength: String(request.body.count)])
         XCTAssertTrue(request.body.isEmpty)
         XCTAssertNil(request.pathParameters)
         XCTAssertNil(request.queryParameters)
@@ -42,7 +42,7 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.version.major, version.major)
         XCTAssertEqual(request.version.minor, version.minor)
         XCTAssertEqual(request.headers, [
-            .contentLength: String(request.body.bytes.count),
+            .contentLength: String(request.body.count),
             .contentType: "application/json"]
         )
         XCTAssertFalse(request.body.isEmpty)
@@ -74,7 +74,7 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.uri, uri)
         XCTAssertEqual(request.version, version)
         XCTAssertEqual(request.headers, [
-            .contentLength: String(request.body.bytes.count),
+            .contentLength: String(request.body.count),
             .contentType: "application/json"]
         )
         XCTAssertFalse(request.body.isEmpty)

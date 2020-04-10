@@ -95,7 +95,7 @@ extension Server.HTTPHandler {
             _ = context.channel.writeAndFlush(responseEndPart).map { context.channel.close() }
         } else {
             // Flush body
-            var buffer = context.channel.allocator.buffer(capacity: response.body.bytes.count)
+            var buffer = context.channel.allocator.buffer(capacity: response.body.count)
             buffer.writeBytes(response.body.bytes)
 
             let responseBodyPart = HTTPServerResponsePart.body(.byteBuffer(buffer))

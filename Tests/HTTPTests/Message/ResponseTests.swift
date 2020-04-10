@@ -18,7 +18,7 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.version.major, 1)
         XCTAssertEqual(response.version.minor, 1)
         XCTAssertEqual(response.status, .ok)
-        XCTAssertEqual(response.headers, [.contentLength: String(response.body.bytes.count)])
+        XCTAssertEqual(response.headers, [.contentLength: String(response.body.count)])
         XCTAssertTrue(response.body.isEmpty)
     }
 
@@ -34,7 +34,7 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.version, version)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers, [
-            .contentLength: String(response.body.bytes.count),
+            .contentLength: String(response.body.count),
             .contentType: "application/json"]
         )
         XCTAssertFalse(response.body.isEmpty)
@@ -59,7 +59,7 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.version.minor, version.minor)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers, [
-            .contentLength: String(response.body.bytes.count),
+            .contentLength: String(response.body.count),
             .contentType: "application/json"]
         )
         XCTAssertFalse(response.body.isEmpty)
