@@ -3,32 +3,14 @@ import XCTest
 
 final class RequestTests: XCTestCase {
     static var allTests = [
-        ("testDescription", testDescription),
-        ("testInitWithDefaultValues", testInitWithDefaultValues),
-        ("testInitWithCustomValues", testInitWithCustomValues),
-        ("testUpdateValues", testUpdateValues),
-        ("testMethods", testMethods)
+        ("testDefaultInit", testDefaultInit),
+        ("testCustomInit", testCustomInit),
+        ("testUpdate", testUpdate),
+        ("testMethods", testMethods),
+        ("testDescription", testDescription)
     ]
 
-    func testDescription() {
-        // Arrange
-        let request = Request()
-        var string = ""
-
-        for (header, value) in request.headers {
-            string.append("\(header.rawValue): \(value)\n")
-        }
-
-        string.append("\n\(request.body)")
-        string = """
-        \(request.method) \(request.uri) HTTP/\(request.version.major).\(request.version.minor)\n\(string)
-        """
-
-        // Assert
-        XCTAssertEqual("\(request)", string)
-    }
-
-    func testInitWithDefaultValues() {
+    func testDefaultInit() {
         // Arrange
         let request = Request()
 
@@ -45,7 +27,7 @@ final class RequestTests: XCTestCase {
         XCTAssertNil(request.files)
     }
 
-    func testInitWithCustomValues() {
+    func testCustomInit() {
         // Arrange
         let method: Request.Method = .POST
         let uri = "/posts"
@@ -68,7 +50,7 @@ final class RequestTests: XCTestCase {
         XCTAssertNil(request.files)
     }
 
-    func testUpdateValues() {
+    func testUpdate() {
         // Arrange
         let method: Request.Method = .POST
         let uri = "/posts"
@@ -120,5 +102,23 @@ final class RequestTests: XCTestCase {
                 XCTAssertEqual(rawValue, "PUT")
             }
         }
+    }
+
+    func testDescription() {
+        // Arrange
+        let request = Request()
+        var string = ""
+
+        for (header, value) in request.headers {
+            string.append("\(header.rawValue): \(value)\n")
+        }
+
+        string.append("\n\(request.body)")
+        string = """
+        \(request.method) \(request.uri) HTTP/\(request.version.major).\(request.version.minor)\n\(string)
+        """
+
+        // Assert
+        XCTAssertEqual("\(request)", string)
     }
 }

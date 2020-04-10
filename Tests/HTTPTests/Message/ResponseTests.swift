@@ -3,31 +3,14 @@ import XCTest
 
 final class ResponseTests: XCTestCase {
     static var allTests = [
-        ("testDescription", testDescription),
-        ("testInitWithDefaultValues", testInitWithDefaultValues),
-        ("testInitWithCustomValues", testInitWithCustomValues),
-        ("testUpdateValues", testUpdateValues),
-        ("testStatuses", testStatuses)
+        ("testDefaultInit", testDefaultInit),
+        ("testCustomInit", testCustomInit),
+        ("testUpdate", testUpdate),
+        ("testStatuses", testStatuses),
+        ("testDescription", testDescription)
     ]
 
-    func testDescription() {
-        // Arrange
-        let response = Response()
-        var string = ""
-
-        for (header, value) in response.headers {
-            string.append("\(header.rawValue): \(value)\n")
-        }
-
-        string.append("\n\(response.body)")
-        string = "HTTP/\(response.version.major).\(response.version.minor) \(response.status)\n\(string)"
-
-        // Assert
-        XCTAssertEqual("\(response)", string)
-        XCTAssertEqual("\(response.status)", "200 OK")
-    }
-
-    func testInitWithDefaultValues() {
+    func testDefaultInit() {
         // Arrange
         let response = Response()
 
@@ -39,7 +22,7 @@ final class ResponseTests: XCTestCase {
         XCTAssertTrue(response.body.isEmpty)
     }
 
-    func testInitWithCustomValues() {
+    func testCustomInit() {
         // Arrange
         let status: Response.Status = .created
         let version: ProtocolVersion = .init(major: 2, minor: 0)
@@ -55,7 +38,7 @@ final class ResponseTests: XCTestCase {
         XCTAssertFalse(response.body.isEmpty)
     }
 
-    func testUpdateValues() {
+    func testUpdate() {
         // Arrange
         let status: Response.Status = .created
         let version: ProtocolVersion = .init(major: 2, minor: 0)
@@ -216,5 +199,22 @@ final class ResponseTests: XCTestCase {
                 XCTAssertEqual(reason, "Network Connect Timeout")
             }
         }
+    }
+
+    func testDescription() {
+        // Arrange
+        let response = Response()
+        var string = ""
+
+        for (header, value) in response.headers {
+            string.append("\(header.rawValue): \(value)\n")
+        }
+
+        string.append("\n\(response.body)")
+        string = "HTTP/\(response.version.major).\(response.version.minor) \(response.status)\n\(string)"
+
+        // Assert
+        XCTAssertEqual("\(response)", string)
+        XCTAssertEqual("\(response.status)", "200 OK")
     }
 }

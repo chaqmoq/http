@@ -3,12 +3,12 @@ import XCTest
 
 final class ProtocolVersionTests: XCTestCase {
     static var allTests = [
-        ("testInitWithDefaultValues", testInitWithDefaultValues),
-        ("testInitWithCustomValues", testInitWithCustomValues),
-        ("testUpdateValues", testUpdateValues)
+        ("testDefaultInit", testDefaultInit),
+        ("testCustomInit", testCustomInit),
+        ("testUpdate", testUpdate)
     ]
 
-    func testInitWithDefaultValues() {
+    func testDefaultInit() {
         // Arrange
         let version = ProtocolVersion()
 
@@ -17,7 +17,7 @@ final class ProtocolVersionTests: XCTestCase {
         XCTAssertEqual(version.minor, 1)
     }
 
-    func testInitWithCustomValues() {
+    func testCustomInit() {
         // Arrange
         let version = ProtocolVersion(major: 2, minor: 0)
 
@@ -26,7 +26,7 @@ final class ProtocolVersionTests: XCTestCase {
         XCTAssertEqual(version.minor, 0)
     }
 
-    func testUpdateValues() {
+    func testUpdate() {
         // Arrange
         var version = ProtocolVersion(major: 1, minor: 1)
 

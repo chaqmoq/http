@@ -3,7 +3,6 @@ import XCTest
 
 final class BodyTests: XCTestCase {
     static var allTests = [
-        ("testDescription", testDescription),
         ("testInitWithEmptyBytes", testInitWithEmptyBytes),
         ("testInitWithBytes", testInitWithBytes),
         ("testInitWithEmptyData", testInitWithEmptyData),
@@ -12,17 +11,9 @@ final class BodyTests: XCTestCase {
         ("testInitWithString", testInitWithString),
         ("testAppendBytes", testAppendBytes),
         ("testAppendData", testAppendData),
-        ("testAppendString", testAppendString)
+        ("testAppendString", testAppendString),
+        ("testDescription", testDescription)
     ]
-
-    func testDescription() {
-        // Arrange
-        let string = "Hello World"
-        let body = Body(string: string)
-
-        // Assert
-        XCTAssertEqual("\(body)", string)
-    }
 
     func testInitWithEmptyBytes() {
         // Arrange
@@ -142,5 +133,14 @@ final class BodyTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(body.string, "\(string1)\(string2)")
+    }
+
+    func testDescription() {
+        // Arrange
+        let string = "Hello World"
+        let body = Body(string: string)
+
+        // Assert
+        XCTAssertEqual("\(body)", string)
     }
 }
