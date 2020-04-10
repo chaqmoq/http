@@ -17,7 +17,7 @@ public class Server {
 
     public init(configuration: Configuration = .init()) {
         self.configuration = configuration
-        logger = Logger(label: "dev.chaqmoq.http")
+        logger = Logger(label: configuration.identifier)
     }
 
     public func start() throws {
@@ -60,7 +60,7 @@ extension Server {
                         mode: .server,
                         inboundStreamStateInitializer: { [weak self] (channel, streamID) in
                             guard let server = self else { return channel.close() }
-                            return server.addHandlers(to: channel, streamID: streamID)
+                            return server.addHandlers(to: channel, with: streamID)
                         }
                     ).map { _ in }
                 }, http1ChannelConfigurator: { [weak self] channel in
@@ -98,7 +98,7 @@ extension Server {
         return channel.pipeline.addHandler(sslHandler)
     }
 
-    private func addHandlers(to channel: Channel, streamID: HTTP2StreamID? = nil) -> EventLoopFuture<Void> {
+    private func addHandlers(to channel: Channel, with streamID: HTTP2StreamID? = nil) -> EventLoopFuture<Void> {
         if let streamID = streamID {
             return channel.pipeline.configureHTTPServerPipeline().flatMap { [weak self] in
                 guard let server = self else { return channel.close() }
