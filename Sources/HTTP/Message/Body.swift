@@ -24,6 +24,14 @@ extension Body {
     public mutating func append(bytes: [UInt8]) {
         content.append(contentsOf: bytes)
     }
+
+    public mutating func append(data: Data) {
+        content.append(contentsOf: [UInt8](data))
+    }
+
+    public mutating func append(string: String) {
+        content.append(contentsOf: [UInt8](string.utf8))
+    }
 }
 
 extension Body: CustomStringConvertible {

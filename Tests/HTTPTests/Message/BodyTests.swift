@@ -10,7 +10,9 @@ final class BodyTests: XCTestCase {
         ("testInitWithData", testInitWithData),
         ("testInitWithEmptyString", testInitWithEmptyString),
         ("testInitWithString", testInitWithString),
-        ("testAppend", testAppend)
+        ("testAppendBytes", testAppendBytes),
+        ("testAppendData", testAppendData),
+        ("testAppendString", testAppendString)
     ]
 
     func testDescription() {
@@ -103,7 +105,7 @@ final class BodyTests: XCTestCase {
         XCTAssertEqual(body.bytes, bytes)
     }
 
-    func testAppend() {
+    func testAppendBytes() {
         // Arrange
         let string1 = "Hello"
         let string2 = " World"
@@ -111,6 +113,32 @@ final class BodyTests: XCTestCase {
 
         // Act
         body.append(bytes: [UInt8](string2.data(using: .utf8)!))
+
+        // Assert
+        XCTAssertEqual(body.string, "\(string1)\(string2)")
+    }
+
+    func testAppendData() {
+        // Arrange
+        let string1 = "Hello"
+        let string2 = " World"
+        var body = Body(string: string1)
+
+        // Act
+        body.append(data: string2.data(using: .utf8)!)
+
+        // Assert
+        XCTAssertEqual(body.string, "\(string1)\(string2)")
+    }
+
+    func testAppendString() {
+        // Arrange
+        let string1 = "Hello"
+        let string2 = " World"
+        var body = Body(string: string1)
+
+        // Act
+        body.append(string: string2)
 
         // Assert
         XCTAssertEqual(body.string, "\(string1)\(string2)")
