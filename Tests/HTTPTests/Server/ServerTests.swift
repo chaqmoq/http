@@ -4,10 +4,54 @@ import XCTest
 
 final class ServerTests: XCTestCase {
     static var allTests = [
+        ("testInit", testInit),
+        ("testUpdate", testUpdate),
         ("testDefaultConfiguration", testDefaultConfiguration),
         ("testCustomConfiguration", testCustomConfiguration),
         ("testUpdateConfiguration", testUpdateConfiguration)
     ]
+
+    func testInit() {
+        // Arrange
+        let server = Server()
+
+        // Assert
+        XCTAssertNotNil(server.configuration)
+        XCTAssertNotNil(server.logger)
+        XCTAssertEqual(server.logger.label, server.configuration.identifier)
+        XCTAssertNil(server.onStart)
+        XCTAssertNil(server.onStop)
+        XCTAssertNil(server.onError)
+        XCTAssertNil(server.onReceive)
+    }
+
+    func testUpdate() {
+        // Arrange
+        let server = Server()
+
+        // Act
+        server.onStart = {
+            print("Server has started")
+        }
+        server.onStop = {
+            print("Server has stopped")
+        }
+        server.onError = { error in
+            print("Error: \(error)")
+        }
+        server.onReceive = { request in
+            return Response(body: .init(string: "Hello World"))
+        }
+
+        // Assert
+        XCTAssertNotNil(server.configuration)
+        XCTAssertNotNil(server.logger)
+        XCTAssertEqual(server.logger.label, server.configuration.identifier)
+        XCTAssertNotNil(server.onStart)
+        XCTAssertNotNil(server.onStop)
+        XCTAssertNotNil(server.onError)
+        XCTAssertNotNil(server.onReceive)
+    }
 
     func testDefaultConfiguration() {
         // Arrange
