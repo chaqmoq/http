@@ -8,6 +8,6 @@ extension Request {
 
         description.append("\n\(body)")
 
-        return "\(method) \(uri) HTTP/\(version.major).\(version.minor)\n\(description)"
+        return "\(method) \(uri) \(version)\n\(description)"
     }
 }

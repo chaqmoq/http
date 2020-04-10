@@ -8,6 +8,6 @@ extension Response {
 
         description.append("\n\(body)")
 
-        return "HTTP/\(version.major).\(version.minor) \(status)\n\(description)"
+        return "\(version) \(status)\n\(description)"
     }
 }

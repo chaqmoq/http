@@ -14,3 +14,15 @@ extension ProtocolVersion {
         case two
     }
 }
+
+extension ProtocolVersion: Equatable {
+    public static func == (lhs: ProtocolVersion, rhs: ProtocolVersion) -> Bool {
+        return lhs.major == rhs.major && lhs.minor == rhs.minor
+    }
+}
+
+extension ProtocolVersion: CustomStringConvertible {
+    public var description: String {
+        return "HTTP/\(major).\(minor)"
+    }
+}

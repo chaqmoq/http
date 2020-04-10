@@ -31,8 +31,7 @@ final class ResponseTests: XCTestCase {
         let response = Response(version: version, status: status, headers: headers, body: body)
 
         // Assert
-        XCTAssertEqual(response.version.major, version.major)
-        XCTAssertEqual(response.version.minor, version.minor)
+        XCTAssertEqual(response.version, version)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers, headers)
         XCTAssertFalse(response.body.isEmpty)
@@ -211,7 +210,7 @@ final class ResponseTests: XCTestCase {
         }
 
         string.append("\n\(response.body)")
-        string = "HTTP/\(response.version.major).\(response.version.minor) \(response.status)\n\(string)"
+        string = "\(response.version) \(response.status)\n\(string)"
 
         // Assert
         XCTAssertEqual("\(response)", string)

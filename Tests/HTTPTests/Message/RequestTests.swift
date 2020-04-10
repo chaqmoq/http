@@ -69,8 +69,7 @@ final class RequestTests: XCTestCase {
         // Assert
         XCTAssertEqual(request.method, method)
         XCTAssertEqual(request.uri, uri)
-        XCTAssertEqual(request.version.major, version.major)
-        XCTAssertEqual(request.version.minor, version.minor)
+        XCTAssertEqual(request.version, version)
         XCTAssertEqual(request.headers, headers)
         XCTAssertFalse(request.body.isEmpty)
         XCTAssertNil(request.pathParameters)
@@ -115,7 +114,7 @@ final class RequestTests: XCTestCase {
 
         string.append("\n\(request.body)")
         string = """
-        \(request.method) \(request.uri) HTTP/\(request.version.major).\(request.version.minor)\n\(string)
+        \(request.method) \(request.uri) \(request.version)\n\(string)
         """
 
         // Assert
