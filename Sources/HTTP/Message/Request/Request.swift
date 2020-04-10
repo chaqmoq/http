@@ -5,7 +5,7 @@ public struct Request: Message {
     public var uri: String { didSet { parseQuery() }}
     public var version: ProtocolVersion
     public var headers: ParameterBag<Header, String>
-    public var body: Body { didSet { parseBody() }}
+    public var body: Body { didSet { setContentLengthHeader(); parseBody() }}
     public var pathParameters: ParameterBag<String, Any>?
     public var queryParameters: ParameterBag<String, Any>?
     public var bodyParameters: ParameterBag<String, Any>?
@@ -24,6 +24,7 @@ public struct Request: Message {
         self.headers = headers
         self.body = body
 
+        setContentLengthHeader()
         parseQuery()
         parseBody()
     }

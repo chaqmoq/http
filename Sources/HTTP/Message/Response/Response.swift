@@ -2,7 +2,7 @@ public struct Response: Message {
     public var version: ProtocolVersion
     public var status: Status
     public var headers: ParameterBag<Header, String>
-    public var body: Body
+    public var body: Body { didSet { setContentLengthHeader() } }
 
     public init(
         version: ProtocolVersion = .init(),
@@ -14,5 +14,7 @@ public struct Response: Message {
         self.status = status
         self.headers = headers
         self.body = body
+
+        setContentLengthHeader()
     }
 }
