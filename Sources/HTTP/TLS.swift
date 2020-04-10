@@ -42,8 +42,16 @@ public struct TLS {
 }
 
 extension TLS {
-    public enum Encoding {
+    public enum Encoding: String {
         case pem
         case der
+    }
+}
+
+extension TLS: Equatable {
+    public static func == (lhs: TLS, rhs: TLS) -> Bool {
+        return lhs.certificateFiles == rhs.certificateFiles &&
+            lhs.privateKeyFile == rhs.privateKeyFile &&
+            lhs.encoding == rhs.encoding
     }
 }
