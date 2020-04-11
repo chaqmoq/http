@@ -2,14 +2,6 @@ import XCTest
 @testable import HTTP
 
 final class ResponseTests: XCTestCase {
-    static var allTests = [
-        ("testDefaultInit", testDefaultInit),
-        ("testCustomInit", testCustomInit),
-        ("testUpdate", testUpdate),
-        ("testStatuses", testStatuses),
-        ("testDescription", testDescription)
-    ]
-
     func testDefaultInit() {
         // Arrange
         let response = Response()

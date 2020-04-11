@@ -2,12 +2,6 @@ import XCTest
 @testable import HTTP
 
 final class ProtocolVersionTests: XCTestCase {
-    static var allTests = [
-        ("testDefaultInit", testDefaultInit),
-        ("testCustomInit", testCustomInit),
-        ("testUpdate", testUpdate)
-    ]
-
     func testDefaultInit() {
         // Arrange
         let version = ProtocolVersion()

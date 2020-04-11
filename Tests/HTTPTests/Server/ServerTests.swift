@@ -3,14 +3,6 @@ import XCTest
 @testable import HTTP
 
 final class ServerTests: XCTestCase {
-    static var allTests = [
-        ("testInit", testInit),
-        ("testUpdate", testUpdate),
-        ("testDefaultConfiguration", testDefaultConfiguration),
-        ("testCustomConfiguration", testCustomConfiguration),
-        ("testUpdateConfiguration", testUpdateConfiguration)
-    ]
-
     func testInit() {
         // Arrange
         let server = Server()

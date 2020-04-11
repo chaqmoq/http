@@ -12,7 +12,7 @@ jobs:
     - name: Build
       run: swift build -v
     - name: Run tests
-      run: swift test -v
+      run: swift test --enable-test-discovery --sanitize=thread
   ubuntu_bionic:
     container: 
       image: swift:5.1-bionic
@@ -22,7 +22,7 @@ jobs:
     - name: Build
       run: swift build -v
     - name: Run tests
-      run: swift test -v
+      run: swift test --enable-test-discovery --sanitize=thread
   ubuntu_xenial:
     container: 
       image: swift:5.1-xenial
@@ -32,4 +32,4 @@ jobs:
     - name: Build
       run: swift build -v
     - name: Run tests
-      run: swift test -v
+      run: swift test --enable-test-discovery --sanitize=thread

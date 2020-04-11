@@ -2,19 +2,6 @@ import XCTest
 @testable import HTTP
 
 final class BodyTests: XCTestCase {
-    static var allTests = [
-        ("testInitWithEmptyBytes", testInitWithEmptyBytes),
-        ("testInitWithBytes", testInitWithBytes),
-        ("testInitWithEmptyData", testInitWithEmptyData),
-        ("testInitWithData", testInitWithData),
-        ("testInitWithEmptyString", testInitWithEmptyString),
-        ("testInitWithString", testInitWithString),
-        ("testAppendBytes", testAppendBytes),
-        ("testAppendData", testAppendData),
-        ("testAppendString", testAppendString),
-        ("testDescription", testDescription)
-    ]
-
     func testInitWithEmptyBytes() {
         // Arrange
         let body = Body()
