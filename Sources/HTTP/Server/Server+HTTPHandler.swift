@@ -39,7 +39,7 @@ extension Server.HTTPHandler {
 
         for header in header.headers {
             if let name = Header(rawValue: header.name) {
-                response.headers[name] = header.value
+                request.headers[name] = header.value
             }
         }
     }
