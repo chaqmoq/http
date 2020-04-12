@@ -104,7 +104,9 @@ extension Server {
                 guard let server = self else { return channel.close() }
                 let handlers: [ChannelHandler] = [
                     HTTP2ToHTTP1ServerCodec(streamID: streamID),
-                    HTTPHandler(server: server)
+                    RequestDecoder(server: server),
+                    ResponseEncoder(server: server),
+                    RequestResponseHandler(server: server)
                 ]
 
                 return channel.pipeline.addHandlers(handlers).flatMap {
@@ -121,7 +123,12 @@ extension Server {
                 handlers.append(HTTPServerPipelineHandler())
             }
 
-            handlers.append(HTTPHandler(server: server))
+            let otherHandlers: [ChannelHandler] = [
+                RequestDecoder(server: server),
+                ResponseEncoder(server: server),
+                RequestResponseHandler(server: server)
+            ]
+            handlers.append(contentsOf: otherHandlers)
 
             return channel.pipeline.addHandlers(handlers).flatMap {
                 return channel.pipeline.addHandler(ErrorHandler(server: server))
