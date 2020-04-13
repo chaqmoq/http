@@ -2,6 +2,7 @@ import Logging
 import NIO
 import NIOHTTP1
 import NIOHTTP2
+import NIOHTTPCompression
 import NIOSSL
 
 public class Server {
@@ -121,6 +122,27 @@ extension Server {
 
             if server.configuration.supportsPipelining {
                 handlers.append(HTTPServerPipelineHandler())
+            }
+
+            if server.configuration.responseCompression.isEnabled {
+                let initialByteBufferCapacity = server.configuration.responseCompression.initialByteBufferCapacity
+                handlers.append(HTTPResponseCompressor(initialByteBufferCapacity: initialByteBufferCapacity))
+            }
+
+            if server.configuration.requestDecompression.isEnabled {
+                let limit = server.configuration.requestDecompression.limit
+                let decompressionLimit: NIOHTTPDecompression.DecompressionLimit
+
+                switch limit {
+                case .none:
+                    decompressionLimit = .none
+                case .size(let size):
+                    decompressionLimit = .size(size)
+                case .ratio(let ratio):
+                    decompressionLimit = .ratio(ratio)
+                }
+
+                handlers.append(NIOHTTPRequestDecompressor(limit: decompressionLimit))
             }
 
             let otherHandlers: [ChannelHandler] = [

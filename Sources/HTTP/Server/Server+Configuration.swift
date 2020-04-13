@@ -17,6 +17,8 @@ extension Server {
         public var reuseAddress: Bool
         public var tcpNoDelay: Bool
         public var maxMessagesPerRead: UInt
+        public var requestDecompression: Decompression
+        public var responseCompression: Compression
 
         public init(
             identifier: String = "dev.chaqmoq.http",
@@ -30,7 +32,9 @@ extension Server {
             backlog: Int32 = 256,
             reuseAddress: Bool = true,
             tcpNoDelay: Bool = true,
-            maxMessagesPerRead: UInt = 16
+            maxMessagesPerRead: UInt = 16,
+            requestDecompression: Decompression = .init(),
+            responseCompression: Compression = .init()
         ) {
             self.identifier = identifier
             self.host = host
@@ -44,6 +48,38 @@ extension Server {
             self.reuseAddress = reuseAddress
             self.tcpNoDelay = tcpNoDelay
             self.maxMessagesPerRead = maxMessagesPerRead
+            self.requestDecompression = requestDecompression
+            self.responseCompression = responseCompression
+        }
+    }
+}
+
+extension Server.Configuration {
+    public struct Compression {
+        public var initialByteBufferCapacity: Int
+        public var isEnabled: Bool
+
+        public init(initialByteBufferCapacity: Int = 1024, isEnabled: Bool = true) {
+            self.initialByteBufferCapacity = initialByteBufferCapacity
+            self.isEnabled = isEnabled
+        }
+    }
+}
+
+extension Server.Configuration {
+    public struct Decompression {
+        public enum Limit {
+            case none
+            case size(Int)
+            case ratio(Int)
+        }
+
+        public var limit: Limit
+        public var isEnabled: Bool
+
+        public init(limit: Limit = .ratio(10), isEnabled: Bool = true) {
+            self.limit = limit
+            self.isEnabled = isEnabled
         }
     }
 }
