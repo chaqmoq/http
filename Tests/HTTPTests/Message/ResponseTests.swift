@@ -10,7 +10,7 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.version.major, 1)
         XCTAssertEqual(response.version.minor, 1)
         XCTAssertEqual(response.status, .ok)
-        XCTAssertEqual(response.headers, [.contentLength: String(response.body.count)])
+        XCTAssertEqual(response.headers, [Header.contentLength.rawValue: String(response.body.count)])
         XCTAssertTrue(response.body.isEmpty)
     }
 
@@ -18,7 +18,7 @@ final class ResponseTests: XCTestCase {
         // Arrange
         let status: Response.Status = .created
         let version: ProtocolVersion = .init(major: 2, minor: 0)
-        let headers: ParameterBag<Header, String> = [.contentType: "application/json"]
+        let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         let response = Response(version: version, status: status, headers: headers, body: body)
 
@@ -26,9 +26,9 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.version, version)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers, [
-            .contentLength: String(response.body.count),
-            .contentType: "application/json"]
-        )
+            Header.contentLength.rawValue: String(response.body.count),
+            Header.contentType.rawValue: "application/json"
+        ])
         XCTAssertFalse(response.body.isEmpty)
     }
 
@@ -36,7 +36,7 @@ final class ResponseTests: XCTestCase {
         // Arrange
         let status: Response.Status = .created
         let version: ProtocolVersion = .init(major: 2, minor: 0)
-        let headers: ParameterBag<Header, String> = [.contentType: "application/json"]
+        let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         var response = Response()
 
@@ -51,9 +51,9 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.version.minor, version.minor)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers, [
-            .contentLength: String(response.body.count),
-            .contentType: "application/json"]
-        )
+            Header.contentLength.rawValue: String(response.body.count),
+            Header.contentType.rawValue: "application/json"
+        ])
         XCTAssertFalse(response.body.isEmpty)
     }
 
@@ -203,8 +203,8 @@ final class ResponseTests: XCTestCase {
         let response = Response()
         var string = ""
 
-        for (header, value) in response.headers {
-            string.append("\(header.rawValue): \(value)\n")
+        for (name, value) in response.headers {
+            string.append("\(name): \(value)\n")
         }
 
         string.append("\n\(response.body)")

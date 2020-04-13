@@ -21,18 +21,18 @@ final class RequestResponseHandler: ChannelInboundHandler {
             response = onReceive(request)
         }
 
-        if response.headers[.server] == nil {
-            response.headers[.server] = server.configuration.serverName
+        if response.headers[Header.server.rawValue] == nil {
+            response.headers[Header.server.rawValue] = server.configuration.serverName
         }
 
         if request.version.major < ProtocolVersion.Major.two.rawValue {
-            if let connection = request.headers[.connection] {
-                response.headers[.connection] = connection
+            if let connection = request.headers[Header.connection.rawValue] {
+                response.headers[Header.connection.rawValue] = connection
             } else {
                 if request.version.major == ProtocolVersion.Major.one.rawValue && request.version.minor >= 1 {
-                    response.headers[.connection] = "keep-alive"
+                    response.headers[Header.connection.rawValue] = "keep-alive"
                 } else {
-                    response.headers[.connection] = "close"
+                    response.headers[Header.connection.rawValue] = "close"
                 }
             }
         }
@@ -46,7 +46,7 @@ final class RequestResponseHandler: ChannelInboundHandler {
         } else {
             let future = context.write(wrapOutboundOut(response))
 
-            if response.headers[.connection] == "close" {
+            if response.headers[Header.connection.rawValue] == "close" {
                 future.whenComplete { _ in
                     context.close(mode: .output, promise: nil)
                 }

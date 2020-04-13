@@ -1,11 +1,11 @@
 public protocol Message: CustomStringConvertible {
     var version: ProtocolVersion { get set }
-    var headers: ParameterBag<Header, String> { get set }
+    var headers: ParameterBag<String, String> { get set }
     var body: Body { get set }
 }
 
 extension Message {
     mutating func setContentLengthHeader() {
-        headers[.contentLength] = String(body.count)
+        headers[Header.contentLength.rawValue] = String(body.count)
     }
 }

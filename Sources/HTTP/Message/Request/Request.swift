@@ -4,7 +4,7 @@ public struct Request: Message {
     public var method: Method
     public var uri: String { didSet { parseQuery() }}
     public var version: ProtocolVersion
-    public var headers: ParameterBag<Header, String>
+    public var headers: ParameterBag<String, String>
     public var body: Body { didSet { setContentLengthHeader(); parseBody() }}
     public var pathParameters: ParameterBag<String, Any>?
     public var queryParameters: ParameterBag<String, Any>?
@@ -15,7 +15,7 @@ public struct Request: Message {
         method: Method = .GET,
         uri: String = "/",
         version: ProtocolVersion = .init(),
-        headers: ParameterBag<Header, String> = .init(),
+        headers: ParameterBag<String, String> = .init(),
         body: Body = .init()
     ) {
         self.method = method

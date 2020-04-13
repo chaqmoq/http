@@ -30,9 +30,7 @@ final class RequestDecoder: ChannelInboundHandler {
                 }
 
                 for header in head.headers {
-                    if let name = Header(rawValue: header.name) {
-                        request.headers[name] = header.value
-                    }
+                    request.headers[header.name] = header.value
                 }
 
                 state = .decoding(request)

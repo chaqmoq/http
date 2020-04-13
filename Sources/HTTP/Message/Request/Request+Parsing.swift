@@ -14,7 +14,7 @@ extension Request {
     }
 
     mutating func parseBody() {
-        guard let contentType = headers[.contentType] else { return }
+        guard let contentType = headers[Header.contentType.rawValue] else { return }
 
         if contentType.hasPrefix("application/x-www-form-urlencoded") {
             bodyParameters = parseURLEncodedBody()

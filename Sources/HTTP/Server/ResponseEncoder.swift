@@ -18,7 +18,7 @@ final class ResponseEncoder: ChannelOutboundHandler {
         var headers = HTTPHeaders()
 
         for (name, value) in response.headers {
-            headers.add(name: name.rawValue, value: value)
+            headers.add(name: name, value: value)
         }
 
         let head = HTTPResponseHead(version: version, status: status, headers: headers)

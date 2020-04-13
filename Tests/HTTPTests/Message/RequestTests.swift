@@ -11,7 +11,7 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.uri, "/")
         XCTAssertEqual(request.version.major, 1)
         XCTAssertEqual(request.version.minor, 1)
-        XCTAssertEqual(request.headers, [.contentLength: String(request.body.count)])
+        XCTAssertEqual(request.headers, [Header.contentLength.rawValue: String(request.body.count)])
         XCTAssertTrue(request.body.isEmpty)
         XCTAssertNil(request.pathParameters)
         XCTAssertNil(request.queryParameters)
@@ -24,7 +24,7 @@ final class RequestTests: XCTestCase {
         let method: Request.Method = .POST
         let uri = "/posts"
         let version: ProtocolVersion = .init(major: 2, minor: 0)
-        let headers: ParameterBag<Header, String> = [.contentType: "application/json"]
+        let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         let request = Request(method: method, uri: uri, version: version, headers: headers, body: body)
 
@@ -34,9 +34,9 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.version.major, version.major)
         XCTAssertEqual(request.version.minor, version.minor)
         XCTAssertEqual(request.headers, [
-            .contentLength: String(request.body.count),
-            .contentType: "application/json"]
-        )
+            Header.contentLength.rawValue: String(request.body.count),
+            Header.contentType.rawValue: "application/json"
+        ])
         XCTAssertFalse(request.body.isEmpty)
         XCTAssertNil(request.pathParameters)
         XCTAssertNil(request.queryParameters)
@@ -50,7 +50,7 @@ final class RequestTests: XCTestCase {
         let method: Request.Method = .POST
         let uri = "/posts"
         let version: ProtocolVersion = .init(major: 2, minor: 0)
-        let headers: ParameterBag<Header, String> = [.contentType: "application/json"]
+        let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         var request = Request()
 
@@ -66,9 +66,9 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.uri, uri)
         XCTAssertEqual(request.version, version)
         XCTAssertEqual(request.headers, [
-            .contentLength: String(request.body.count),
-            .contentType: "application/json"]
-        )
+            Header.contentLength.rawValue: String(request.body.count),
+            Header.contentType.rawValue: "application/json"
+        ])
         XCTAssertFalse(request.body.isEmpty)
         XCTAssertNil(request.pathParameters)
         XCTAssertNil(request.queryParameters)
@@ -106,8 +106,8 @@ final class RequestTests: XCTestCase {
         let request = Request()
         var string = ""
 
-        for (header, value) in request.headers {
-            string.append("\(header.rawValue): \(value)\n")
+        for (name, value) in request.headers {
+            string.append("\(name): \(value)\n")
         }
 
         string.append("\n\(request.body)")
