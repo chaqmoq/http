@@ -26,13 +26,15 @@ final class RequestResponseHandler: ChannelInboundHandler {
         }
 
         if request.version.major < ProtocolVersion.Major.two.rawValue {
-            if let connection = request.headers[Header.connection.rawValue] {
-                response.headers[Header.connection.rawValue] = connection
+            let key = Header.connection.rawValue
+
+            if let connection = request.headers[key] {
+                response.headers[key] = connection
             } else {
                 if request.version.major == ProtocolVersion.Major.one.rawValue && request.version.minor >= 1 {
-                    response.headers[Header.connection.rawValue] = "keep-alive"
+                    response.headers[key] = "keep-alive"
                 } else {
-                    response.headers[Header.connection.rawValue] = "close"
+                    response.headers[key] = "close"
                 }
             }
         }
