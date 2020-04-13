@@ -1,5 +1,4 @@
 import NIO
-import NIOSSL
 
 extension Server {
     public struct Configuration {
