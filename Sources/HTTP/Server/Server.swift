@@ -54,24 +54,26 @@ public class Server {
 
 extension Server {
     private func initializeChild(channel: Channel) -> EventLoopFuture<Void> {
-        if let tls = configuration.tls {
-            return configure(tls: tls, for: channel).flatMap { _ in
-                return channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
-                    return channel.configureHTTP2Pipeline(
-                        mode: .server,
-                        inboundStreamStateInitializer: { [weak self] (channel, streamID) in
-                            guard let server = self else { return channel.close() }
-                            return server.addHandlers(to: channel, with: streamID)
-                        }
-                    ).map { _ in }
-                }, http1ChannelConfigurator: { [weak self] channel in
-                    guard let server = self else { return channel.close() }
-                    return server.addHandlers(to: channel)
-                })
-            }
-        }
+        return channel.pipeline.addHandler(BackPressureHandler()).flatMap { [weak self] in
+            guard let server = self else { return channel.close() }
 
-        return addHandlers(to: channel)
+            if let tls = server.configuration.tls {
+                return server.configure(tls: tls, for: channel).flatMap { _ in
+                    return channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
+                        return channel.configureHTTP2Pipeline(
+                            mode: .server,
+                            inboundStreamStateInitializer: { (channel, streamID) in
+                                return server.addHandlers(to: channel, with: streamID)
+                            }
+                        ).map { _ in }
+                    }, http1ChannelConfigurator: { channel in
+                        return server.addHandlers(to: channel)
+                    })
+                }
+            }
+
+            return server.addHandlers(to: channel)
+        }
     }
 
     private func configure(tls: TLS, for channel: Channel) -> EventLoopFuture<Void> {
