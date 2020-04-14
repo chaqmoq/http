@@ -1,5 +1,5 @@
 public protocol Message: CustomStringConvertible {
-    var version: ProtocolVersion { get set }
+    var version: Version { get set }
     var headers: ParameterBag<String, String> { get set }
     var body: Body { get set }
 }

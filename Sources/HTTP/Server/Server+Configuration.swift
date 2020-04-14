@@ -9,7 +9,7 @@ extension Server {
         public var socketAddress: String { "\(scheme)://\(host):\(port)" }
         public var serverName: String?
         public var tls: TLS?
-        public var supportsVersions: Set<ProtocolVersion.Major>
+        public var supportsVersions: Set<Version.Major>
         public var supportsPipelining: Bool
         public var numberOfThreads: Int
         public var backlog: Int32
@@ -25,7 +25,7 @@ extension Server {
             port: Int = 8080,
             serverName: String? = nil,
             tls: TLS? = nil,
-            supportsVersions: Set<ProtocolVersion.Major> = [.one, .two],
+            supportsVersions: Set<Version.Major> = [.one, .two],
             supportsPipelining: Bool = false,
             numberOfThreads: Int = System.coreCount,
             backlog: Int32 = 256,

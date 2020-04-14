@@ -3,7 +3,7 @@ import Foundation
 public struct Request: Message {
     public var method: Method
     public var uri: String { didSet { parseQuery() }}
-    public var version: ProtocolVersion
+    public var version: Version
     public var headers: ParameterBag<String, String>
     public var body: Body { didSet { setContentLengthHeader(); parseBody() }}
     public var pathParameters: ParameterBag<String, Any>?
@@ -14,7 +14,7 @@ public struct Request: Message {
     public init(
         method: Method = .GET,
         uri: String = "/",
-        version: ProtocolVersion = .init(),
+        version: Version = .init(),
         headers: ParameterBag<String, String> = .init(),
         body: Body = .init()
     ) {

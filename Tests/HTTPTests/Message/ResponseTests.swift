@@ -17,7 +17,7 @@ final class ResponseTests: XCTestCase {
     func testCustomInit() {
         // Arrange
         let status: Response.Status = .created
-        let version: ProtocolVersion = .init(major: 2, minor: 0)
+        let version: Version = .init(major: 2, minor: 0)
         let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         let response = Response(version: version, status: status, headers: headers, body: body)
@@ -35,7 +35,7 @@ final class ResponseTests: XCTestCase {
     func testUpdate() {
         // Arrange
         let status: Response.Status = .created
-        let version: ProtocolVersion = .init(major: 2, minor: 0)
+        let version: Version = .init(major: 2, minor: 0)
         let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         var response = Response()

@@ -20,7 +20,7 @@ final class RequestDecoder: ChannelInboundHandler {
         case .head(let head):
             switch state {
             case .idle:
-                let version = ProtocolVersion(major: head.version.major, minor: head.version.minor)
+                let version = Version(major: head.version.major, minor: head.version.minor)
                 var request: Request
 
                 if let method = Request.Method(rawValue: head.method.rawValue) {

@@ -73,7 +73,7 @@ final class ServerTests: XCTestCase {
         let port = 8888
         let serverName = "Example"
         let tls: TLS? = nil // TODO: add a sample certificate and private key
-        let supportsVersions: Set<ProtocolVersion.Major> = [.one]
+        let supportsVersions: Set<Version.Major> = [.one]
         let supportsPipelining = true
         let numberOfThreads = 1
         let backlog: Int32 = 255
@@ -119,7 +119,7 @@ final class ServerTests: XCTestCase {
         let port = 8888
         let serverName = "Example"
         let tls: TLS? = nil // TODO: add a sample certificate and private key
-        let supportsVersions: Set<ProtocolVersion.Major> = [.one]
+        let supportsVersions: Set<Version.Major> = [.one]
         let supportsPipelining = true
         let numberOfThreads = 1
         let backlog: Int32 = 255

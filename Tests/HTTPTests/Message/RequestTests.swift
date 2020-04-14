@@ -23,7 +23,7 @@ final class RequestTests: XCTestCase {
         // Arrange
         let method: Request.Method = .POST
         let uri = "/posts"
-        let version: ProtocolVersion = .init(major: 2, minor: 0)
+        let version: Version = .init(major: 2, minor: 0)
         let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         let request = Request(method: method, uri: uri, version: version, headers: headers, body: body)
@@ -49,7 +49,7 @@ final class RequestTests: XCTestCase {
         // Arrange
         let method: Request.Method = .POST
         let uri = "/posts"
-        let version: ProtocolVersion = .init(major: 2, minor: 0)
+        let version: Version = .init(major: 2, minor: 0)
         let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         var request = Request()

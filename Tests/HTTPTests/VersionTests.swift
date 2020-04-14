@@ -1,10 +1,10 @@
 import XCTest
 @testable import HTTP
 
-final class ProtocolVersionTests: XCTestCase {
+final class VersionTests: XCTestCase {
     func testDefaultInit() {
         // Arrange
-        let version = ProtocolVersion()
+        let version = Version()
 
         // Assert
         XCTAssertEqual(version.major, 1)
@@ -13,7 +13,7 @@ final class ProtocolVersionTests: XCTestCase {
 
     func testCustomInit() {
         // Arrange
-        let version = ProtocolVersion(major: 2, minor: 0)
+        let version = Version(major: 2, minor: 0)
 
         // Assert
         XCTAssertEqual(version.major, 2)
@@ -22,7 +22,7 @@ final class ProtocolVersionTests: XCTestCase {
 
     func testUpdate() {
         // Arrange
-        var version = ProtocolVersion(major: 1, minor: 1)
+        var version = Version(major: 1, minor: 1)
 
         // Act
         version.major = 2
