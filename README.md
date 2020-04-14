@@ -35,17 +35,12 @@ server.onStop = {
     print("Server has stopped")
 }
 server.onError = { error in
-    print("Error: \(error)")
+    print("Server error: \(error)")
 }
 server.onReceive = { request in
     return Response(body: .init(string: "Hello World"))
 }
-
-do {
-    try server.start()
-} catch {
-    fatalError("Failed to start server: \(error)")
-}
+server.start()
 ```
 
 ## Contributing

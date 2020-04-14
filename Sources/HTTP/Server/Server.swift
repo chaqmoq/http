@@ -8,25 +8,24 @@ import NIOSSL
 public class Server {
     public let configuration: Configuration
     public let logger: Logger
+    let eventLoopGroup: EventLoopGroup
 
     public var onStart: (() -> Void)?
     public var onStop: (() -> Void)?
     public var onError: ((Error) -> Void)?
     public var onReceive: RequestHandler?
 
-    private var channel: Channel?
-
     public init(configuration: Configuration = .init()) {
         self.configuration = configuration
         logger = Logger(label: configuration.identifier)
+        eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: configuration.numberOfThreads)
     }
 
-    public func start() throws {
-        let group = MultiThreadedEventLoopGroup(numberOfThreads: configuration.numberOfThreads)
+    public func start() {
         let reuseAddressOption = ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR)
         let reuseAddressOptionValue = SocketOptionValue(configuration.reuseAddress ? 1 : 0)
         let tcpNoDelayOptionValue = SocketOptionValue(configuration.tcpNoDelay ? 1 : 0)
-        let bootstrap = ServerBootstrap(group: group)
+        let bootstrap = ServerBootstrap(group: eventLoopGroup)
             .serverChannelOption(ChannelOptions.backlog, value: configuration.backlog)
             .serverChannelOption(reuseAddressOption, value: reuseAddressOptionValue)
             .childChannelOption(reuseAddressOption, value: reuseAddressOptionValue)
@@ -36,18 +35,24 @@ public class Server {
                 guard let server = self else { return channel.close() }
                 return server.initializeChild(channel: channel)
         }
-        let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
-        self.channel = channel
-        logger.info("Server has started on: \(configuration.socketAddress)")
-        onStart?()
-        try channel.closeFuture.wait()
+
+        do {
+            let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
+            logger.info("Server has started on: \(configuration.socketAddress)")
+            onStart?()
+            try channel.closeFuture.wait()
+        } catch {
+            onError?(error)
+        }
     }
 
     public func stop() {
-        channel?.flush()
-        channel?.close().whenComplete { [weak self] result in
-            self?.logger.info("Server has stopped")
-            self?.onStop?()
+        do {
+            try eventLoopGroup.syncShutdownGracefully()
+            logger.info("Server has stopped")
+            onStop?()
+        } catch {
+            onError?(error)
         }
     }
 }
