@@ -1,22 +1,19 @@
 # HTTP Component
 
-This is a part of Chaqmoq Web Framework in Swift language
+This is a part of Chaqmoq web framework in Swift
 
 ## Installation
 
 ### Package.swift
 ```swift
 let package = Package(
-    name: "...",
-    products: [
-        // ...
-    ],
+    // ...
     dependencies: [
-        // ...
+        // Other packages...
         .package(url: "https://github.com/chaqmoq/http.git", .branch("master"))
     ],
     targets: [
-        // ...
+        // Other targets...
         .target(name: "...", dependencies: ["HTTP"])
     ]
 )
