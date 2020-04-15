@@ -13,10 +13,6 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.version.minor, 1)
         XCTAssertEqual(request.headers, [Header.contentLength.rawValue: String(request.body.count)])
         XCTAssertTrue(request.body.isEmpty)
-        XCTAssertNil(request.pathParameters)
-        XCTAssertNil(request.queryParameters)
-        XCTAssertNil(request.bodyParameters)
-        XCTAssertNil(request.files)
     }
 
     func testCustomInit() {
@@ -38,11 +34,6 @@ final class RequestTests: XCTestCase {
             Header.contentType.rawValue: "application/json"
         ])
         XCTAssertFalse(request.body.isEmpty)
-        XCTAssertNil(request.pathParameters)
-        XCTAssertNil(request.queryParameters)
-        XCTAssertEqual(request.bodyParameters?.count, 1)
-        XCTAssertEqual(request.bodyParameters?["title"] as? String, "New post")
-        XCTAssertNil(request.files)
     }
 
     func testUpdate() {
@@ -70,11 +61,6 @@ final class RequestTests: XCTestCase {
             Header.contentType.rawValue: "application/json"
         ])
         XCTAssertFalse(request.body.isEmpty)
-        XCTAssertNil(request.pathParameters)
-        XCTAssertNil(request.queryParameters)
-        XCTAssertEqual(request.bodyParameters?.count, 1)
-        XCTAssertEqual(request.bodyParameters?["title"] as? String, "New post")
-        XCTAssertNil(request.files)
     }
 
     func testMethods() {

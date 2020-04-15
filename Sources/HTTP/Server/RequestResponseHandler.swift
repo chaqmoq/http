@@ -12,14 +12,8 @@ final class RequestResponseHandler: ChannelInboundHandler {
     }
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        var request = unwrapInboundIn(data)
-        request.parseBody()
-
+        let request = unwrapInboundIn(data)
         var response = Response()
-
-        if let onReceive = server.onReceive {
-            response = onReceive(request)
-        }
 
         if response.headers[Header.server.rawValue] == nil {
             response.headers[Header.server.rawValue] = server.configuration.serverName
@@ -41,6 +35,10 @@ final class RequestResponseHandler: ChannelInboundHandler {
 
         if request.method == .HEAD || response.status == .noContent {
             response.body = .init()
+        }
+
+        if let onReceive = server.onReceive {
+            response = onReceive(request)
         }
 
         if request.version.major >= Version.Major.two.rawValue {

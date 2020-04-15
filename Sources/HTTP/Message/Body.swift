@@ -35,6 +35,34 @@ extension Body {
     }
 }
 
+extension Body {
+    public func json(_ handler: @escaping (ParameterBag<String, Any>?) -> Void) {
+        let parameters = try? JSONSerialization.jsonObject(with: data, options: []) as? ParameterBag<String, Any>
+        handler(parameters)
+    }
+
+    public func urlEncoded(_ handler: @escaping (ParameterBag<String, Any>?) -> Void) {
+        if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
+            var urlComponents = URLComponents()
+            urlComponents.query = string
+
+            if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
+                var parameters = ParameterBag<String, Any>()
+
+                for queryItem in queryItems {
+                    parameters[queryItem.name] = queryItem.value
+                }
+
+                handler(parameters)
+            } else {
+                handler(nil)
+            }
+        } else {
+            handler(nil)
+        }
+    }
+}
+
 extension Body: CustomStringConvertible {
     public var description: String { string }
 }
