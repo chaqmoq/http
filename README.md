@@ -37,7 +37,13 @@ server.onError = { error in
 server.onReceive = { request in
     return Response(body: .init(string: "Hello World"))
 }
-server.start()
+
+do {
+    try server.start()
+} catch {
+    print(error)
+}
+
 ```
 
 ## Contributing
