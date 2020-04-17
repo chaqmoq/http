@@ -25,7 +25,7 @@ final class ServerTests: XCTestCase {
         server.onStart = {}
         server.onStop = {}
         server.onError = { error in }
-        server.onReceive = { request in }
+        server.onReceive = { request in Response() }
 
         // Assert
         XCTAssertNotNil(server.configuration)
