@@ -1,9 +1,9 @@
-import Foundation
+import struct Foundation.URLComponents
 
 public typealias URI = String
 
 extension URI {
-    public func path(_ handler: @escaping (ParameterBag<String, Any>?) -> Void) {
+    public var parameters: ParameterBag<String, Any>? {
         let urlComponents = URLComponents(string: self)
 
         if let queryItems = urlComponents?.queryItems, !queryItems.isEmpty {
@@ -13,9 +13,9 @@ extension URI {
                 parameters[queryItem.name] = queryItem.value
             }
 
-            handler(parameters)
-        } else {
-            handler(nil)
+            return parameters
         }
+
+        return nil
     }
 }
