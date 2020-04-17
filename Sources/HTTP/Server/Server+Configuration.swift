@@ -1,4 +1,4 @@
-import NIO
+import enum NIO.System
 
 extension Server {
     public struct Configuration {

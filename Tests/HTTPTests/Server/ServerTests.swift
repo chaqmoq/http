@@ -1,4 +1,4 @@
-import NIO
+import enum NIO.System
 import XCTest
 @testable import HTTP
 
@@ -22,18 +22,10 @@ final class ServerTests: XCTestCase {
         let server = Server()
 
         // Act
-        server.onStart = {
-            print("Server has started")
-        }
-        server.onStop = {
-            print("Server has stopped")
-        }
-        server.onError = { error in
-            print("Error: \(error)")
-        }
-        server.onReceive = { request in
-            return Response(body: .init(string: "Hello World"))
-        }
+        server.onStart = {}
+        server.onStop = {}
+        server.onError = { error in }
+        server.onReceive = { request in }
 
         // Assert
         XCTAssertNotNil(server.configuration)
