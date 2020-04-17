@@ -17,7 +17,7 @@ extension Version {
 
 extension Version: Equatable {
     public static func == (lhs: Version, rhs: Version) -> Bool {
-        return lhs.major == rhs.major && lhs.minor == rhs.minor
+        lhs.major == rhs.major && lhs.minor == rhs.minor
     }
 }
 

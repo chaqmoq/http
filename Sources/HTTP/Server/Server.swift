@@ -52,20 +52,20 @@ public class Server {
 
 extension Server {
     private func initializeChild(channel: Channel) -> EventLoopFuture<Void> {
-        return channel.pipeline.addHandler(BackPressureHandler()).flatMap { [weak self] in
+        channel.pipeline.addHandler(BackPressureHandler()).flatMap { [weak self] in
             guard let server = self else { return channel.close() }
 
             if let tls = server.configuration.tls {
                 return server.configure(tls: tls, for: channel).flatMap { _ in
-                    return channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
-                        return channel.configureHTTP2Pipeline(
+                    channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
+                        channel.configureHTTP2Pipeline(
                             mode: .server,
                             inboundStreamStateInitializer: { (channel, streamID) in
-                                return server.addHandlers(to: channel, with: streamID)
+                                server.addHandlers(to: channel, with: streamID)
                             }
                         ).map { _ in }
                     }, http1ChannelConfigurator: { channel in
-                        return server.addHandlers(to: channel)
+                        server.addHandlers(to: channel)
                     })
                 }
             }
@@ -111,7 +111,7 @@ extension Server {
                 ]
 
                 return channel.pipeline.addHandlers(handlers).flatMap {
-                    return channel.pipeline.addHandler(ErrorHandler(server: server))
+                    channel.pipeline.addHandler(ErrorHandler(server: server))
                 }
             }
         }
@@ -153,7 +153,7 @@ extension Server {
             handlers.append(contentsOf: otherHandlers)
 
             return channel.pipeline.addHandlers(handlers).flatMap {
-                return channel.pipeline.addHandler(ErrorHandler(server: server))
+                channel.pipeline.addHandler(ErrorHandler(server: server))
             }
         }
     }
