@@ -37,10 +37,46 @@ final class RequestResponseHandler: ChannelInboundHandler {
             response.body = .init()
         }
 
-        if let onReceive = server.onReceive {
-            response = onReceive(request)
-        }
+        prepareAndWrite(response: response, for: request, in: context)
+    }
 
+    private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) {
+        if let onReceive = server.onReceive {
+            let result = onReceive(request, context.eventLoop)
+
+            if let string = result as? String {
+                var response = response
+                response.body = .init(string: string)
+                write(response: response, for: request, in: context)
+            } else if let response = result as? Response {
+                write(response: response, for: request, in: context)
+            } else if let futureResponse = result as? EventLoopFuture<String> {
+                futureResponse.whenSuccess { [weak self] string in
+                    var response = response
+                    response.body = .init(string: string)
+                    self?.write(response: response, for: request, in: context)
+                }
+                futureResponse.whenFailure { error in
+                    context.fireErrorCaught(error)
+                }
+            } else if let futureResponse = result as? EventLoopFuture<Response> {
+                futureResponse.whenSuccess { [weak self] response in
+                    self?.write(response: response, for: request, in: context)
+                }
+                futureResponse.whenFailure { error in
+                    context.fireErrorCaught(error)
+                }
+            } else {
+                var response = response
+                response.status = .internalServerError
+                write(response: response, for: request, in: context)
+            }
+        } else {
+            write(response: response, for: request, in: context)
+        }
+    }
+
+    private func write(response: Response, for request: Request, in context: ChannelHandlerContext) {
         if request.version.major >= Version.Major.two.rawValue {
             context.write(wrapOutboundOut(response), promise: nil)
         } else {

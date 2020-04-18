@@ -34,7 +34,7 @@ server.onStop = {
 server.onError = { error in
     print("Server error: \(error)")
 }
-server.onReceive = { request in
+server.onReceive = { request, eventLoop in
     return Response(body: .init(string: "Hello World"))
 }
 

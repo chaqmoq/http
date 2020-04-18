@@ -1,4 +1,4 @@
-import Logging
+import struct Logging.Logger
 import NIO
 import NIOHTTP1
 import NIOHTTP2
@@ -13,7 +13,7 @@ public class Server {
     public var onStart: (() -> Void)?
     public var onStop: (() -> Void)?
     public var onError: ((Error) -> Void)?
-    public var onReceive: RequestHandler?
+    public var onReceive: ((Request, EventLoop) -> Any)?
 
     public init(configuration: Configuration = .init()) {
         self.configuration = configuration
