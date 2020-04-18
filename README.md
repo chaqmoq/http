@@ -34,6 +34,9 @@ server.onStop = {
 server.onError = { error in
     print("Server error: \(error)")
 }
+server.onReceive = { request, _ in
+    // Handle Request
+}
 
 do {
     try server.start()
@@ -42,22 +45,19 @@ do {
 }
 ```
 
+### Handle Request
 ```swift
-# 1. Return String (sync)
+// Use Case: String
 server.onReceive = { request, _ in
     return "Hello World"
 }
-```
 
-```swift
-# 2. Return Response (sync)
+// Use Case: Response
 server.onReceive = { request, _ in
     return Response(body: .init(string: "Hello World"))
 }
-```
 
-```swift
-# 3. Return EventLoopFuture<String> (async)
+// Use Case: EventLoopFuture<String>
 server.onReceive = { request, eventLoop in
     # Some async request that returns EventLoopFuture<T>
     let promise = eventLoop.makePromise(of: String.self)
@@ -67,10 +67,8 @@ server.onReceive = { request, eventLoop in
 
     return promise.futureResult
 }
-```
 
-```swift
-# 4. Return EventLoopFuture<Response> (async)
+// Use Case: EventLoopFuture<Response>
 server.onReceive = { request, eventLoop in
     # Some async request that returns EventLoopFuture<T>
     let promise = eventLoop.makePromise(of: String.self)
