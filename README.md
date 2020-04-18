@@ -59,7 +59,7 @@ server.onReceive = { request, _ in
 
 // Use Case: EventLoopFuture<String>
 server.onReceive = { request, eventLoop in
-    # Some async request that returns EventLoopFuture<T>
+    // Some async request that returns EventLoopFuture<String>
     let promise = eventLoop.makePromise(of: String.self)
     eventLoop.execute {
         promise.succeed("Hello World")
@@ -70,7 +70,7 @@ server.onReceive = { request, eventLoop in
 
 // Use Case: EventLoopFuture<Response>
 server.onReceive = { request, eventLoop in
-    # Some async request that returns EventLoopFuture<T>
+    // Some async request that returns EventLoopFuture<Response>
     let promise = eventLoop.makePromise(of: String.self)
     eventLoop.execute {
         promise.succeed(Response(body: .init(string: "Hello World")))
