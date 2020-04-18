@@ -34,16 +34,52 @@ server.onStop = {
 server.onError = { error in
     print("Server error: \(error)")
 }
-server.onReceive = { request, eventLoop in
-    return Response(body: .init(string: "Hello World"))
-}
 
 do {
     try server.start()
 } catch {
     print(error)
 }
+```
 
+```swift
+# 1. Return String (sync)
+server.onReceive = { request, _ in
+    return "Hello World"
+}
+```
+
+```swift
+# 2. Return Response (sync)
+server.onReceive = { request, _ in
+    return Response(body: .init(string: "Hello World"))
+}
+```
+
+```swift
+# 3. Return EventLoopFuture<String> (async)
+server.onReceive = { request, eventLoop in
+    # Some async request that returns EventLoopFuture<T>
+    let promise = eventLoop.makePromise(of: String.self)
+    eventLoop.execute {
+        promise.succeed("Hello World")
+    }
+
+    return promise.futureResult
+}
+```
+
+```swift
+# 4. Return EventLoopFuture<Response> (async)
+server.onReceive = { request, eventLoop in
+    # Some async request that returns EventLoopFuture<T>
+    let promise = eventLoop.makePromise(of: String.self)
+    eventLoop.execute {
+        promise.succeed(Response(body: .init(string: "Hello World")))
+    }
+
+    return promise.futureResult
+}
 ```
 
 ## Contributing
