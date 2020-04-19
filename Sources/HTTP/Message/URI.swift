@@ -1,3 +1,4 @@
+import struct Foundation.URL
 import struct Foundation.URLComponents
 
 public struct URI {
@@ -6,6 +7,7 @@ public struct URI {
     public var scheme: String? { urlComponents?.scheme }
     public var host: String? { urlComponents?.host }
     public var port: Int? { urlComponents?.port }
+    public var url: URL? { urlComponents?.url }
     public var path: String? { urlComponents?.path }
 
     public var query: ParameterBag<String, Any>? {
