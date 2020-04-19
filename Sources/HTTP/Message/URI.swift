@@ -9,7 +9,6 @@ public struct URI {
     public var port: Int? { urlComponents?.port }
     public var url: URL? { urlComponents?.url }
     public var path: String? { urlComponents?.path }
-
     public var query: ParameterBag<String, Any>? {
         if let queryItems = urlComponents?.queryItems, !queryItems.isEmpty {
             var parameters = ParameterBag<String, Any>()
@@ -26,15 +25,11 @@ public struct URI {
 
     private var urlComponents: URLComponents?
 
-    public init?(string: String) {
-        urlComponents = URLComponents(string: string)
-    }
+    public init?(string: String) { urlComponents = URLComponents(string: string) }
 }
 
 extension URI: Equatable {
-    public static func == (lhs: URI, rhs: URI) -> Bool {
-        lhs.urlComponents == rhs.urlComponents
-    }
+    public static func == (lhs: URI, rhs: URI) -> Bool { lhs.urlComponents == rhs.urlComponents }
 }
 
 extension URI: CustomStringConvertible {
