@@ -7,7 +7,7 @@ public struct Request: Message {
 
     public init(
         method: Method = .GET,
-        uri: String = "/",
+        uri: URI = .default,
         version: Version = .init(),
         headers: ParameterBag<String, String> = .init(),
         body: Body = .init()

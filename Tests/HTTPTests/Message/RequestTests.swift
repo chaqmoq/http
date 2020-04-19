@@ -8,7 +8,7 @@ final class RequestTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(request.method, .GET)
-        XCTAssertEqual(request.uri, "/")
+        XCTAssertEqual(request.uri, .default)
         XCTAssertEqual(request.version.major, 1)
         XCTAssertEqual(request.version.minor, 1)
         XCTAssertEqual(request.headers, [Header.contentLength.rawValue: String(request.body.count)])
@@ -18,7 +18,7 @@ final class RequestTests: XCTestCase {
     func testCustomInit() {
         // Arrange
         let method: Request.Method = .POST
-        let uri = "/posts"
+        let uri = URI(string: "/posts")!
         let version: Version = .init(major: 2, minor: 0)
         let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
@@ -39,7 +39,7 @@ final class RequestTests: XCTestCase {
     func testUpdate() {
         // Arrange
         let method: Request.Method = .POST
-        let uri = "/posts"
+        let uri = URI(string: "/posts")!
         let version: Version = .init(major: 2, minor: 0)
         let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")

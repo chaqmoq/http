@@ -1,11 +1,14 @@
 import struct Foundation.URLComponents
 
-public typealias URI = String
+public struct URI {
+    public static var `default`: Self{ Self(string: "/")! }
 
-extension URI {
-    public var parameters: ParameterBag<String, Any>? {
-        let urlComponents = URLComponents(string: self)
+    public var scheme: String? { urlComponents?.scheme }
+    public var host: String? { urlComponents?.host }
+    public var port: Int? { urlComponents?.port }
+    public var path: String? { urlComponents?.path }
 
+    public var query: ParameterBag<String, Any>? {
         if let queryItems = urlComponents?.queryItems, !queryItems.isEmpty {
             var parameters = ParameterBag<String, Any>()
 
@@ -18,4 +21,20 @@ extension URI {
 
         return nil
     }
+
+    private var urlComponents: URLComponents?
+
+    public init?(string: String) {
+        urlComponents = URLComponents(string: string)
+    }
+}
+
+extension URI: Equatable {
+    public static func == (lhs: URI, rhs: URI) -> Bool {
+        lhs.urlComponents == rhs.urlComponents
+    }
+}
+
+extension URI: CustomStringConvertible {
+    public var description: String { urlComponents?.string ?? "" }
 }

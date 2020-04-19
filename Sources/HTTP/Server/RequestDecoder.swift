@@ -23,10 +23,14 @@ final class RequestDecoder: ChannelInboundHandler {
                 let version = Version(major: head.version.major, minor: head.version.minor)
                 var request: Request
 
-                if let method = Request.Method(rawValue: head.method.rawValue) {
-                    request = Request(method: method, uri: head.uri, version: version)
+                if let method = Request.Method(rawValue: head.method.rawValue), let uri = URI(string: head.uri) {
+                    request = Request(method: method, uri: uri, version: version)
+                } else if let method = Request.Method(rawValue: head.method.rawValue) {
+                    request = Request(method: method, version: version)
+                } else if let uri = URI(string: head.uri) {
+                    request = Request(uri: uri, version: version)
                 } else {
-                    request = Request(uri: head.uri, version: version)
+                    request = Request(version: version)
                 }
 
                 for header in head.headers {
