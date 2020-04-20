@@ -1,4 +1,4 @@
-# HTTP Component
+# HTTP component
 
 This is a part of Chaqmoq web framework in Swift
 
@@ -35,7 +35,8 @@ server.onError = { error in
     print("Server error: \(error)")
 }
 server.onReceive = { request, _ in
-    // Handle Request
+    // Do something...
+    // Return String, Response, EventLoopFuture<String>, EventLoopFuture<Response>, etc
 }
 
 do {
@@ -45,21 +46,21 @@ do {
 }
 ```
 
-### Handle Request
+### onReceive
 ```swift
-// Use Case: String
+// String
 server.onReceive = { request, _ in
     return "Hello World"
 }
 
-// Use Case: Response
+// Response
 server.onReceive = { request, _ in
     return Response(body: .init(string: "Hello World"))
 }
 
-// Use Case: EventLoopFuture<String>
+// EventLoopFuture<String>
 server.onReceive = { request, eventLoop in
-    // Some async request that returns EventLoopFuture<String>
+    // Some async operation that returns EventLoopFuture<String>
     let promise = eventLoop.makePromise(of: String.self)
     eventLoop.execute {
         promise.succeed("Hello World")
@@ -68,9 +69,9 @@ server.onReceive = { request, eventLoop in
     return promise.futureResult
 }
 
-// Use Case: EventLoopFuture<Response>
+// EventLoopFuture<Response>
 server.onReceive = { request, eventLoop in
-    // Some async request that returns EventLoopFuture<Response>
+    // Some async operation that returns EventLoopFuture<Response>
     let promise = eventLoop.makePromise(of: String.self)
     eventLoop.execute {
         promise.succeed(Response(body: .init(string: "Hello World")))
