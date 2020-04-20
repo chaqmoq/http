@@ -10,9 +10,9 @@ public class Server {
     public let logger: Logger
     var eventLoopGroup: EventLoopGroup?
 
-    public var onStart: (() -> Void)?
+    public var onStart: ((EventLoop) -> Void)?
     public var onStop: (() -> Void)?
-    public var onError: ((Error) -> Void)?
+    public var onError: ((Error, EventLoop) -> Void)?
     public var onReceive: ((Request, EventLoop) -> Any)?
 
     public init(configuration: Configuration = .init()) {
@@ -39,7 +39,7 @@ public class Server {
 
         let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
         logger.info("Server has started on: \(configuration.socketAddress)")
-        onStart?()
+        onStart?(channel.eventLoop)
         try channel.closeFuture.wait()
     }
 

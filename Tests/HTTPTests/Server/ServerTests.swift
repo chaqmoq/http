@@ -22,10 +22,10 @@ final class ServerTests: XCTestCase {
         let server = Server()
 
         // Act
-        server.onStart = {}
+        server.onStart = { _ in }
         server.onStop = {}
-        server.onError = { error in }
-        server.onReceive = { request, _ in Response() }
+        server.onError = { _, _ in }
+        server.onReceive = { _, _ in Response() }
 
         // Assert
         XCTAssertNotNil(server.configuration)

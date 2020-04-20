@@ -12,7 +12,7 @@ final class ErrorHandler: ChannelInboundHandler {
 
     func errorCaught(context: ChannelHandlerContext, error: Error) {
         server.logger.error("Server error: \(error)")
-        server.onError?(error)
+        server.onError?(error, context.eventLoop)
         context.close(mode: .output, promise: nil)
     }
 }
