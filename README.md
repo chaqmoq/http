@@ -25,14 +25,14 @@ let package = Package(
 import HTTP
 
 let server = Server()
-server.onStart = {
+erver.onStart = { _ in
     print("Server has started")
 }
 server.onStop = {
     print("Server has stopped")
 }
-server.onError = { error in
-    print("Server error: \(error)")
+server.onError = { error, _ in
+    print("Error: \(error)")
 }
 server.onReceive = { request, _ in
     // Do something...
