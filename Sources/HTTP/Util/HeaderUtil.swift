@@ -15,12 +15,14 @@ public final class HeaderUtil {
 
             for match in matches {
                 if let range = Range(match.range, in: headerLine) {
-                    let parameter = headerLine[range].dropFirst().trimmingCharacters(in: .whitespaces)
+                    let parameter = headerLine[range].dropFirst().trimmingCharacters(in: .whitespacesAndNewlines)
                     let components = parameter.components(separatedBy: delimiter)
-                    let parameterKey = components.first?.trimmingCharacters(in: .whitespaces).lowercased()
+                    let parameterKey = components.first?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
 
                     if parameterKey == key {
-                        return components.last?.trimmingCharacters(in: .whitespaces)
+                        return components.last?
+                            .replacingOccurrences(of: "\"", with: "")
+                            .trimmingCharacters(in: .whitespacesAndNewlines)
                     }
                 }
             }
