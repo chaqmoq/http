@@ -2,7 +2,7 @@ import struct Foundation.Data
 
 public struct Body {
     public var bytes: [UInt8] { content }
-    public var data: Data { string.data(using: .utf8) ?? .init() }
+    public var data: Data { Data(content) }
     public var string: String { String(bytes: content, encoding: .utf8) ?? "" }
     public var count: Int { content.count }
     public var isEmpty: Bool { content.isEmpty }
