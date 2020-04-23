@@ -24,7 +24,7 @@ extension Body {
         guard var boundary = HeaderUtil.getParameterValue(for: "boundary", in: contentType) else { return (nil, nil) }
         boundary = "--" + boundary
         let boundaryBytes = [UInt8](boundary.utf8)
-        let boundaryCount = boundaryBytes.count
+        let boundaryLength = boundaryBytes.count
         var boundaryCounter = 0
         let carriageReturn: UInt8 = 13
         let newLine: UInt8 = 10
@@ -37,7 +37,7 @@ extension Body {
                 boundaryCounter = 0
             }
 
-            if boundaryCounter == boundaryCount {
+            if boundaryCounter == boundaryLength {
                 let offset: Int
 
                 if bytes[index + 1] == carriageReturn && bytes[index + 2] == newLine {
@@ -47,7 +47,7 @@ extension Body {
                 }
 
                 if !contentRanges.isEmpty {
-                    contentRanges.append(index - boundaryCount - offset)
+                    contentRanges.append(index - boundaryLength - offset)
                 }
 
                 contentRanges.append(index + 1 + offset)
@@ -63,21 +63,21 @@ extension Body {
         for index in stride(from: 1, through: contentRanges.count - 1, by: 2) {
             let headerStartIndex = contentRanges[index - 1]
             var headerEndIndex = headerStartIndex
-            let bodyEndIndex = contentRanges[index]
-            var bodyStartIndex = bodyEndIndex
+            let valueEndIndex = contentRanges[index]
+            var valueStartIndex = valueEndIndex
 
-            for index in headerStartIndex...bodyEndIndex {
+            for index in headerStartIndex...valueEndIndex {
                 if bytes[index] == carriageReturn &&
                     bytes[index + 1] == newLine &&
                     bytes[index + 2] == carriageReturn &&
                     bytes[index + 3] == newLine {
                     headerEndIndex = index - 1
-                    bodyStartIndex = index + 4
+                    valueStartIndex = index + 4
                     break
                 } else if (bytes[index] == newLine && bytes[index + 1] == newLine) ||
                     (bytes[index] == carriageReturn && bytes[index + 1] == carriageReturn) {
                     headerEndIndex = index - 1
-                    bodyStartIndex = index + 2
+                    valueStartIndex = index + 2
                     break
                 }
             }
@@ -87,10 +87,10 @@ extension Body {
                 if let name = HeaderUtil.getParameterValue(for: "name", in: headerLines) {
                     if let filename = HeaderUtil.getParameterValue(for: "filename", in: headerLines) {
                         if files == nil { files = [:] }
-                        files?[name] = File(filename: filename, data: Data(bytes[bodyStartIndex...bodyEndIndex]))
+                        files?[name] = File(filename: filename, data: Data(bytes[valueStartIndex...valueEndIndex]))
                     } else {
                         if parameters == nil { parameters = [:] }
-                        parameters?[name] = String(bytes: bytes[bodyStartIndex...bodyEndIndex], encoding: .utf8)
+                        parameters?[name] = String(bytes: bytes[valueStartIndex...valueEndIndex], encoding: .utf8)
                     }
                 }
             }
