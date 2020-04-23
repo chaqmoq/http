@@ -28,7 +28,7 @@ extension Body {
         var boundaryCounter = 0
         let carriageReturn: UInt8 = 13
         let newLine: UInt8 = 10
-        var indexRanges: [Int] = []
+        var contentRanges: [Int] = []
 
         for (index, byte) in bytes.enumerated() {
             if byte == boundaryBytes[boundaryCounter] {
@@ -46,25 +46,24 @@ extension Body {
                     offset = 1
                 }
 
-                if !indexRanges.isEmpty {
-                    indexRanges.append(index - boundaryCount - offset)
+                if !contentRanges.isEmpty {
+                    contentRanges.append(index - boundaryCount - offset)
                 }
 
-                indexRanges.append(index + 1 + offset)
+                contentRanges.append(index + 1 + offset)
                 boundaryCounter = 0
             }
         }
 
-        indexRanges.removeLast()
-        guard !indexRanges.isEmpty else { return (nil, nil) }
-
+        contentRanges.removeLast()
+        guard !contentRanges.isEmpty else { return (nil, nil) }
         var parameters: ParameterBag<String, Any>?
         var files: ParameterBag<String, File>?
 
-        for index in stride(from: 1, through: indexRanges.count - 1, by: 2) {
-            let headerStartIndex = indexRanges[index - 1]
+        for index in stride(from: 1, through: contentRanges.count - 1, by: 2) {
+            let headerStartIndex = contentRanges[index - 1]
             var headerEndIndex = headerStartIndex
-            let bodyEndIndex = indexRanges[index]
+            let bodyEndIndex = contentRanges[index]
             var bodyStartIndex = bodyEndIndex
 
             for index in headerStartIndex...bodyEndIndex {
