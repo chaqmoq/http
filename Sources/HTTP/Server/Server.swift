@@ -5,7 +5,7 @@ import NIOHTTP2
 import NIOHTTPCompression
 import NIOSSL
 
-public class Server {
+public final class Server {
     public let configuration: Configuration
     public let logger: Logger
     var eventLoopGroup: EventLoopGroup?
