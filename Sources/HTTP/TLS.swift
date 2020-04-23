@@ -50,8 +50,6 @@ extension TLS {
 
 extension TLS: Equatable {
     public static func == (lhs: TLS, rhs: TLS) -> Bool {
-        return lhs.certificateFiles == rhs.certificateFiles &&
-            lhs.privateKeyFile == rhs.privateKeyFile &&
-            lhs.encoding == rhs.encoding
+        lhs.certificateFiles == rhs.certificateFiles && lhs.privateKeyFile == rhs.privateKeyFile
     }
 }
