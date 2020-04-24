@@ -8,12 +8,13 @@ import NIOSSL
 public final class Server {
     public let configuration: Configuration
     public let logger: Logger
-    var eventLoopGroup: EventLoopGroup?
 
     public var onStart: ((EventLoop) -> Void)?
     public var onStop: (() -> Void)?
     public var onError: ((Error, EventLoop) -> Void)?
     public var onReceive: ((Request, EventLoop) -> Any)?
+
+    private var eventLoopGroup: EventLoopGroup?
 
     public init(configuration: Configuration = .init()) {
         self.configuration = configuration
