@@ -8,7 +8,7 @@ final class ServerTests: XCTestCase {
         super.setUp()
 
         // Arrange
-        server = Server()
+        server = Server(configuration: .init(numberOfThreads: 1))
     }
 
     func testInit() {
