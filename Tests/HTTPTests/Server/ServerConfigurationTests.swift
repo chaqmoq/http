@@ -2,7 +2,7 @@ import enum NIO.System
 import XCTest
 @testable import HTTP
 
-extension ServerTests {
+final class ServerConfigurationTests: XCTestCase {
     func testDefaultConfiguration() {
         // Arrange
         let configuration = Server.Configuration()
@@ -58,7 +58,7 @@ extension ServerTests {
         XCTAssertEqual(configuration.host, host)
         XCTAssertEqual(configuration.port, port)
         XCTAssertEqual(configuration.scheme, "http")
-        XCTAssertEqual(configuration.socketAddress, "http://localhost:8888")
+        XCTAssertEqual(configuration.socketAddress, "http://\(host):\(port)")
         XCTAssertEqual(configuration.serverName, serverName)
         XCTAssertEqual(configuration.tls, tls)
         XCTAssertEqual(configuration.supportsVersions, supportsVersions)
@@ -105,7 +105,7 @@ extension ServerTests {
         XCTAssertEqual(configuration.host, host)
         XCTAssertEqual(configuration.port, port)
         XCTAssertEqual(configuration.scheme, "http")
-        XCTAssertEqual(configuration.socketAddress, "http://localhost:8888")
+        XCTAssertEqual(configuration.socketAddress, "http://\(host):\(port)")
         XCTAssertEqual(configuration.serverName, serverName)
         XCTAssertEqual(configuration.tls, tls)
         XCTAssertEqual(configuration.supportsVersions, supportsVersions)

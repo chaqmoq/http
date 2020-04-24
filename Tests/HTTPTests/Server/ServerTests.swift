@@ -2,10 +2,16 @@ import XCTest
 @testable import HTTP
 
 final class ServerTests: XCTestCase {
-    func testInit() {
-        // Arrange
-        let server = Server()
+    var server: Server!
 
+    override func setUp() {
+        super.setUp()
+
+        // Arrange
+        server = Server()
+    }
+
+    func testInit() {
         // Assert
         XCTAssertNotNil(server.configuration)
         XCTAssertNotNil(server.logger)
@@ -17,9 +23,6 @@ final class ServerTests: XCTestCase {
     }
 
     func testUpdate() {
-        // Arrange
-        let server = Server()
-
         // Act
         server.onStart = { _ in }
         server.onStop = {}
