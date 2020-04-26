@@ -7,6 +7,7 @@ import XCTest
 class ClientServerTests: XCTestCase {
     var client: HTTPClient!
     var server: Server!
+    var request: Request!
 
     override func setUp() {
         super.setUp()
@@ -20,10 +21,11 @@ class ClientServerTests: XCTestCase {
         expecting response: Response,
         resultHandler: @escaping (Result<Response, Error>) -> Void
     ) {
+        self.request = request
         server.onStart = { [weak self] _ in
             guard let weakSelf = self else { fatalError() }
-            let url = request.uri.url!.absoluteString
-            let method = HTTPMethod(rawValue: request.method.rawValue)
+            let url = weakSelf.request.uri.url!.absoluteString
+            let method = HTTPMethod(rawValue: weakSelf.request.method.rawValue)
             var headers = HTTPHeaders()
 
             for (name, value) in response.headers {
