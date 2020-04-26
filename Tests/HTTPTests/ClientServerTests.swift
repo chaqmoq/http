@@ -47,8 +47,14 @@ class ClientServerTests: XCTestCase {
                         headers[header.name] = header.value
                     }
 
-                    let bytes = response.body!.getBytes(at: 0, length: response.body!.readableBytes)!
-                    let actualResponse = Response(status: status, headers: headers, body: Body(bytes: bytes))
+                    let actualResponse: Response
+
+                    if let body = response.body, let bytes = body.getBytes(at: 0, length: body.readableBytes) {
+                        actualResponse = Response(status: status, headers: headers, body: Body(bytes: bytes))
+                    } else {
+                        actualResponse = Response(status: status, headers: headers)
+                    }
+
                     resultHandler(.success(actualResponse))
                 }
 
