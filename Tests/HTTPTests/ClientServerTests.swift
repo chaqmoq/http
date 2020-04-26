@@ -22,7 +22,7 @@ class ClientServerTests: XCTestCase {
     ) {
         server.onStart = { [weak self] _ in
             guard let weakSelf = self else { fatalError() }
-            let url = weakSelf.server.configuration.socketAddress
+            let url = request.uri.url!.absoluteString
             let method = HTTPMethod(rawValue: request.method.rawValue)
             var headers = HTTPHeaders()
 
