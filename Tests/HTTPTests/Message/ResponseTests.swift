@@ -7,8 +7,7 @@ final class ResponseTests: XCTestCase {
         let response = Response()
 
         // Assert
-        XCTAssertEqual(response.version.major, 1)
-        XCTAssertEqual(response.version.minor, 1)
+        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.headers, [Header.contentLength.rawValue: String(response.body.count)])
         XCTAssertTrue(response.body.isEmpty)
@@ -47,8 +46,7 @@ final class ResponseTests: XCTestCase {
         response.body = body
 
         // Assert
-        XCTAssertEqual(response.version.major, version.major)
-        XCTAssertEqual(response.version.minor, version.minor)
+        XCTAssertEqual(response.version, version)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers, [
             Header.contentLength.rawValue: String(response.body.count),

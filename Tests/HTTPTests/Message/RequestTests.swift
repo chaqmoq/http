@@ -9,8 +9,7 @@ final class RequestTests: XCTestCase {
         // Assert
         XCTAssertEqual(request.method, .GET)
         XCTAssertEqual(request.uri, .default)
-        XCTAssertEqual(request.version.major, 1)
-        XCTAssertEqual(request.version.minor, 1)
+        XCTAssertEqual(request.version, .init(major: 1, minor: 1))
         XCTAssertEqual(request.headers, [Header.contentLength.rawValue: String(request.body.count)])
         XCTAssertTrue(request.body.isEmpty)
     }
@@ -27,8 +26,7 @@ final class RequestTests: XCTestCase {
         // Assert
         XCTAssertEqual(request.method, method)
         XCTAssertEqual(request.uri, uri)
-        XCTAssertEqual(request.version.major, version.major)
-        XCTAssertEqual(request.version.minor, version.minor)
+        XCTAssertEqual(request.version, version)
         XCTAssertEqual(request.headers, [
             Header.contentLength.rawValue: String(request.body.count),
             Header.contentType.rawValue: "application/json"
