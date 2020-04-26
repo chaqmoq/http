@@ -14,4 +14,17 @@ final class PlainTextTests: ClientServerTests {
             }
         }
     }
+
+    func testHead() {
+        let request = Request(method: .HEAD)
+        let response = Response()
+        execute(request, expecting: response) { result in
+            switch result {
+            case .failure(let error):
+                XCTFail(error.localizedDescription)
+            case .success(let actualResponse):
+                XCTAssertEqual(actualResponse, response)
+            }
+        }
+    }
 }
