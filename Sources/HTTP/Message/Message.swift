@@ -1,4 +1,4 @@
-public protocol Message: CustomStringConvertible {
+public protocol Message: CustomStringConvertible, Equatable {
     var version: Version { get set }
     var headers: ParameterBag<String, String> { get set }
     var body: Body { get set }
