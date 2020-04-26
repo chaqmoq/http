@@ -34,7 +34,3 @@ extension Body {
         content.append(contentsOf: [UInt8](string.utf8))
     }
 }
-
-extension Body: Equatable {
-    public static func == (lhs: Body, rhs: Body) -> Bool { lhs.bytes == rhs.bytes }
-}
