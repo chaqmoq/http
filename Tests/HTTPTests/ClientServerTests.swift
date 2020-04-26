@@ -48,8 +48,8 @@ class ClientServerTests: XCTestCase {
                     }
 
                     let bytes = response.body!.getBytes(at: 0, length: response.body!.readableBytes)!
-                    let response = Response(status: status, headers: headers, body: Body(bytes: bytes))
-                    resultHandler(.success(response))
+                    let actualResponse = Response(status: status, headers: headers, body: Body(bytes: bytes))
+                    resultHandler(.success(actualResponse))
                 }
 
                 DispatchQueue.global().asyncAfter(deadline: .now()) {
