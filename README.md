@@ -1,5 +1,5 @@
 # HTTP component
-[![Actions Status](https://github.com/chaqmoq/http/workflows/development/badge.svg)](https://github.com/chaqmoq/http/actions) [![codecov](https://codecov.io/gh/chaqmoq/http/branch/master/graph/badge.svg)](https://codecov.io/gh/chaqmoq/http)
+[![Swift](https://img.shields.io/badge/Swift-5.1-brightgreen.svg)](https://swift.org/download/#releases) [![Actions Status](https://github.com/chaqmoq/http/workflows/development/badge.svg)](https://github.com/chaqmoq/http/actions) [![codecov](https://codecov.io/gh/chaqmoq/http/branch/master/graph/badge.svg)](https://codecov.io/gh/chaqmoq/http)
 
 ## Installation
 
