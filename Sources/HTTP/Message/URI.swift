@@ -14,7 +14,13 @@ public struct URI {
 
     private var urlComponents: URLComponents?
 
-    public init?(string: String) { urlComponents = URLComponents(string: string) }
+    public init?(string: String) {
+        urlComponents = URLComponents(string: string)
+
+        if urlComponents == nil {
+            return nil
+        }
+    }
 }
 
 extension URI {
