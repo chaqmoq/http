@@ -28,11 +28,12 @@ jobs:
     - name: Generate coverage report
       run: llvm-cov export -format="lcov" .build/debug/chaqmoq-httpPackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
     - name: Upload to codecov.io
-      uses: codecov/codecov-action@v1.0.6
+      uses: codecov/codecov-action@v1
       with:
-        token: ${{secrets.CODECOV_TOKEN}}
+        token: ${{ secrets.CODECOV_TOKEN }}
         flags: base64,unittests
         file: coverage.lcov
+        fail_ci_if_error: true  
   ubuntu_xenial:
     runs-on: ubuntu-latest
     container: 
@@ -47,8 +48,9 @@ jobs:
     - name: Generate coverage report
       run: llvm-cov export -format="lcov" .build/debug/chaqmoq-httpPackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
     - name: Upload to codecov.io
-      uses: codecov/codecov-action@v1.0.6
+      uses: codecov/codecov-action@v1
       with:
-        token: ${{secrets.CODECOV_TOKEN}}
+        token: ${{ secrets.CODECOV_TOKEN }}
         flags: base64,unittests
         file: coverage.lcov
+        fail_ci_if_error: true
