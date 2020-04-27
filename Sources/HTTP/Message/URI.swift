@@ -8,6 +8,7 @@ public struct URI {
     public var host: String? { urlComponents?.host }
     public var port: Int? { urlComponents?.port }
     public var url: URL? { urlComponents?.url }
+    public var string: String? { urlComponents?.string }
     public var path: String? { urlComponents?.path }
     public var query: ParameterBag<String, Any>? { getQueryParameters() }
 
@@ -37,5 +38,5 @@ extension URI: Equatable {
 }
 
 extension URI: CustomStringConvertible {
-    public var description: String { urlComponents?.string ?? "" }
+    public var description: String { string ?? "" }
 }
