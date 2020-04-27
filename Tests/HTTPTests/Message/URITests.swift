@@ -14,6 +14,7 @@ final class URITests: XCTestCase {
         XCTAssertEqual(uri.string, "/")
         XCTAssertEqual(uri.path, "/")
         XCTAssertNil(uri.query)
+        XCTAssertEqual("\(uri)", uri.string)
     }
 
     func testInit() {
@@ -29,5 +30,14 @@ final class URITests: XCTestCase {
         XCTAssertEqual(uri.string, string)
         XCTAssertEqual(uri.path, "/posts")
         XCTAssertEqual(uri.query, ["id": "1"])
+        XCTAssertEqual("\(uri)", uri.string)
+    }
+
+    func testInvalidInit() {
+        // Arrange
+        let uri = URI(string: "\\")
+
+        // Assert
+        XCTAssertNil(uri)
     }
 }
