@@ -33,8 +33,8 @@ class ClientServerTests: XCTestCase {
                 headers.add(name: name, value: value)
             }
 
-            var buffer = ByteBufferAllocator().buffer(capacity: response.body.count)
-            buffer.writeBytes(response.body.bytes)
+            var buffer = ByteBufferAllocator().buffer(capacity: request.body.count)
+            buffer.writeBytes(request.body.bytes)
             let body: HTTPClient.Body = .byteBuffer(buffer)
 
             let request = try! HTTPClient.Request(url: url, method: method, headers: headers, body: body)
