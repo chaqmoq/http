@@ -18,9 +18,6 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: swift:5.1-bionic
-      volumes:
-      - $GITHUB_WORKSPACE:/src
-      options: --workdir /src
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -40,9 +37,6 @@ jobs:
     runs-on: ubuntu-latest
     container: 
       image: swift:5.1-xenial
-      volumes:
-      - $GITHUB_WORKSPACE:/src
-      options: --workdir /src
     steps:
     - name: Checkout
       uses: actions/checkout@v2
