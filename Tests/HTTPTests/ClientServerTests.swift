@@ -19,7 +19,8 @@ class ClientServerTests: XCTestCase {
     func execute(
         _ request: Request,
         expecting response: Response,
-        resultHandler: @escaping (Result<Response, Error>) -> Void
+        requestHandler: @escaping (Request) -> Void,
+        responseHandler: @escaping (Result<Response, Error>) -> Void
     ) {
         self.request = request
         server.onStart = { [weak self] _ in
@@ -40,7 +41,7 @@ class ClientServerTests: XCTestCase {
             weakSelf.client.execute(request: request).whenComplete { result in
                 switch result {
                 case .failure(let error):
-                    resultHandler(.failure(error))
+                    responseHandler(.failure(error))
                 case .success(let response):
                     let status = Response.Status(rawValue: Int(response.status.code))!
                     var headers = ParameterBag<String, String>()
@@ -57,7 +58,7 @@ class ClientServerTests: XCTestCase {
                         actualResponse = Response(status: status, headers: headers)
                     }
 
-                    resultHandler(.success(actualResponse))
+                    responseHandler(.success(actualResponse))
                 }
 
                 DispatchQueue.global().asyncAfter(deadline: .now()) {
@@ -67,6 +68,7 @@ class ClientServerTests: XCTestCase {
             }
         }
         server.onReceive = { request, _ in
+            requestHandler(request)
             return response
         }
         try! server.start()
