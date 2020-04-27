@@ -1,6 +1,5 @@
 # HTTP component
-
-This is a part of Chaqmoq Web Framework in Swift [![codecov](https://codecov.io/gh/chaqmoq/http/branch/master/graph/badge.svg)](https://codecov.io/gh/chaqmoq/http)
+[![Actions Status](https://github.com/chaqmoq/http/workflows/development/badge.svg)](https://github.com/chaqmoq/http/actions) [![codecov](https://codecov.io/gh/chaqmoq/http/branch/master/graph/badge.svg)](https://codecov.io/gh/chaqmoq/http)
 
 ## Installation
 
