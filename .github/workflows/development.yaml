@@ -16,13 +16,8 @@ jobs:
       run: swift test --enable-code-coverage --enable-test-discovery --sanitize=thread
   ubuntu:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        images:
-        - swift:5.1
-        - swift:5.2
     container:
-      image: ${{ matrix.images }}
+      image: swift:5.1-bionic
       volumes:
       - $GITHUB_WORKSPACE:/src
       options: --workdir /src
