@@ -8,16 +8,21 @@ jobs:
   macos:
     runs-on: macos-latest
     steps:
+    - name: Checkout
     - uses: actions/checkout@v2
     - name: Build
       run: swift build -v
     - name: Run tests
       run: swift test --enable-code-coverage --enable-test-discovery --sanitize=thread
   ubuntu_bionic:
+    runs-on: ubuntu-latest
     container: 
       image: swift:5.1-bionic
-    runs-on: ubuntu-latest
+      volumes:
+      - $GITHUB_WORKSPACE:/src
+      options: --workdir /src
     steps:
+    - name: Checkout
     - uses: actions/checkout@v2
     - name: Build
       run: swift build -v
@@ -32,12 +37,24 @@ jobs:
         flags: base64,unittests
         file: coverage.lcov
   ubuntu_xenial:
+    runs-on: ubuntu-latest
     container: 
       image: swift:5.1-xenial
-    runs-on: ubuntu-latest
+      volumes:
+      - $GITHUB_WORKSPACE:/src
+      options: --workdir /src
     steps:
+    - name: Checkout
     - uses: actions/checkout@v2
     - name: Build
       run: swift build -v
     - name: Run tests
       run: swift test --enable-code-coverage --enable-test-discovery --sanitize=thread
+    - name: Generate coverage report
+      run: llvm-cov export -format="lcov" .build/debug/chaqmoq-httpPackageTests.xctest -instr-profile .build/debug/codecov/default.profdata > coverage.lcov
+    - name: Upload to codecov.io
+      uses: codecov/codecov-action@v1.0.6
+      with:
+        token: ${{secrets.CODECOV_TOKEN}}
+        flags: base64,unittests
+        file: coverage.lcov
