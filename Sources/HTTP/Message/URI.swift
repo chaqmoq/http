@@ -34,7 +34,7 @@ extension URI {
 }
 
 extension URI: Equatable {
-    public static func == (lhs: URI, rhs: URI) -> Bool { lhs.urlComponents == rhs.urlComponents }
+    public static func ==(lhs: URI, rhs: URI) -> Bool { lhs.urlComponents == rhs.urlComponents }
 }
 
 extension URI: CustomStringConvertible {
