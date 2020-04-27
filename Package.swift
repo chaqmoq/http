@@ -24,7 +24,7 @@ let package = Package(
             "NIOHTTPCompression",
             "NIOSSL"
         ]),
-        .testTarget(name: "HTTPTests", dependencies: ["HTTP", "AsyncHTTPClient"], exclude: [".build", "Tests"])
+        .testTarget(name: "HTTPTests", dependencies: ["HTTP", "AsyncHTTPClient"])
     ],
     swiftLanguageVersions: [.v5]
 )
