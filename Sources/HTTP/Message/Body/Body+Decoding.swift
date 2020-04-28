@@ -3,26 +3,13 @@ import struct Foundation.Data
 import struct Foundation.URLComponents
 
 extension Body {
-    public func decode(contentType: String) -> (ParameterBag<String, Any>?, ParameterBag<String, File>?) {
-        if contentType.hasPrefix("application/json") {
-            return (decodeJSON(), nil)
-        } else if contentType.hasPrefix("multipart/form-data") {
-            return decodeMultipart(contentType: contentType)
-        } else if contentType.hasPrefix("application/x-www-form-urlencoded") {
-            return (decodeURLEncoded(), nil)
-        }
-
-        return (nil, nil)
-    }
-
     public func decodeJSON() -> ParameterBag<String, Any>? {
         return try? JSONSerialization.jsonObject(with: data, options: []) as? ParameterBag<String, Any>
     }
 
-    public func decodeMultipart(contentType: String) -> (ParameterBag<String, Any>?, ParameterBag<String, File>?) {
+    public func decodeMultipart(boundary: String) -> (ParameterBag<String, Any>?, ParameterBag<String, File>?) {
         guard !isEmpty else { return (nil, nil) }
-        guard var boundary = HeaderUtil.getParameterValue(for: "boundary", in: contentType) else { return (nil, nil) }
-        boundary = "--" + boundary
+        let boundary = "--" + boundary
         let boundaryBytes = [UInt8](boundary.utf8)
         let boundaryLength = boundaryBytes.count
         var boundaryCounter = 0
