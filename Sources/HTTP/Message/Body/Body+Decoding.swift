@@ -3,11 +3,11 @@ import struct Foundation.Data
 import struct Foundation.URLComponents
 
 extension Body {
-    public func decodeJSON() -> ParameterBag<String, Any>? {
+    public var json: ParameterBag<String, Any>? {
         return try? JSONSerialization.jsonObject(with: data, options: []) as? ParameterBag<String, Any>
     }
 
-    public func decodeURLEncoded() -> ParameterBag<String, Any>? {
+    public var urlEncoded: ParameterBag<String, Any>? {
         if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
             var urlComponents = URLComponents()
             urlComponents.query = string
@@ -26,7 +26,7 @@ extension Body {
         return nil
     }
 
-    public func decodeMultipart(boundary: String) -> (ParameterBag<String, Any>?, ParameterBag<String, File>?) {
+    public func multipart(boundary: String) -> (ParameterBag<String, Any>?, ParameterBag<String, File>?) {
         guard !isEmpty else { return (nil, nil) }
         let boundary = "--" + boundary
         let boundaryBytes = [UInt8](boundary.utf8)
