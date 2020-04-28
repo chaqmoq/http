@@ -33,7 +33,6 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: base64,unittests
         file: coverage.lcov
-        fail_ci_if_error: true
   ubuntu-xenial:
     runs-on: ubuntu-latest
     container:
@@ -53,4 +52,3 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         flags: base64,unittests
         file: coverage.lcov
-        fail_ci_if_error: true
