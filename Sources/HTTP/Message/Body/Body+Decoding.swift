@@ -7,6 +7,25 @@ extension Body {
         return try? JSONSerialization.jsonObject(with: data, options: []) as? ParameterBag<String, Any>
     }
 
+    public func decodeURLEncoded() -> ParameterBag<String, Any>? {
+        if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
+            var urlComponents = URLComponents()
+            urlComponents.query = string
+
+            if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
+                var parameters = ParameterBag<String, Any>()
+
+                for queryItem in queryItems {
+                    parameters[queryItem.name] = queryItem.value
+                }
+
+                return parameters
+            }
+        }
+
+        return nil
+    }
+
     public func decodeMultipart(boundary: String) -> (ParameterBag<String, Any>?, ParameterBag<String, File>?) {
         guard !isEmpty else { return (nil, nil) }
         let boundary = "--" + boundary
@@ -84,24 +103,5 @@ extension Body {
         }
 
         return (parameters, files)
-    }
-
-    public func decodeURLEncoded() -> ParameterBag<String, Any>? {
-        if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
-            var urlComponents = URLComponents()
-            urlComponents.query = string
-
-            if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
-                var parameters = ParameterBag<String, Any>()
-
-                for queryItem in queryItems {
-                    parameters[queryItem.name] = queryItem.value
-                }
-
-                return parameters
-            }
-        }
-
-        return nil
     }
 }
