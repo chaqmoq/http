@@ -1,5 +1,5 @@
 # HTTP component
-[![Swift](https://img.shields.io/badge/Swift-5.1-brightgreen.svg)](https://swift.org/download/#releases) [![MIT License](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/chaqmoq/http/blob/master/LICENSE/) [![Actions Status](https://github.com/chaqmoq/http/workflows/development/badge.svg)](https://github.com/chaqmoq/http/actions) [![codecov](https://codecov.io/gh/chaqmoq/http/branch/master/graph/badge.svg)](https://codecov.io/gh/chaqmoq/http)
+[![Swift](https://img.shields.io/badge/swift-5.1-brightgreen.svg)](https://swift.org/download/#releases) [![MIT License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](https://github.com/chaqmoq/http/blob/master/LICENSE/) [![Actions Status](https://github.com/chaqmoq/http/workflows/development/badge.svg)](https://github.com/chaqmoq/http/actions) [![codecov](https://codecov.io/gh/chaqmoq/http/branch/master/graph/badge.svg)](https://codecov.io/gh/chaqmoq/http)
 
 ## Installation
 
