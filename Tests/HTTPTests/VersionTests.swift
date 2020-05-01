@@ -1,5 +1,5 @@
 import XCTest
-@testable import HTTP
+@testable import struct HTTP.Version
 
 final class VersionTests: XCTestCase {
     func testDefaultInit() {

@@ -1,5 +1,5 @@
 import XCTest
-@testable import HTTP
+@testable import struct HTTP.URI
 
 final class URITests: XCTestCase {
     func testDefault() {
