@@ -5,10 +5,10 @@ public struct Response: Message {
     public var body: Body { didSet { setContentLengthHeader() } }
 
     public init(
-        version: Version = .init(),
+        body: Body = .init(),
         status: Status = .ok,
         headers: ParameterBag<String, String> = .init(),
-        body: Body = .init()
+        version: Version = .init()
     ) {
         self.version = version
         self.status = status

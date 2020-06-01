@@ -7,10 +7,10 @@ final class ResponseTests: XCTestCase {
         let response = Response()
 
         // Assert
-        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
+        XCTAssertTrue(response.body.isEmpty)
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.headers, [Header.contentLength.rawValue: String(response.body.count)])
-        XCTAssertTrue(response.body.isEmpty)
+        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
     }
 
     func testCustomInit() {
@@ -19,16 +19,16 @@ final class ResponseTests: XCTestCase {
         let version: Version = .init(major: 2, minor: 0)
         let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
-        let response = Response(version: version, status: status, headers: headers, body: body)
+        let response = Response(body: body, status: status, headers: headers, version: version)
 
         // Assert
-        XCTAssertEqual(response.version, version)
+        XCTAssertFalse(response.body.isEmpty)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers, [
             Header.contentLength.rawValue: String(response.body.count),
             Header.contentType.rawValue: "application/json"
         ])
-        XCTAssertFalse(response.body.isEmpty)
+        XCTAssertEqual(response.version, version)
     }
 
     func testUpdate() {
@@ -46,13 +46,13 @@ final class ResponseTests: XCTestCase {
         response.body = body
 
         // Assert
-        XCTAssertEqual(response.version, version)
+        XCTAssertFalse(response.body.isEmpty)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers, [
             Header.contentLength.rawValue: String(response.body.count),
             Header.contentType.rawValue: "application/json"
         ])
-        XCTAssertFalse(response.body.isEmpty)
+        XCTAssertEqual(response.version, version)
     }
 
     func testStatuses() {
