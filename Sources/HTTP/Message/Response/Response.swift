@@ -1,3 +1,5 @@
+import struct Foundation.Data
+
 public struct Response: Message {
     public var version: Version
     public var status: Status
@@ -25,5 +27,14 @@ public struct Response: Message {
         version: Version = .init()
     ) {
         self.init(body: .init(string: string), status: status, headers: headers, version: version)
+    }
+
+    public init(
+        _ data: Data,
+        status: Status = .ok,
+        headers: ParameterBag<String, String> = .init(),
+        version: Version = .init()
+    ) {
+        self.init(body: .init(data: data), status: status, headers: headers, version: version)
     }
 }
