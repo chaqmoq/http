@@ -17,4 +17,13 @@ public struct Response: Message {
 
         setContentLengthHeader()
     }
+
+    public init(
+        _ string: String,
+        status: Status = .ok,
+        headers: ParameterBag<String, String> = .init(),
+        version: Version = .init()
+    ) {
+        self.init(body: .init(string: string), status: status, headers: headers, version: version)
+    }
 }

@@ -13,6 +13,18 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.version, .init(major: 1, minor: 1))
     }
 
+    func testInitWithString() {
+        // Arrange
+        let string = "Hello World"
+        let response = Response(string)
+
+        // Assert
+        XCTAssertEqual(response.body.string, string)
+        XCTAssertEqual(response.status, .ok)
+        XCTAssertEqual(response.headers, [Header.contentLength.rawValue: String(response.body.count)])
+        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
+    }
+
     func testCustomInit() {
         // Arrange
         let status: Response.Status = .created
