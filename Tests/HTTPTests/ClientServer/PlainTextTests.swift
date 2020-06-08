@@ -4,7 +4,7 @@ import XCTest
 final class PlainTextTests: ClientServerTests {
     func testGet() {
         let request = Request(method: .GET, uri: URI(string: server.configuration.socketAddress)!)
-        let response = Response(.init(string: "Hello World"))
+        let response = Response("Hello World")
         execute(request, expecting: response, requestHandler: { actualRequest in
             // TODO: add assertions
         }) { result in
