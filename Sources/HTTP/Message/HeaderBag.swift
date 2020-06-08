@@ -7,14 +7,17 @@ public struct HeaderBag {
     }
 
     public func indices(for key: String) -> [Int] {
-        headers.enumerated().filter({ $0.element.0 == key }).map { $0.offset }
+        let key = key.lowercased()
+        return headers.enumerated().filter({ $0.element.0 == key }).map { $0.offset }
     }
 
     public mutating func add(value: String, for key: String) {
+        let key = key.lowercased()
         headers.append((key, value))
     }
 
     public mutating func set(value: String, for key: String) {
+        let key = key.lowercased()
         let indices = self.indices(for: key)
 
         if indices.isEmpty {
@@ -27,6 +30,7 @@ public struct HeaderBag {
     }
 
     public mutating func remove(for key: String) {
+        let key = key.lowercased()
         let indices = self.indices(for: key)
 
         for index in indices {
@@ -35,15 +39,18 @@ public struct HeaderBag {
     }
 
     public func has(key: String) -> Bool {
-        headers.contains(where: { $0.0 == key })
+        let key = key.lowercased()
+        return headers.contains(where: { $0.0 == key })
     }
 
     public func values(for key: String) -> [String] {
-        headers.filter({ $0.0 == key }).map { $0.1 }
+        let key = key.lowercased()
+        return headers.filter({ $0.0 == key }).map { $0.1 }
     }
 
     public func value(for key: String) -> String? {
-        values(for: key).last
+        let key = key.lowercased()
+        return values(for: key).last
     }
 }
 
@@ -63,6 +70,6 @@ extension HeaderBag: ExpressibleByDictionaryLiteral {
     public typealias Value = String
 
     public init(dictionaryLiteral elements: (String, String)...) {
-        headers = elements
+        headers = elements.map { ($0.0.lowercased(), $0.1) }
     }
 }
