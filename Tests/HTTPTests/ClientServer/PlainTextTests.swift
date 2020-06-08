@@ -12,7 +12,8 @@ final class PlainTextTests: ClientServerTests {
             case .failure(let error):
                 XCTFail(error.localizedDescription)
             case .success(let actualResponse):
-                XCTAssertEqual(actualResponse, response)
+                XCTAssertEqual(actualResponse.body, response.body)
+                XCTAssertEqual(actualResponse.status, response.status)
             }
         }
     }
@@ -27,7 +28,8 @@ final class PlainTextTests: ClientServerTests {
             case .failure(let error):
                 XCTFail(error.localizedDescription)
             case .success(let actualResponse):
-                XCTAssertEqual(actualResponse, response)
+                XCTAssertEqual(actualResponse.body, response.body)
+                XCTAssertEqual(actualResponse.status, response.status)
             }
         }
     }

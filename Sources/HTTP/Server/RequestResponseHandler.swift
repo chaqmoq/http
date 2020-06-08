@@ -15,20 +15,20 @@ final class RequestResponseHandler: ChannelInboundHandler {
         let request = unwrapInboundIn(data)
         var response = Response()
 
-        if response.headers[Header.server.rawValue] == nil {
-            response.headers[Header.server.rawValue] = server.configuration.serverName
+        if let serverName = server.configuration.serverName {
+            response.headers.set(value: serverName, for: Header.server.rawValue)
         }
 
         if request.version.major < Version.Major.two.rawValue {
             let connectionKey = Header.connection.rawValue
 
-            if let connection = request.headers[connectionKey] {
-                response.headers[connectionKey] = connection
+            if let connection = request.headers.value(for: connectionKey) {
+                response.headers.set(value: connection, for: connectionKey)
             } else {
                 if request.version.major == Version.Major.one.rawValue && request.version.minor >= 1 {
-                    response.headers[connectionKey] = "keep-alive"
+                    response.headers.set(value: "keep-alive", for: connectionKey)
                 } else {
-                    response.headers[connectionKey] = "close"
+                    response.headers.set(value: "close", for: connectionKey)
                 }
             }
         }
@@ -82,7 +82,7 @@ final class RequestResponseHandler: ChannelInboundHandler {
         } else {
             let future = context.write(wrapOutboundOut(response))
 
-            if response.headers[Header.connection.rawValue] == "close" {
+            if response.headers.has(key: "close") {
                 future.whenComplete { _ in
                     context.close(mode: .output, promise: nil)
                 }

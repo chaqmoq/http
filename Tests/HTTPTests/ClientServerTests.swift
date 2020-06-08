@@ -44,10 +44,10 @@ class ClientServerTests: XCTestCase {
                     responseHandler(.failure(error))
                 case .success(let response):
                     let status = Response.Status(rawValue: Int(response.status.code))!
-                    var headers = ParameterBag<String, String>()
+                    var headers = HeaderBag()
 
                     for header in response.headers {
-                        headers[header.name] = header.value
+                        headers.set(value: header.value, for: header.name)
                     }
 
                     let actualResponse: Response
