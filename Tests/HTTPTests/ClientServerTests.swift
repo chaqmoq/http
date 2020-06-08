@@ -53,7 +53,7 @@ class ClientServerTests: XCTestCase {
                     let actualResponse: Response
 
                     if let body = response.body, let bytes = body.getBytes(at: 0, length: body.readableBytes) {
-                        actualResponse = Response(body: .init(bytes: bytes), status: status, headers: headers)
+                        actualResponse = Response(.init(bytes: bytes), status: status, headers: headers)
                     } else {
                         actualResponse = Response(status: status, headers: headers)
                     }

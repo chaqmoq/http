@@ -43,7 +43,7 @@ final class ResponseTests: XCTestCase {
         let version: Version = .init(major: 2, minor: 0)
         let headers: ParameterBag<String, String> = [Header.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
-        let response = Response(body: body, status: status, headers: headers, version: version)
+        let response = Response(body, status: status, headers: headers, version: version)
 
         // Assert
         XCTAssertFalse(response.body.isEmpty)

@@ -7,7 +7,7 @@ public struct Response: Message {
     public var body: Body { didSet { setContentLengthHeader() } }
 
     public init(
-        body: Body = .init(),
+        _ body: Body = .init(),
         status: Status = .ok,
         headers: ParameterBag<String, String> = .init(),
         version: Version = .init()
@@ -26,7 +26,7 @@ public struct Response: Message {
         headers: ParameterBag<String, String> = .init(),
         version: Version = .init()
     ) {
-        self.init(body: .init(string: string), status: status, headers: headers, version: version)
+        self.init(.init(string: string), status: status, headers: headers, version: version)
     }
 
     public init(
@@ -35,6 +35,6 @@ public struct Response: Message {
         headers: ParameterBag<String, String> = .init(),
         version: Version = .init()
     ) {
-        self.init(body: .init(data: data), status: status, headers: headers, version: version)
+        self.init(.init(data: data), status: status, headers: headers, version: version)
     }
 }
