@@ -101,7 +101,7 @@ extension Headers: ExpressibleByDictionaryLiteral {
     public typealias Key = String
     public typealias Value = String
 
-    public init(dictionaryLiteral elements: Header...) {
-        headers = elements.map { ($0.0.lowercased(), $0.1) }
+    public init(dictionaryLiteral headers: Header...) {
+        self.headers = headers.map { ($0.0.lowercased(), $0.1) }
     }
 }
