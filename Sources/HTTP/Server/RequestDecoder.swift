@@ -34,7 +34,7 @@ final class RequestDecoder: ChannelInboundHandler {
                 }
 
                 for header in head.headers {
-                    request.headers.set(value: header.value, for: header.name)
+                    request.headers.set(header.value, for: header.name)
                 }
 
                 state = .decoding(request)

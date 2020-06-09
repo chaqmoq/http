@@ -6,6 +6,6 @@ public protocol Message: CustomStringConvertible {
 
 extension Message {
     mutating func setContentLengthHeader() {
-        headers.set(value: String(body.count), for: HeaderName.contentLength.rawValue)
+        headers.set(String(body.count), for: .contentLength)
     }
 }

@@ -6,79 +6,79 @@ public struct Headers {
         headers = .init()
     }
 
-    public func indices(for key: String) -> [Int] {
-        let key = key.lowercased()
-        return headers.enumerated().filter({ $0.element.0 == key }).map { $0.offset }
+    public func indices(for name: String) -> [Int] {
+        let name = name.lowercased()
+        return headers.enumerated().filter({ $0.element.0 == name }).map { $0.offset }
     }
 
-    public func indices(for key: HeaderName) -> [Int] {
-        indices(for: key.rawValue)
+    public func indices(for name: HeaderName) -> [Int] {
+        indices(for: name.rawValue)
     }
 
-    public mutating func add(value: String, for key: String) {
-        let key = key.lowercased()
-        headers.append((key, value))
+    public mutating func add(_ value: String, for name: String) {
+        let name = name.lowercased()
+        headers.append((name, value))
     }
 
-    public mutating func add(value: String, for key: HeaderName) {
-        add(value: value, for: key.rawValue)
+    public mutating func add(_ value: String, for name: HeaderName) {
+        add(value, for: name.rawValue)
     }
 
-    public mutating func set(value: String, for key: String) {
-        let key = key.lowercased()
-        let indices = self.indices(for: key)
+    public mutating func set(_ value: String, for name: String) {
+        let name = name.lowercased()
+        let indices = self.indices(for: name)
 
         if indices.isEmpty {
-            headers.append((key, value))
+            headers.append((name, value))
         } else {
             for index in indices {
-                headers[index] = (key, value)
+                headers[index] = (name, value)
             }
         }
     }
 
-    public mutating func set(value: String, for key: HeaderName) {
-        set(value: value, for: key.rawValue)
+    public mutating func set(_ value: String, for name: HeaderName) {
+        set(value, for: name.rawValue)
     }
 
-    public mutating func remove(for key: String) {
-        let key = key.lowercased()
-        let indices = self.indices(for: key)
+    public mutating func remove(_ name: String) {
+        let name = name.lowercased()
+        let indices = self.indices(for: name)
 
         for index in indices {
             headers.remove(at: index)
         }
     }
 
-    public mutating func remove(for key: HeaderName) {
-        remove(for: key.rawValue)
+    public mutating func remove(_ name: HeaderName) {
+        remove(name.rawValue)
     }
 
-    public func has(key: String) -> Bool {
-        let key = key.lowercased()
-        return headers.contains(where: { $0.0 == key })
+    public func has(_ name: String) -> Bool {
+        let name = name.lowercased()
+        return headers.contains(where: { $0.0 == name })
     }
 
-    public func has(key: HeaderName) -> Bool {
-        has(key: key.rawValue)
+    public func has(_ name: HeaderName) -> Bool {
+        has(name.rawValue)
     }
 
-    public func values(for key: String) -> [String] {
-        let key = key.lowercased()
-        return headers.filter({ $0.0 == key }).map { $0.1 }
+    public func values(for name: String) -> [String] {
+        let name = name.lowercased()
+        return headers.filter({ $0.0 == name }).map { $0.1 }
     }
 
-    public func values(for key: HeaderName) -> [String] {
-        values(for: key.rawValue)
+    public func values(for name: HeaderName) -> [String] {
+        values(for: name.rawValue)
     }
 
-    public func value(for key: String) -> String? {
-        let key = key.lowercased()
-        return values(for: key).last
+    public func value(for name: String) -> String? {
+        let name = name.lowercased()
+        return values(for: name).last
     }
 
-    public func value(for key: HeaderName) -> String? {
-        value(for: key.rawValue)
+    public func value(for name: HeaderName) -> String? {
+        value(for: name.rawValue)
     }
 }
 

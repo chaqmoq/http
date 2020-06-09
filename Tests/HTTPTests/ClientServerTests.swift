@@ -47,7 +47,7 @@ class ClientServerTests: XCTestCase {
                     var headers = Headers()
 
                     for header in response.headers {
-                        headers.set(value: header.value, for: header.name)
+                        headers.set(header.value, for: header.name)
                     }
 
                     let actualResponse: Response
