@@ -1,6 +1,6 @@
 public struct HeaderBag {
-    public typealias ArrayOfTuplesType = [(String, String)]
-    private var headers: ArrayOfTuplesType
+    public typealias HeadersType = [Header]
+    private var headers: HeadersType
 
     public init() {
         headers = .init()
@@ -55,8 +55,8 @@ public struct HeaderBag {
 }
 
 extension HeaderBag: Collection {
-    public typealias Index = ArrayOfTuplesType.Index
-    public typealias Element = ArrayOfTuplesType.Element
+    public typealias Index = HeadersType.Index
+    public typealias Element = HeadersType.Element
 
     public var startIndex: Index { headers.startIndex }
     public var endIndex: Index { headers.endIndex }
@@ -69,7 +69,7 @@ extension HeaderBag: ExpressibleByDictionaryLiteral {
     public typealias Key = String
     public typealias Value = String
 
-    public init(dictionaryLiteral elements: (String, String)...) {
+    public init(dictionaryLiteral elements: Header...) {
         headers = elements.map { ($0.0.lowercased(), $0.1) }
     }
 }
