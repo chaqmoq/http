@@ -14,6 +14,10 @@ public struct Headers {
         self.headers = headers.map { ($0.0.rawValue.lowercased(), $0.1) }
     }
 
+    public init(_ headers: (String, String)...) {
+        self.headers = headers.map { ($0.0.lowercased(), $0.1) }
+    }
+
     public func indices(for name: String) -> [Int] {
         let name = name.lowercased()
         return headers.enumerated().filter({ $0.element.0 == name }).map { $0.offset }
