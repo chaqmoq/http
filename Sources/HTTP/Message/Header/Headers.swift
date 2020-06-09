@@ -1,6 +1,6 @@
 public struct Headers {
-    public typealias HeadersType = [Header]
-    private var headers: HeadersType
+    public typealias ArrayType = [Header]
+    private var headers: ArrayType
 
     public init() {
         headers = .init()
@@ -55,8 +55,8 @@ public struct Headers {
 }
 
 extension Headers: Collection {
-    public typealias Index = HeadersType.Index
-    public typealias Element = HeadersType.Element
+    public typealias Index = ArrayType.Index
+    public typealias Element = ArrayType.Element
 
     public var startIndex: Index { headers.startIndex }
     public var endIndex: Index { headers.endIndex }
