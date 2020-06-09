@@ -1,4 +1,4 @@
-public enum Header: String {
+public enum HeaderName: String {
     case accept = "Accept"
     case acceptCH = "Accept-CH"
     case acceptCHLifetime = "Accept-CH-Lifetime"

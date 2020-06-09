@@ -9,7 +9,7 @@ final class ResponseTests: XCTestCase {
         // Assert
         XCTAssertTrue(response.body.isEmpty)
         XCTAssertEqual(response.status, .ok)
-        XCTAssertEqual(response.headers.value(for: Header.contentLength.rawValue), String(response.body.count))
+        XCTAssertEqual(response.headers.value(for: HeaderName.contentLength.rawValue), String(response.body.count))
         XCTAssertEqual(response.version, .init(major: 1, minor: 1))
     }
 
@@ -21,7 +21,7 @@ final class ResponseTests: XCTestCase {
         // Assert
         XCTAssertEqual(response.body.string, string)
         XCTAssertEqual(response.status, .ok)
-        XCTAssertEqual(response.headers.value(for: Header.contentLength.rawValue), String(response.body.count))
+        XCTAssertEqual(response.headers.value(for: HeaderName.contentLength.rawValue), String(response.body.count))
         XCTAssertEqual(response.version, .init(major: 1, minor: 1))
     }
 
@@ -33,7 +33,7 @@ final class ResponseTests: XCTestCase {
         // Assert
         XCTAssertEqual(response.body.data, data)
         XCTAssertEqual(response.status, .ok)
-        XCTAssertEqual(response.headers.value(for: Header.contentLength.rawValue), String(response.body.count))
+        XCTAssertEqual(response.headers.value(for: HeaderName.contentLength.rawValue), String(response.body.count))
         XCTAssertEqual(response.version, .init(major: 1, minor: 1))
     }
 
@@ -41,15 +41,15 @@ final class ResponseTests: XCTestCase {
         // Arrange
         let status: Response.Status = .created
         let version: Version = .init(major: 2, minor: 0)
-        let headers: HeaderBag = [Header.contentType.rawValue: "application/json"]
+        let headers: HeaderBag = [HeaderName.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         let response = Response(body, status: status, headers: headers, version: version)
 
         // Assert
         XCTAssertFalse(response.body.isEmpty)
         XCTAssertEqual(response.status, status)
-        XCTAssertEqual(response.headers.value(for: Header.contentLength.rawValue), String(response.body.count))
-        XCTAssertEqual(response.headers.value(for: Header.contentType.rawValue), "application/json")
+        XCTAssertEqual(response.headers.value(for: HeaderName.contentLength.rawValue), String(response.body.count))
+        XCTAssertEqual(response.headers.value(for: HeaderName.contentType.rawValue), "application/json")
         XCTAssertEqual(response.version, version)
     }
 
@@ -57,7 +57,7 @@ final class ResponseTests: XCTestCase {
         // Arrange
         let status: Response.Status = .created
         let version: Version = .init(major: 2, minor: 0)
-        let headers: HeaderBag = [Header.contentType.rawValue: "application/json"]
+        let headers: HeaderBag = [HeaderName.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         var response = Response()
 
@@ -70,8 +70,8 @@ final class ResponseTests: XCTestCase {
         // Assert
         XCTAssertFalse(response.body.isEmpty)
         XCTAssertEqual(response.status, status)
-        XCTAssertEqual(response.headers.value(for: Header.contentLength.rawValue), String(response.body.count))
-        XCTAssertEqual(response.headers.value(for: Header.contentType.rawValue), "application/json")
+        XCTAssertEqual(response.headers.value(for: HeaderName.contentLength.rawValue), String(response.body.count))
+        XCTAssertEqual(response.headers.value(for: HeaderName.contentType.rawValue), "application/json")
         XCTAssertEqual(response.version, version)
     }
 

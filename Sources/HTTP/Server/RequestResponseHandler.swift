@@ -16,11 +16,11 @@ final class RequestResponseHandler: ChannelInboundHandler {
         var response = Response()
 
         if let serverName = server.configuration.serverName {
-            response.headers.set(value: serverName, for: Header.server.rawValue)
+            response.headers.set(value: serverName, for: HeaderName.server.rawValue)
         }
 
         if request.version.major < Version.Major.two.rawValue {
-            let connectionKey = Header.connection.rawValue
+            let connectionKey = HeaderName.connection.rawValue
 
             if let connection = request.headers.value(for: connectionKey) {
                 response.headers.set(value: connection, for: connectionKey)
