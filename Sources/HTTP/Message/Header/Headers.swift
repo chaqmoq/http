@@ -1,4 +1,4 @@
-public struct HeaderBag {
+public struct Headers {
     public typealias HeadersType = [Header]
     private var headers: HeadersType
 
@@ -54,7 +54,7 @@ public struct HeaderBag {
     }
 }
 
-extension HeaderBag: Collection {
+extension Headers: Collection {
     public typealias Index = HeadersType.Index
     public typealias Element = HeadersType.Element
 
@@ -65,7 +65,7 @@ extension HeaderBag: Collection {
     public func index(after index: Index) -> Index { headers.index(after: index) }
 }
 
-extension HeaderBag: ExpressibleByDictionaryLiteral {
+extension Headers: ExpressibleByDictionaryLiteral {
     public typealias Key = String
     public typealias Value = String
 

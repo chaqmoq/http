@@ -41,7 +41,7 @@ final class ResponseTests: XCTestCase {
         // Arrange
         let status: Response.Status = .created
         let version: Version = .init(major: 2, minor: 0)
-        let headers: HeaderBag = [HeaderName.contentType.rawValue: "application/json"]
+        let headers: Headers = [HeaderName.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         let response = Response(body, status: status, headers: headers, version: version)
 
@@ -57,7 +57,7 @@ final class ResponseTests: XCTestCase {
         // Arrange
         let status: Response.Status = .created
         let version: Version = .init(major: 2, minor: 0)
-        let headers: HeaderBag = [HeaderName.contentType.rawValue: "application/json"]
+        let headers: Headers = [HeaderName.contentType.rawValue: "application/json"]
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         var response = Response()
 
