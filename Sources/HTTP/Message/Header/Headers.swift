@@ -14,7 +14,7 @@ public struct Headers {
         self.headers = headers.map { ($0.0.rawValue.lowercased(), $0.1) }
     }
 
-    public init(_ headers: (String, String)...) {
+    public init(_ headers: Header...) {
         self.headers = headers.map { ($0.0.lowercased(), $0.1) }
     }
 
