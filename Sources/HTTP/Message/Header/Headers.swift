@@ -6,6 +6,10 @@ public struct Headers {
         headers = .init()
     }
 
+    public init(_ headers: [HeaderName: String]) {
+        self.headers = headers.map { ($0.0.rawValue.lowercased(), $0.1) }
+    }
+
     public func indices(for name: String) -> [Int] {
         let name = name.lowercased()
         return headers.enumerated().filter({ $0.element.0 == name }).map { $0.offset }
