@@ -10,7 +10,7 @@ public struct URI {
     public var url: URL? { urlComponents?.url }
     public var string: String? { urlComponents?.string }
     public var path: String? { urlComponents?.path }
-    public var query: ParameterBag<String, String>? { getQueryParameters() }
+    public var query: Parameters<String, String>? { getQueryParameters() }
     private var urlComponents: URLComponents?
 
     public init?(string: String) {
@@ -20,9 +20,9 @@ public struct URI {
 }
 
 extension URI {
-    private func getQueryParameters() -> ParameterBag<String, String>? {
+    private func getQueryParameters() -> Parameters<String, String>? {
         if let queryItems = urlComponents?.queryItems, !queryItems.isEmpty {
-            var parameters = ParameterBag<String, String>()
+            var parameters = Parameters<String, String>()
             for queryItem in queryItems { parameters[queryItem.name] = queryItem.value }
 
             return parameters

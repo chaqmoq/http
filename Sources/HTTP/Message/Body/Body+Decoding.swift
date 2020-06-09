@@ -3,17 +3,17 @@ import struct Foundation.Data
 import struct Foundation.URLComponents
 
 extension Body {
-    public var json: ParameterBag<String, Any>? {
-        return try? JSONSerialization.jsonObject(with: data, options: []) as? ParameterBag<String, Any>
+    public var json: Parameters<String, Any>? {
+        return try? JSONSerialization.jsonObject(with: data, options: []) as? Parameters<String, Any>
     }
 
-    public var urlEncoded: ParameterBag<String, Any>? {
+    public var urlEncoded: Parameters<String, Any>? {
         if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
             var urlComponents = URLComponents()
             urlComponents.query = string
 
             if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
-                var parameters = ParameterBag<String, Any>()
+                var parameters = Parameters<String, Any>()
 
                 for queryItem in queryItems {
                     parameters[queryItem.name] = queryItem.value
@@ -26,7 +26,7 @@ extension Body {
         return nil
     }
 
-    public func multipart(boundary: String) -> (ParameterBag<String, Any>?, ParameterBag<String, File>?) {
+    public func multipart(boundary: String) -> (Parameters<String, Any>?, Parameters<String, File>?) {
         guard !isEmpty else { return (nil, nil) }
         let boundary = "--" + boundary
         let boundaryBytes = [UInt8](boundary.utf8)
@@ -63,8 +63,8 @@ extension Body {
 
         contentRanges.removeLast()
         guard !contentRanges.isEmpty else { return (nil, nil) }
-        var parameters: ParameterBag<String, Any>?
-        var files: ParameterBag<String, File>?
+        var parameters: Parameters<String, Any>?
+        var files: Parameters<String, File>?
 
         for index in stride(from: 1, through: contentRanges.count - 1, by: 2) {
             let headerStartIndex = contentRanges[index - 1]
