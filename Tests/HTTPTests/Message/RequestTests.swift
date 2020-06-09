@@ -10,7 +10,7 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.method, .GET)
         XCTAssertEqual(request.uri, .default)
         XCTAssertEqual(request.version, .init(major: 1, minor: 1))
-        XCTAssertEqual(request.headers.value(for: HeaderName.contentLength.rawValue), String(request.body.count))
+        XCTAssertEqual(request.headers.value(for: .contentLength), String(request.body.count))
         XCTAssertTrue(request.body.isEmpty)
     }
 
@@ -27,8 +27,8 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.method, method)
         XCTAssertEqual(request.uri, uri)
         XCTAssertEqual(request.version, version)
-        XCTAssertEqual(request.headers.value(for: HeaderName.contentLength.rawValue), String(request.body.count))
-        XCTAssertEqual(request.headers.value(for: HeaderName.contentType.rawValue), "application/json")
+        XCTAssertEqual(request.headers.value(for: .contentLength), String(request.body.count))
+        XCTAssertEqual(request.headers.value(for: .contentType), "application/json")
         XCTAssertFalse(request.body.isEmpty)
     }
 
@@ -52,8 +52,8 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.method, method)
         XCTAssertEqual(request.uri, uri)
         XCTAssertEqual(request.version, version)
-        XCTAssertEqual(request.headers.value(for: HeaderName.contentLength.rawValue), String(request.body.count))
-        XCTAssertEqual(request.headers.value(for: HeaderName.contentType.rawValue), "application/json")
+        XCTAssertEqual(request.headers.value(for: .contentLength), String(request.body.count))
+        XCTAssertEqual(request.headers.value(for: .contentType), "application/json")
         XCTAssertFalse(request.body.isEmpty)
     }
 
