@@ -41,9 +41,9 @@ final class RequestTests: XCTestCase {
         let method: Request.Method = .POST
         let uri = URI(string: "/posts")!
         let version: Version = .init(major: 2, minor: 0)
-        let headers: Headers = .init([.contentType: "application/json", .cookie: "sessionId=efgh; userId=2; username"])
+        let headers: Headers = .init([.contentType: "application/json", .cookie: "sessionId=efgh; userId2=2; username2"])
         let body: Body = .init(string: "{\"title\": \"New post\"}")
-        var request = Request()
+        var request = Request(headers: .init([.cookie: "sessionId=abcd; userId1=1; username1"]))
 
         // Act
         request.method = method
@@ -60,7 +60,7 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.headers.value(for: .contentType), "application/json")
         XCTAssertEqual(request.cookies.count, 2)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
-        XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "2" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId2" && $0.value == "2" }))
         XCTAssertFalse(request.body.isEmpty)
     }
 

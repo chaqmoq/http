@@ -18,7 +18,7 @@ public struct Request: Message {
         self.uri = uri
         self.version = version
         self.headers = headers
-        self.mutableCookies = .init()
+        mutableCookies = .init()
         self.body = body
 
         setContentLengthHeader()
@@ -28,18 +28,14 @@ public struct Request: Message {
 
 extension Request {
     mutating func setCookies() {
+        mutableCookies.removeAll()
         guard let components = headers.value(for: .cookie)?.components(separatedBy: "; ") else { return }
 
         for component in components {
             let subComponents = component.components(separatedBy: "=")
-            guard subComponents.count == 2,
-                let name = subComponents.first,
-                let value = subComponents.last else { continue }
-            let cookie = Cookie(name: name, value: value)
 
-            if mutableCookies.contains(cookie) {
-                mutableCookies.update(with: cookie)
-            } else {
+            if subComponents.count == 2, let name = subComponents.first, let value = subComponents.last {
+                let cookie = Cookie(name: name, value: value)
                 mutableCookies.insert(cookie)
             }
         }
