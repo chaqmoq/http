@@ -32,7 +32,9 @@ extension Request {
 
         for component in components {
             let subComponents = component.components(separatedBy: "=")
-            guard let name = subComponents.first, let value = subComponents.last else { continue }
+            guard subComponents.count == 2,
+                let name = subComponents.first,
+                let value = subComponents.last else { continue }
             let cookie = Cookie(name: name, value: value)
 
             if mutableCookies.contains(cookie) {
