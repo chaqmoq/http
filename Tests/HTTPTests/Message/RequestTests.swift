@@ -11,6 +11,7 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.uri, .default)
         XCTAssertEqual(request.version, .init(major: 1, minor: 1))
         XCTAssertEqual(request.headers.value(for: .contentLength), String(request.body.count))
+        XCTAssertTrue(request.cookies.isEmpty)
         XCTAssertTrue(request.body.isEmpty)
     }
 
@@ -19,7 +20,7 @@ final class RequestTests: XCTestCase {
         let method: Request.Method = .POST
         let uri = URI(string: "/posts")!
         let version: Version = .init(major: 2, minor: 0)
-        let headers: Headers = .init([.contentType: "application/json"])
+        let headers: Headers = .init([.contentType: "application/json", .cookie: "sessionId=abcd; userId=1"])
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         let request = Request(method: method, uri: uri, version: version, headers: headers, body: body)
 
@@ -29,6 +30,9 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.version, version)
         XCTAssertEqual(request.headers.value(for: .contentLength), String(request.body.count))
         XCTAssertEqual(request.headers.value(for: .contentType), "application/json")
+        XCTAssertEqual(request.cookies.count, 2)
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "abcd" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
         XCTAssertFalse(request.body.isEmpty)
     }
 
@@ -37,7 +41,7 @@ final class RequestTests: XCTestCase {
         let method: Request.Method = .POST
         let uri = URI(string: "/posts")!
         let version: Version = .init(major: 2, minor: 0)
-        let headers: Headers = .init([.contentType: "application/json"])
+        let headers: Headers = .init([.contentType: "application/json", .cookie: "sessionId=efgh; userId=2"])
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         var request = Request()
 
@@ -54,6 +58,9 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.version, version)
         XCTAssertEqual(request.headers.value(for: .contentLength), String(request.body.count))
         XCTAssertEqual(request.headers.value(for: .contentType), "application/json")
+        XCTAssertEqual(request.cookies.count, 2)
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "2" }))
         XCTAssertFalse(request.body.isEmpty)
     }
 
