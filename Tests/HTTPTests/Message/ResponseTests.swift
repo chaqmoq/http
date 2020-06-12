@@ -219,17 +219,15 @@ final class ResponseTests: XCTestCase {
     func testDescription() {
         // Arrange
         let response = Response()
-        var string = ""
 
-        for (name, value) in response.headers {
-            string.append("\(name): \(value)\n")
-        }
-
-        string.append("\n\(response.body)")
-        string = "\(response.version) \(response.status)\n\(string)"
+        // Act
+        var description = ""
+        for (name, value) in response.headers { description.append("\(name): \(value)\n") }
+        description.append("\n\(response.body)")
+        description = "\(response.version) \(response.status)\n\(description)"
 
         // Assert
-        XCTAssertEqual("\(response)", string)
+        XCTAssertEqual("\(response)", description)
         XCTAssertEqual("\(response.status)", "200 OK")
     }
 }

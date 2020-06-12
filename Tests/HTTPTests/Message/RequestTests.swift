@@ -91,18 +91,16 @@ final class RequestTests: XCTestCase {
     func testDescription() {
         // Arrange
         let request = Request()
-        var string = ""
 
-        for (name, value) in request.headers {
-            string.append("\(name): \(value)\n")
-        }
-
-        string.append("\n\(request.body)")
-        string = """
-        \(request.method) \(request.uri) \(request.version)\n\(string)
+        // Act
+        var description = ""
+        for (name, value) in request.headers { description.append("\(name): \(value)\n") }
+        description.append("\n\(request.body)")
+        description = """
+        \(request.method) \(request.uri) \(request.version)\n\(description)
         """
 
         // Assert
-        XCTAssertEqual("\(request)", string)
+        XCTAssertEqual("\(request)", description)
     }
 }
