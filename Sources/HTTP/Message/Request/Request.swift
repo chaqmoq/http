@@ -29,7 +29,8 @@ public struct Request: Message {
 extension Request {
     mutating func setCookies() {
         mutableCookies.removeAll()
-        guard let components = headers.value(for: .cookie)?.components(separatedBy: "; ") else { return }
+        guard let value = headers.value(for: .cookie) else { return }
+        let components = value.components(separatedBy: ";").filter { $0 != "" }
 
         for component in components {
             let subComponents = component.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
