@@ -10,6 +10,7 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.version, .init(major: 1, minor: 1))
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
+        XCTAssertTrue(response.cookies.isEmpty)
         XCTAssertTrue(response.body.isEmpty)
     }
 
@@ -22,6 +23,7 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.version, .init(major: 1, minor: 1))
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
+        XCTAssertTrue(response.cookies.isEmpty)
         XCTAssertEqual(response.body.string, string)
     }
 
@@ -31,17 +33,22 @@ final class ResponseTests: XCTestCase {
         let response = Response(data)
 
         // Assert
-        XCTAssertEqual(response.body.data, data)
+        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
-        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
+        XCTAssertTrue(response.cookies.isEmpty)
+        XCTAssertEqual(response.body.data, data)
     }
 
     func testCustomInit() {
         // Arrange
         let status: Response.Status = .created
         let version: Version = .init(major: 2, minor: 0)
-        let headers: Headers = .init([.contentType: "application/json"])
+        let headers: Headers = .init(
+            (.contentType, "application/json"),
+            (.setCookie, "sessionId=abcd; Expires=Sat, 13 Jun 2020 19:15:12 GMT; Max-Age=86400; Domain=chaqmoq.dev;"),
+            (.setCookie, "sessionId=abcd; Path=/blog; Secure; HttpOnly; SameSite=Lax")
+        )
         let body: Body = .init(string: "{\"title\": \"New post\"}")
         let response = Response(body, status: status, headers: headers, version: version)
 
@@ -50,6 +57,18 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
         XCTAssertEqual(response.headers.value(for: .contentType), "application/json")
+        XCTAssertEqual(response.cookies.count, 1)
+        XCTAssertTrue(response.cookies.contains(where: {
+            $0.name == "sessionId" &&
+            $0.value == "abcd" &&
+            $0.expires == Date(rfc1123: "Sat, 13 Jun 2020 19:15:12 GMT") &&
+            $0.maxAge == 86400 &&
+            $0.domain == "chaqmoq.dev" &&
+            $0.path == "/blog" &&
+            $0.isSecure &&
+            $0.isHTTPOnly &&
+            $0.sameSite == .lax
+        }))
         XCTAssertFalse(response.body.isEmpty)
     }
 
@@ -57,9 +76,21 @@ final class ResponseTests: XCTestCase {
         // Arrange
         let status: Response.Status = .created
         let version: Version = .init(major: 2, minor: 0)
-        let headers: Headers = .init([.contentType: "application/json"])
+        let headers: Headers = .init(
+            (.contentType, "application/json"),
+            (.setCookie, """
+            sessionId=efgh; Expires=Sun, 14 Jun 2020 20:21:45 GMT; Max-Age=96400; Domain=docs.chaqmoq.dev; \
+            Path=/get-started; SameSite=Strict
+            """),
+            (.setCookie, "sessionId=efgh; SameSite=None")
+        )
         let body: Body = .init(string: "{\"title\": \"New post\"}")
-        var response = Response()
+        var response = Response(headers: .init([
+            .setCookie: """
+            sessionId=abcd; Expires=Sat, 13 Jun 2020 19:15:12 GMT; Max-Age=86400; Domain=chaqmoq.dev; \
+            Path=/blog; Secure; HttpOnly; SameSite=Lax
+            """
+        ]))
 
         // Act
         response.version = version
@@ -72,6 +103,18 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
         XCTAssertEqual(response.headers.value(for: .contentType), "application/json")
+        XCTAssertEqual(response.cookies.count, 1)
+        XCTAssertTrue(response.cookies.contains(where: {
+            $0.name == "sessionId" &&
+            $0.value == "efgh" &&
+            $0.expires == Date(rfc1123: "Sun, 14 Jun 2020 20:21:45 GMT") &&
+            $0.maxAge == 96400 &&
+            $0.domain == "docs.chaqmoq.dev" &&
+            $0.path == "/get-started" &&
+            !$0.isSecure &&
+            !$0.isHTTPOnly &&
+            $0.sameSite == Cookie.SameSite.none
+        }))
         XCTAssertFalse(response.body.isEmpty)
     }
 
