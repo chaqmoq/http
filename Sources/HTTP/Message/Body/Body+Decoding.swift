@@ -90,8 +90,8 @@ extension Body {
 
             if headerStartIndex < headerEndIndex,
                 let headerLines = String(bytes: bytes[headerStartIndex...headerEndIndex], encoding: .utf8) {
-                if let name = HeaderUtil.getParameterValue(for: "name", in: headerLines) {
-                    if let filename = HeaderUtil.getParameterValue(for: "filename", in: headerLines) {
+                if let name = HeaderUtil.getParameterValue(named: "name", in: headerLines) {
+                    if let filename = HeaderUtil.getParameterValue(named: "filename", in: headerLines) {
                         if files == nil { files = [:] }
                         files?[name] = File(filename: filename, data: Data(bytes[valueStartIndex...valueEndIndex]))
                     } else {
