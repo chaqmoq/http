@@ -7,10 +7,10 @@ final class ResponseTests: XCTestCase {
         let response = Response()
 
         // Assert
-        XCTAssertTrue(response.body.isEmpty)
+        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
-        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
+        XCTAssertTrue(response.body.isEmpty)
     }
 
     func testInitWithString() {
@@ -19,10 +19,10 @@ final class ResponseTests: XCTestCase {
         let response = Response(string)
 
         // Assert
-        XCTAssertEqual(response.body.string, string)
+        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
         XCTAssertEqual(response.status, .ok)
         XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
-        XCTAssertEqual(response.version, .init(major: 1, minor: 1))
+        XCTAssertEqual(response.body.string, string)
     }
 
     func testInitWithData() {
@@ -46,11 +46,11 @@ final class ResponseTests: XCTestCase {
         let response = Response(body, status: status, headers: headers, version: version)
 
         // Assert
-        XCTAssertFalse(response.body.isEmpty)
+        XCTAssertEqual(response.version, version)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
         XCTAssertEqual(response.headers.value(for: .contentType), "application/json")
-        XCTAssertEqual(response.version, version)
+        XCTAssertFalse(response.body.isEmpty)
     }
 
     func testUpdate() {
@@ -68,11 +68,11 @@ final class ResponseTests: XCTestCase {
         response.body = body
 
         // Assert
-        XCTAssertFalse(response.body.isEmpty)
+        XCTAssertEqual(response.version, version)
         XCTAssertEqual(response.status, status)
         XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
         XCTAssertEqual(response.headers.value(for: .contentType), "application/json")
-        XCTAssertEqual(response.version, version)
+        XCTAssertFalse(response.body.isEmpty)
     }
 
     func testStatuses() {
