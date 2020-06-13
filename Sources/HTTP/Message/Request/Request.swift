@@ -32,7 +32,7 @@ extension Request {
         guard let components = headers.value(for: .cookie)?.components(separatedBy: "; ") else { return }
 
         for component in components {
-            let subComponents = component.components(separatedBy: "=")
+            let subComponents = component.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
 
             if let name = subComponents.first, let value = subComponents.last, subComponents.count == 2 {
                 let cookie = Cookie(name: name, value: value)
