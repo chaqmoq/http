@@ -1,6 +1,7 @@
 public protocol Message: CustomStringConvertible {
     var version: Version { get set }
     var headers: Headers { get set }
+    var cookies: Set<Cookie> { get }
     var body: Body { get set }
 }
 
