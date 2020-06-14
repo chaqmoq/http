@@ -27,6 +27,18 @@ public struct Request: Message {
 }
 
 extension Request {
+    public mutating func setCookie(_ cookie: Cookie) {
+        var headerLine = headers.value(for: .cookie) ?? ""
+
+        if headerLine.isEmpty {
+            headerLine = "\(cookie.name)=\(cookie.value)"
+        } else {
+            HeaderUtil.setParameterValue(cookie.value, named: cookie.name, in: &headerLine)
+        }
+
+        headers.set(headerLine, for: .cookie)
+    }
+
     mutating func setCookies() {
         mutableCookies.removeAll()
         guard let headerLine = headers.value(for: .cookie) else { return }

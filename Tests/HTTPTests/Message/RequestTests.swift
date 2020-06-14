@@ -110,4 +110,31 @@ final class RequestTests: XCTestCase {
         // Assert
         XCTAssertEqual("\(request)", description)
     }
+
+    func testSetCookie() {
+        // Arrange
+        var request = Request()
+
+        // Act
+        request.setCookie(Cookie(name: "sessionId", value: "abcd"))
+
+        // Assert
+        XCTAssertEqual(request.cookies.count, 1)
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "abcd" }))
+
+        // Act
+        request.setCookie(Cookie(name: "sessionId", value: "efgh"))
+
+        // Assert
+        XCTAssertEqual(request.cookies.count, 1)
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
+
+        // Act
+        request.setCookie(Cookie(name: "userId", value: "1"))
+
+        // Assert
+        XCTAssertEqual(request.cookies.count, 2)
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
+    }
 }
