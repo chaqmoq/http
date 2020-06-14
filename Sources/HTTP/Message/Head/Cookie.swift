@@ -35,7 +35,7 @@ public struct Cookie {
 }
 
 extension Cookie {
-    public enum OptionName: String {
+    public enum OptionName: String, CaseIterable {
         case expires = "Expires"
         case maxAge = "Max-Age"
         case domain = "Domain"
