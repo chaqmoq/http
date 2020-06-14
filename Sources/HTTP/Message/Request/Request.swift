@@ -29,13 +29,13 @@ public struct Request: Message {
 extension Request {
     mutating func setCookies() {
         mutableCookies.removeAll()
-        guard let value = headers.value(for: .cookie) else { return }
-        let components = value.components(separatedBy: ";").filter { $0 != "" }
+        guard let headerLine = headers.value(for: .cookie) else { return }
+        let parameters = headerLine.components(separatedBy: ";").filter { $0 != "" }
 
-        for component in components {
-            let subComponents = component.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
+        for parameter in parameters {
+            let nameValue = parameter.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
 
-            if let name = subComponents.first, let value = subComponents.last, subComponents.count == 2 {
+            if let name = nameValue.first, let value = nameValue.last, nameValue.count == 2 {
                 let cookie = Cookie(name: name, value: value)
                 mutableCookies.insert(cookie)
             }
