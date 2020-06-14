@@ -35,7 +35,7 @@ public struct Cookie {
 }
 
 extension Cookie {
-    public enum OptionKey: String {
+    public enum OptionName: String {
         case expires = "Expires"
         case maxAge = "Max-Age"
         case domain = "Domain"
@@ -62,13 +62,13 @@ extension Cookie: Hashable {
 extension Cookie: CustomStringConvertible {
     public var description: String {
         var description = "\(name)=\(value)"
-        if let expires = expires { description += "; \(OptionKey.expires.rawValue)=\(expires.rfc1123)" }
-        if let maxAge = maxAge { description += "; \(OptionKey.maxAge.rawValue)=\(maxAge)" }
-        if let domain = domain { description += "; \(OptionKey.domain.rawValue)=\(domain)" }
-        if let path = path { description += "; \(OptionKey.path.rawValue)=\(path)" }
-        if isSecure { description += "; \(OptionKey.isSecure.rawValue)" }
-        if isHTTPOnly { description += "; \(OptionKey.isHTTPOnly.rawValue)" }
-        if let sameSite = sameSite { description += "; \(OptionKey.sameSite.rawValue)=\(sameSite.rawValue)" }
+        if let expires = expires { description += "; \(OptionName.expires.rawValue)=\(expires.rfc1123)" }
+        if let maxAge = maxAge { description += "; \(OptionName.maxAge.rawValue)=\(maxAge)" }
+        if let domain = domain { description += "; \(OptionName.domain.rawValue)=\(domain)" }
+        if let path = path { description += "; \(OptionName.path.rawValue)=\(path)" }
+        if isSecure { description += "; \(OptionName.isSecure.rawValue)" }
+        if isHTTPOnly { description += "; \(OptionName.isHTTPOnly.rawValue)" }
+        if let sameSite = sameSite { description += "; \(OptionName.sameSite.rawValue)=\(sameSite.rawValue)" }
 
         return description
     }
