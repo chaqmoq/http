@@ -6,7 +6,7 @@ final class CookieTests: XCTestCase {
         // Arrange
         let name = "sessionId"
         let value = "abcd"
-        let expires = Date().addingTimeInterval(3600)
+        let expires = Date(rfc1123: "Sat, 13 Jun 2020 19:15:12 GMT")
         let maxAge = 7200
         let domain = "chaqmoq.dev"
         let path = "/blog"
@@ -37,6 +37,19 @@ final class CookieTests: XCTestCase {
         XCTAssertEqual(cookie.isSecure, isSecure)
         XCTAssertEqual(cookie.isHTTPOnly, isHTTPOnly)
         XCTAssertEqual(cookie.sameSite, sameSite)
+        XCTAssertEqual(
+            "\(cookie)",
+            """
+            \(name)=\(value); \
+            \(Cookie.OptionName.expires.rawValue)=\(expires.rfc1123); \
+            \(Cookie.OptionName.maxAge.rawValue)=\(maxAge); \
+            \(Cookie.OptionName.domain.rawValue)=\(domain); \
+            \(Cookie.OptionName.path.rawValue)=\(path); \
+            \(Cookie.OptionName.isSecure.rawValue); \
+            \(Cookie.OptionName.isHTTPOnly.rawValue); \
+            \(Cookie.OptionName.sameSite.rawValue)=\(sameSite.rawValue)
+            """
+        )
     }
 
     func testOptionName() {
