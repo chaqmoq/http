@@ -38,15 +38,16 @@ public final class HeaderUtil {
 
         if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
             let range = NSRange(location: 0, length: headerLine.utf8.count)
+            let nameValue = "\(name)=\(value)"
 
             if regex.firstMatch(in: headerLine, range: range) == nil {
-                if headerLine.last != ";" { headerLine += ";" }
-                headerLine += " \(name)=\(value)"
+                if headerLine.last != ";" { headerLine += "; " }
+                headerLine += nameValue
             } else {
                 headerLine = regex.stringByReplacingMatches(
                     in: headerLine,
                     range: range,
-                    withTemplate: "\(name)=\(value)"
+                    withTemplate: nameValue
                 )
             }
         }
