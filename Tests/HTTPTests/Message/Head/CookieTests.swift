@@ -38,4 +38,28 @@ final class CookieTests: XCTestCase {
         XCTAssertEqual(cookie.isHTTPOnly, isHTTPOnly)
         XCTAssertEqual(cookie.sameSite, sameSite)
     }
+
+    func testOptionName() {
+        // Assert
+        for optionName in Cookie.OptionName.allCases {
+            let rawValue = optionName.rawValue
+
+            switch optionName {
+            case .expires:
+                XCTAssertEqual(rawValue, "Expires")
+            case .maxAge:
+                XCTAssertEqual(rawValue, "Max-Age")
+            case .domain:
+                XCTAssertEqual(rawValue, "Domain")
+            case .path:
+                XCTAssertEqual(rawValue, "Path")
+            case .isSecure:
+                XCTAssertEqual(rawValue, "Secure")
+            case .isHTTPOnly:
+                XCTAssertEqual(rawValue, "HttpOnly")
+            case .sameSite:
+                XCTAssertEqual(rawValue, "SameSite")
+            }
+        }
+    }
 }
