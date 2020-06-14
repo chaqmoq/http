@@ -62,4 +62,20 @@ final class CookieTests: XCTestCase {
             }
         }
     }
+
+    func testSameSite() {
+        // Assert
+        for sameSite in Cookie.SameSite.allCases {
+            let rawValue = sameSite.rawValue
+
+            switch sameSite {
+            case .strict:
+                XCTAssertEqual(rawValue, "Strict")
+            case .lax:
+                XCTAssertEqual(rawValue, "Lax")
+            case .none:
+                XCTAssertEqual(rawValue, "None")
+            }
+        }
+    }
 }
