@@ -47,7 +47,7 @@ extension Cookie {
 }
 
 extension Cookie {
-    public enum SameSite: String {
+    public enum SameSite: String, CaseIterable {
         case strict = "Strict"
         case lax = "Lax"
         case none = "None"
