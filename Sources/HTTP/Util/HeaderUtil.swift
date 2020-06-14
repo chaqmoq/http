@@ -52,4 +52,16 @@ public final class HeaderUtil {
             }
         }
     }
+
+    public class func removeParameter(named name: String, in headerLine: inout String) {
+        let pattern = "\(name)=\(parameterValuePattern)(; )?"
+
+        if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+            let range = NSRange(location: 0, length: headerLine.utf8.count)
+            headerLine = regex.stringByReplacingMatches(in: headerLine, range: range, withTemplate: "")
+        }
+
+        if headerLine.last == " " { headerLine.removeLast() }
+        if headerLine.last == ";" { headerLine.removeLast() }
+    }
 }

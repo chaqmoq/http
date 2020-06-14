@@ -140,4 +140,46 @@ final class RequestTests: XCTestCase {
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
     }
+
+    func testClearCookie() {
+        // Arrange
+        let headers: Headers = .init([
+            .cookie: "sessionId=abcd; userId=1; email=sukhrob@chaqmoq.dev; username=sukhrob"
+        ])
+        var request = Request(headers: headers)
+
+        // Act
+        request.clearCookie(named: "sessionId")
+
+        // Assert
+        XCTAssertEqual(request.headers.value(for: .cookie), "userId=1; email=sukhrob@chaqmoq.dev; username=sukhrob")
+        XCTAssertEqual(request.cookies.count, 3)
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "email" && $0.value == "sukhrob@chaqmoq.dev" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "username" && $0.value == "sukhrob" }))
+
+        // Act
+        request.clearCookie(named: "email")
+
+        // Assert
+        XCTAssertEqual(request.headers.value(for: .cookie), "userId=1; username=sukhrob")
+        XCTAssertEqual(request.cookies.count, 2)
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "username" && $0.value == "sukhrob" }))
+
+        // Act
+        request.clearCookie(named: "username")
+
+        // Assert
+        XCTAssertEqual(request.headers.value(for: .cookie), "userId=1")
+        XCTAssertEqual(request.cookies.count, 1)
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
+
+        // Act
+        request.clearCookie(named: "userId")
+
+        // Assert
+        XCTAssertNil(request.headers.value(for: .cookie))
+        XCTAssertTrue(request.cookies.isEmpty)
+    }
 }

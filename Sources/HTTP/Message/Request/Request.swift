@@ -53,4 +53,15 @@ extension Request {
             }
         }
     }
+
+    public mutating func clearCookie(named name: String) {
+        guard var headerLine = headers.value(for: .cookie) else { return }
+        HeaderUtil.removeParameter(named: name, in: &headerLine)
+
+        if headerLine.isEmpty {
+            headers.remove(.cookie)
+        } else {
+            headers.set(headerLine, for: .cookie)
+        }
+    }
 }
