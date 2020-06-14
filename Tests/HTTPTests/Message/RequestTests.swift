@@ -182,4 +182,17 @@ final class RequestTests: XCTestCase {
         XCTAssertNil(request.headers.value(for: .cookie))
         XCTAssertTrue(request.cookies.isEmpty)
     }
+
+    func testClearCookies() {
+        // Arrange
+        let headers: Headers = .init([.cookie: "sessionId=abcd; userId=1"])
+        var request = Request(headers: headers)
+
+        // Act
+        request.clearCookies()
+
+        // Assert
+        XCTAssertNil(request.headers.value(for: .cookie))
+        XCTAssertTrue(request.cookies.isEmpty)
+    }
 }

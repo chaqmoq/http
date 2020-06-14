@@ -64,4 +64,8 @@ extension Request {
             headers.set(headerLine, for: .cookie)
         }
     }
+
+    public mutating func clearCookies() {
+        headers.remove(.cookie)
+    }
 }
