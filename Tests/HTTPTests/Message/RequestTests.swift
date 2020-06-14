@@ -119,6 +119,7 @@ final class RequestTests: XCTestCase {
         request.setCookie(Cookie(name: "sessionId", value: "abcd"))
 
         // Assert
+        XCTAssertEqual(request.headers.value(for: .cookie), "sessionId=abcd")
         XCTAssertEqual(request.cookies.count, 1)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "abcd" }))
 
@@ -126,6 +127,7 @@ final class RequestTests: XCTestCase {
         request.setCookie(Cookie(name: "sessionId", value: "efgh"))
 
         // Assert
+        XCTAssertEqual(request.headers.value(for: .cookie), "sessionId=efgh")
         XCTAssertEqual(request.cookies.count, 1)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
 
@@ -133,6 +135,7 @@ final class RequestTests: XCTestCase {
         request.setCookie(Cookie(name: "userId", value: "1"))
 
         // Assert
+        XCTAssertEqual(request.headers.value(for: .cookie), "sessionId=efgh; userId=1")
         XCTAssertEqual(request.cookies.count, 2)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
