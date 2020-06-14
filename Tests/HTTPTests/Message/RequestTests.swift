@@ -143,10 +143,34 @@ final class RequestTests: XCTestCase {
 
     func testClearCookie() {
         // Arrange
-        let headers: Headers = .init([
+        var request = Request()
+
+        // Assert
+        XCTAssertNil(request.headers.value(for: .cookie))
+        XCTAssertTrue(request.cookies.isEmpty)
+
+        // Act
+        request.clearCookie(named: "sessionId")
+
+        // Assert
+        XCTAssertNil(request.headers.value(for: .cookie))
+        XCTAssertTrue(request.cookies.isEmpty)
+
+        // Act
+        request.headers = .init([
             .cookie: "sessionId=abcd; userId=1; email=sukhrob@chaqmoq.dev; username=sukhrob"
         ])
-        var request = Request(headers: headers)
+
+        // Assert
+        XCTAssertEqual(
+            request.headers.value(for: .cookie),
+            "sessionId=abcd; userId=1; email=sukhrob@chaqmoq.dev; username=sukhrob"
+        )
+        XCTAssertEqual(request.cookies.count, 4)
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "abcd" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "email" && $0.value == "sukhrob@chaqmoq.dev" }))
+        XCTAssertTrue(request.cookies.contains(where: { $0.name == "username" && $0.value == "sukhrob" }))
 
         // Act
         request.clearCookie(named: "sessionId")
