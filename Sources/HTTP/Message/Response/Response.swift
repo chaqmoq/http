@@ -69,7 +69,7 @@ extension Response {
                     for parameter in parameters {
                         let nameValue = parameter.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
 
-                        if let name = nameValue.first, let optionName = Cookie.OptionKey(rawValue: name) {
+                        if let name = nameValue.first, let optionName = Cookie.OptionName(rawValue: name) {
                             let count = nameValue.count
 
                             switch optionName {
