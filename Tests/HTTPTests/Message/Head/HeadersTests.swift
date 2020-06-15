@@ -28,4 +28,23 @@ final class HeadersTests: XCTestCase {
             $0.1 == "application/json"
         }))
     }
+
+    func testInitWithTuples() {
+        // Act
+        let headers = Headers(
+            (.acceptCharset, "utf-8, iso-8859-1;q=0.5"),
+            (.contentType, "application/xml")
+        )
+
+        // Assert
+        XCTAssertEqual(headers.count, 2)
+        XCTAssertTrue(headers.contains(where: {
+            $0.0 == HeaderName.acceptCharset.rawValue.lowercased() &&
+            $0.1 == "utf-8, iso-8859-1;q=0.5"
+        }))
+        XCTAssertTrue(headers.contains(where: {
+            $0.0 == HeaderName.contentType.rawValue.lowercased() &&
+            $0.1 == "application/xml"
+        }))
+    }
 }
