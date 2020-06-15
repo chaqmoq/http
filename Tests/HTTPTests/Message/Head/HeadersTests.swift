@@ -47,4 +47,23 @@ final class HeadersTests: XCTestCase {
             $0.1 == "application/xml"
         }))
     }
+
+    func testInitWithTuplesHavingStringTypeKey() {
+        // Act
+        let headers = Headers(
+            ("Connection", "close"),
+            ("Content-Type", "text/plain")
+        )
+
+        // Assert
+        XCTAssertEqual(headers.count, 2)
+        XCTAssertTrue(headers.contains(where: {
+            $0.0 == HeaderName.connection.rawValue.lowercased() &&
+            $0.1 == "close"
+        }))
+        XCTAssertTrue(headers.contains(where: {
+            $0.0 == HeaderName.contentType.rawValue.lowercased() &&
+            $0.1 == "text/plain"
+        }))
+    }
 }
