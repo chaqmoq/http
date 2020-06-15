@@ -1,5 +1,5 @@
 public struct Headers {
-    public typealias ArrayType = [Header]
+    public typealias ArrayType = [(String, String)]
     private var headers: ArrayType
 
     public init() {
@@ -14,7 +14,7 @@ public struct Headers {
         self.headers = headers.map { ($0.0.rawValue.lowercased(), $0.1) }
     }
 
-    public init(_ headers: Header...) {
+    public init(_ headers: (String, String)...) {
         self.headers = headers.map { ($0.0.lowercased(), $0.1) }
     }
 
@@ -109,7 +109,7 @@ extension Headers: ExpressibleByDictionaryLiteral {
     public typealias Key = String
     public typealias Value = String
 
-    public init(dictionaryLiteral headers: Header...) {
+    public init(dictionaryLiteral headers: (String, String)...) {
         self.headers = headers.map { ($0.0.lowercased(), $0.1) }
     }
 }
