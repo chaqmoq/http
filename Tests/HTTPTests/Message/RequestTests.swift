@@ -111,6 +111,18 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual("\(request)", description)
     }
 
+    func testHasCookie() {
+        // Arrange
+        let request = Request(headers: .init([.cookie: "sessionId=abcd; userId=1"]))
+
+        // Assert
+        XCTAssertEqual(request.cookies.count, 2)
+        XCTAssertTrue(request.hasCookie(named: "sessionId"))
+        XCTAssertTrue(request.hasCookie(named: "userId"))
+        XCTAssertFalse(request.hasCookie(named: "email"))
+        XCTAssertFalse(request.hasCookie(named: "username"))
+    }
+
     func testSetCookie() {
         // Arrange
         var request = Request()

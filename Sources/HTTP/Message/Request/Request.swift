@@ -27,6 +27,14 @@ public struct Request: Message {
 }
 
 extension Request {
+    public func hasCookie(named name: String) -> Bool {
+        if let headerLine = headers.value(for: .cookie), headerLine.contains("\(name)=") {
+            return true
+        }
+
+        return false
+    }
+
     public mutating func setCookie(_ cookie: Cookie) {
         var headerLine = headers.value(for: .cookie) ?? ""
 
