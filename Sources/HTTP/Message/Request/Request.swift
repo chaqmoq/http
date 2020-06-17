@@ -31,7 +31,7 @@ extension Request {
         var headerLine = headers.value(for: .cookie) ?? ""
 
         if headerLine.isEmpty {
-            headerLine = "\(cookie.name)=\(cookie.value)"
+            headerLine = "\(cookie)"
         } else {
             HeaderUtil.setParameterValue(cookie.value, named: cookie.name, in: &headerLine)
         }
