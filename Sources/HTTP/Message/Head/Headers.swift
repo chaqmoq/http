@@ -101,8 +101,14 @@ extension Headers: Collection {
     public var startIndex: Index { headers.startIndex }
     public var endIndex: Index { headers.endIndex }
 
-    public subscript(index: Index) -> Element { headers[index] }
-    public func index(after index: Index) -> Index { headers.index(after: index) }
+    public subscript(index: Index) -> Element {
+        get { headers[index] }
+        set { headers[index] = newValue }
+    }
+
+    public func index(after index: Index) -> Index {
+        headers.index(after: index)
+    }
 }
 
 extension Headers: ExpressibleByDictionaryLiteral {
