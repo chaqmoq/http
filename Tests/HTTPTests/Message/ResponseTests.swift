@@ -273,4 +273,19 @@ final class ResponseTests: XCTestCase {
         XCTAssertEqual("\(response)", description)
         XCTAssertEqual("\(response.status)", "200 OK")
     }
+
+    func testHasCookie() {
+        // Arrange
+        let response = Response(headers: .init(
+            (.setCookie, "sessionId=abcd"),
+            (.setCookie, "userId=1")
+        ))
+
+        // Assert
+        XCTAssertEqual(response.cookies.count, 2)
+        XCTAssertTrue(response.hasCookie(named: "sessionId"))
+        XCTAssertTrue(response.hasCookie(named: "userId"))
+        XCTAssertFalse(response.hasCookie(named: "email"))
+        XCTAssertFalse(response.hasCookie(named: "username"))
+    }
 }
