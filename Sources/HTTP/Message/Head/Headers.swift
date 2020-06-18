@@ -55,7 +55,7 @@ public struct Headers {
 
     public mutating func remove(_ name: String) {
         let name = name.lowercased()
-        let indices = self.indices(for: name)
+        let indices = self.indices(for: name).reversed()
 
         for index in indices {
             headers.remove(at: index)

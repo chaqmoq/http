@@ -116,4 +116,8 @@ extension Response {
             }
         }
     }
+
+    public mutating func clearCookies() {
+        headers.remove(.setCookie)
+    }
 }
