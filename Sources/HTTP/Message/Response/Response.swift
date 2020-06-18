@@ -117,6 +117,14 @@ extension Response {
         }
     }
 
+    public mutating func clearCookie(named name: String) {
+        let headerName = HeaderName.setCookie.rawValue.lowercased()
+
+        if let index = headers.firstIndex(where: { $0.0 == headerName && $0.1.hasPrefix(name) }) {
+            headers.remove(at: index)
+        }
+    }
+
     public mutating func clearCookies() {
         headers.remove(.setCookie)
     }

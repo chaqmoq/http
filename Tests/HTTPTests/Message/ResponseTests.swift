@@ -320,6 +320,27 @@ final class ResponseTests: XCTestCase {
         XCTAssertTrue(response.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
     }
 
+    func testClearCookie() {
+        // Arrange
+        var response = Response(headers: .init(
+            (.setCookie, "sessionId=abcd"),
+            (.setCookie, "userId=1")
+        ))
+
+        // Act
+        response.clearCookie(named: "userId")
+
+        // Assert
+        XCTAssertEqual(response.cookies.count, 1)
+        XCTAssertTrue(response.hasCookie(named: "sessionId"))
+
+        // Act
+        response.clearCookie(named: "sessionId")
+
+        // Assert
+        XCTAssertTrue(response.cookies.isEmpty)
+    }
+
     func testClearCookies() {
         // Arrange
         var response = Response(headers: .init(

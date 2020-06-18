@@ -66,6 +66,10 @@ public struct Headers {
         remove(name.rawValue)
     }
 
+    public mutating func remove(at index: Int) {
+        headers.remove(at: index)
+    }
+
     public func has(_ name: String) -> Bool {
         let name = name.lowercased()
         return headers.contains(where: { $0.0 == name })
