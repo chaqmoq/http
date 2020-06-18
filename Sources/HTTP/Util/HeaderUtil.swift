@@ -34,21 +34,25 @@ public final class HeaderUtil {
     }
 
     public class func setParameterValue(_ value: String, named name: String, in headerLine: inout String) {
-        let pattern = "\(name)=\(parameterValuePattern)"
+        if headerLine.isEmpty {
+            headerLine = "\(name)=\(value)"
+        } else {
+            let pattern = "\(name)=\(parameterValuePattern)"
 
-        if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
-            let range = NSRange(location: 0, length: headerLine.utf8.count)
-            let nameValue = "\(name)=\(value)"
+            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
+                let range = NSRange(location: 0, length: headerLine.utf8.count)
+                let nameValue = "\(name)=\(value)"
 
-            if regex.firstMatch(in: headerLine, range: range) == nil {
-                if headerLine.last != ";" { headerLine += "; " }
-                headerLine += nameValue
-            } else {
-                headerLine = regex.stringByReplacingMatches(
-                    in: headerLine,
-                    range: range,
-                    withTemplate: nameValue
-                )
+                if regex.firstMatch(in: headerLine, range: range) == nil {
+                    if headerLine.last != ";" { headerLine += "; " }
+                    headerLine += nameValue
+                } else {
+                    headerLine = regex.stringByReplacingMatches(
+                        in: headerLine,
+                        range: range,
+                        withTemplate: nameValue
+                    )
+                }
             }
         }
     }
