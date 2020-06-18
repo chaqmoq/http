@@ -288,4 +288,35 @@ final class ResponseTests: XCTestCase {
         XCTAssertFalse(response.hasCookie(named: "email"))
         XCTAssertFalse(response.hasCookie(named: "username"))
     }
+
+    func testSetCookie() {
+        // Arrange
+        var response = Response()
+
+        // Act
+        response.setCookie(Cookie(name: "sessionId", value: "abcd"))
+
+        // Assert
+        XCTAssertEqual(response.headers.value(for: .setCookie), "sessionId=abcd")
+        XCTAssertEqual(response.cookies.count, 1)
+        XCTAssertTrue(response.cookies.contains(where: { $0.name == "sessionId" && $0.value == "abcd" }))
+
+        // Act
+        response.setCookie(Cookie(name: "sessionId", value: "efgh"))
+
+        // Assert
+        XCTAssertEqual(response.headers.value(for: .setCookie), "sessionId=efgh")
+        XCTAssertEqual(response.cookies.count, 1)
+        XCTAssertTrue(response.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
+
+        // Act
+        response.setCookie(Cookie(name: "userId", value: "1"))
+
+        // Assert
+        XCTAssertEqual(response.headers.values(for: .setCookie).first, "sessionId=efgh")
+        XCTAssertEqual(response.headers.values(for: .setCookie).last, "userId=1")
+        XCTAssertEqual(response.cookies.count, 2)
+        XCTAssertTrue(response.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
+        XCTAssertTrue(response.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
+    }
 }

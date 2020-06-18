@@ -49,6 +49,16 @@ extension Response {
         cookies.contains(where: { $0.name == name })
     }
 
+    public mutating func setCookie(_ cookie: Cookie) {
+        let headerName = HeaderName.setCookie.rawValue.lowercased()
+
+        if let index = headers.firstIndex(where: { $0.0 == headerName && $0.1.hasPrefix(cookie.name) }) {
+            headers[index] = (headerName, "\(cookie)")
+        } else {
+            headers.add("\(cookie)", for: .setCookie)
+        }
+    }
+
     mutating func setCookies() {
         mutableCookies.removeAll()
         let headerLines = headers.values(for: .setCookie)
