@@ -45,6 +45,10 @@ public struct Response: Message {
 }
 
 extension Response {
+    public func hasCookie(named name: String) -> Bool {
+        cookies.contains(where: { $0.name == name })
+    }
+
     mutating func setCookies() {
         mutableCookies.removeAll()
         let headerLines = headers.values(for: .setCookie)
