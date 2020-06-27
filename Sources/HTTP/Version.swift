@@ -1,4 +1,4 @@
-public struct Version {
+public struct Version: Equatable {
     public var major: Int
     public var minor: Int
 
@@ -12,12 +12,6 @@ extension Version {
     public enum Major: Int {
         case one = 1
         case two
-    }
-}
-
-extension Version: Equatable {
-    public static func ==(lhs: Version, rhs: Version) -> Bool {
-        lhs.major == rhs.major && lhs.minor == rhs.minor
     }
 }
 
