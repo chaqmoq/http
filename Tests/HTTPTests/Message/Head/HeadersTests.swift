@@ -20,11 +20,11 @@ final class HeadersTests: XCTestCase {
         // Assert
         XCTAssertEqual(headers.count, 2)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.connection.rawValue.lowercased() &&
+            $0.0 == HeaderName.connection.rawValue &&
             $0.1 == "keep-alive"
         }))
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue.lowercased() &&
+            $0.0 == HeaderName.contentType.rawValue &&
             $0.1 == "application/json"
         }))
     }
@@ -39,11 +39,11 @@ final class HeadersTests: XCTestCase {
         // Assert
         XCTAssertEqual(headers.count, 2)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.acceptCharset.rawValue.lowercased() &&
+            $0.0 == HeaderName.acceptCharset.rawValue &&
             $0.1 == "utf-8, iso-8859-1;q=0.5"
         }))
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue.lowercased() &&
+            $0.0 == HeaderName.contentType.rawValue &&
             $0.1 == "application/xml"
         }))
     }
@@ -58,11 +58,11 @@ final class HeadersTests: XCTestCase {
         // Assert
         XCTAssertEqual(headers.count, 2)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.connection.rawValue.lowercased() &&
+            $0.0 == HeaderName.connection.rawValue &&
             $0.1 == "close"
         }))
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue.lowercased() &&
+            $0.0 == HeaderName.contentType.rawValue &&
             $0.1 == "text/plain"
         }))
     }

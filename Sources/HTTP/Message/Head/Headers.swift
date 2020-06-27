@@ -7,11 +7,11 @@ public struct Headers {
     }
 
     public init(_ headers: [HeaderName: String]) {
-        self.headers = headers.map { ($0.0.rawValue.lowercased(), $0.1) }
+        self.headers = headers.map { ($0.0.rawValue, $0.1) }
     }
 
     public init(_ headers: (HeaderName, String)...) {
-        self.headers = headers.map { ($0.0.rawValue.lowercased(), $0.1) }
+        self.headers = headers.map { ($0.0.rawValue, $0.1) }
     }
 
     public init(_ headers: (String, String)...) {
@@ -54,7 +54,6 @@ public struct Headers {
     }
 
     public mutating func remove(_ name: String) {
-        let name = name.lowercased()
         let indices = self.indices(for: name).reversed()
 
         for index in indices {
@@ -89,7 +88,6 @@ public struct Headers {
     }
 
     public func value(for name: String) -> String? {
-        let name = name.lowercased()
         return values(for: name).last
     }
 

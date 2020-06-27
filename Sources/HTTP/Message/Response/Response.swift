@@ -50,7 +50,7 @@ extension Response {
     }
 
     public mutating func setCookie(_ cookie: Cookie) {
-        let headerName = HeaderName.setCookie.rawValue.lowercased()
+        let headerName = HeaderName.setCookie.rawValue
 
         if let index = headers.firstIndex(where: { $0.0 == headerName && $0.1.hasPrefix(cookie.name) }) {
             headers[index] = (headerName, "\(cookie)")
@@ -118,7 +118,7 @@ extension Response {
     }
 
     public mutating func clearCookie(named name: String) {
-        let headerName = HeaderName.setCookie.rawValue.lowercased()
+        let headerName = HeaderName.setCookie.rawValue
 
         if let index = headers.firstIndex(where: { $0.0 == headerName && $0.1.hasPrefix(name) }) {
             headers.remove(at: index)
