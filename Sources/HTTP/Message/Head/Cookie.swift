@@ -36,21 +36,21 @@ public struct Cookie {
 
 extension Cookie {
     public enum OptionName: String, CaseIterable {
-        case expires = "Expires"
-        case maxAge = "Max-Age"
-        case domain = "Domain"
-        case path = "Path"
-        case isSecure = "Secure"
-        case isHTTPOnly = "HttpOnly"
-        case sameSite = "SameSite"
+        case expires
+        case maxAge = "max-age"
+        case domain
+        case path
+        case isSecure = "secure"
+        case isHTTPOnly = "httponly"
+        case sameSite = "samesite"
     }
 }
 
 extension Cookie {
     public enum SameSite: String, CaseIterable {
-        case strict = "Strict"
-        case lax = "Lax"
-        case none = "None"
+        case strict
+        case lax
+        case none
     }
 }
 

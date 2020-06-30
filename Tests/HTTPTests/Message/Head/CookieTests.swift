@@ -59,19 +59,19 @@ final class CookieTests: XCTestCase {
 
             switch optionName {
             case .expires:
-                XCTAssertEqual(rawValue, "Expires")
+                XCTAssertEqual(rawValue, "expires")
             case .maxAge:
-                XCTAssertEqual(rawValue, "Max-Age")
+                XCTAssertEqual(rawValue, "max-age")
             case .domain:
-                XCTAssertEqual(rawValue, "Domain")
+                XCTAssertEqual(rawValue, "domain")
             case .path:
-                XCTAssertEqual(rawValue, "Path")
+                XCTAssertEqual(rawValue, "path")
             case .isSecure:
-                XCTAssertEqual(rawValue, "Secure")
+                XCTAssertEqual(rawValue, "secure")
             case .isHTTPOnly:
-                XCTAssertEqual(rawValue, "HttpOnly")
+                XCTAssertEqual(rawValue, "httponly")
             case .sameSite:
-                XCTAssertEqual(rawValue, "SameSite")
+                XCTAssertEqual(rawValue, "samesite")
             }
         }
     }
@@ -83,11 +83,11 @@ final class CookieTests: XCTestCase {
 
             switch sameSite {
             case .strict:
-                XCTAssertEqual(rawValue, "Strict")
+                XCTAssertEqual(rawValue, "strict")
             case .lax:
-                XCTAssertEqual(rawValue, "Lax")
+                XCTAssertEqual(rawValue, "lax")
             case .none:
-                XCTAssertEqual(rawValue, "None")
+                XCTAssertEqual(rawValue, "none")
             }
         }
     }

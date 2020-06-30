@@ -46,13 +46,16 @@ public struct Response: Message {
 
 extension Response {
     public func hasCookie(named name: String) -> Bool {
-        cookies.contains(where: { $0.name == name })
+        cookies.contains(where: { $0.name.lowercased() == name.lowercased() })
     }
 
     public mutating func setCookie(_ cookie: Cookie) {
         let headerName = HeaderName.setCookie.rawValue
 
-        if let index = headers.firstIndex(where: { $0.0 == headerName && $0.1.hasPrefix(cookie.name) }) {
+        if let index = headers.firstIndex(where: {
+            $0.0 == headerName &&
+            $0.1.lowercased().hasPrefix(cookie.name.lowercased())
+        }) {
             headers[index] = (headerName, "\(cookie)")
         } else {
             headers.add("\(cookie)", for: .setCookie)
@@ -83,7 +86,8 @@ extension Response {
                     for parameter in parameters {
                         let nameValue = parameter.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
 
-                        if let name = nameValue.first, let optionName = Cookie.OptionName(rawValue: name) {
+                        if let name = nameValue.first?.lowercased(),
+                            let optionName = Cookie.OptionName(rawValue: name) {
                             let count = nameValue.count
 
                             switch optionName {
@@ -100,7 +104,8 @@ extension Response {
                             case .isHTTPOnly:
                                 cookie.isHTTPOnly = true
                             case .sameSite:
-                                if let value = nameValue.last, let optionValue = Cookie.SameSite(rawValue: value) {
+                                if let value = nameValue.last?.lowercased(),
+                                    let optionValue = Cookie.SameSite(rawValue: value) {
                                     cookie.sameSite = optionValue
                                 }
                             }
@@ -120,7 +125,10 @@ extension Response {
     public mutating func clearCookie(named name: String) {
         let headerName = HeaderName.setCookie.rawValue
 
-        if let index = headers.firstIndex(where: { $0.0 == headerName && $0.1.hasPrefix(name) }) {
+        if let index = headers.firstIndex(where: {
+            $0.0 == headerName &&
+            $0.1.lowercased().hasPrefix(name.lowercased())
+        }) {
             headers.remove(at: index)
         }
     }
