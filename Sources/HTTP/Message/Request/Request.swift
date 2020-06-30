@@ -28,7 +28,8 @@ public struct Request: Message {
 
 extension Request {
     public func hasCookie(named name: String) -> Bool {
-        cookies.contains(where: { $0.name.lowercased() == name.lowercased() })
+        let name = name.lowercased()
+        return cookies.contains(where: { $0.name.lowercased() == name })
     }
 
     public mutating func setCookie(_ cookie: Cookie) {

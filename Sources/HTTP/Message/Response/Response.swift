@@ -46,15 +46,17 @@ public struct Response: Message {
 
 extension Response {
     public func hasCookie(named name: String) -> Bool {
-        cookies.contains(where: { $0.name.lowercased() == name.lowercased() })
+        let name = name.lowercased()
+        return cookies.contains(where: { $0.name.lowercased() == name })
     }
 
     public mutating func setCookie(_ cookie: Cookie) {
         let headerName = HeaderName.setCookie.rawValue
+        let name = cookie.name.lowercased()
 
         if let index = headers.firstIndex(where: {
             $0.0 == headerName &&
-            $0.1.lowercased().hasPrefix(cookie.name.lowercased())
+            $0.1.lowercased().hasPrefix(name)
         }) {
             headers[index] = (headerName, "\(cookie)")
         } else {
@@ -124,10 +126,11 @@ extension Response {
 
     public mutating func clearCookie(named name: String) {
         let headerName = HeaderName.setCookie.rawValue
+        let name = name.lowercased()
 
         if let index = headers.firstIndex(where: {
             $0.0 == headerName &&
-            $0.1.lowercased().hasPrefix(name.lowercased())
+            $0.1.lowercased().hasPrefix(name)
         }) {
             headers.remove(at: index)
         }
