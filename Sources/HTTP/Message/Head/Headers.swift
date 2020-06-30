@@ -15,12 +15,12 @@ public struct Headers {
     }
 
     public init(_ headers: (String, String)...) {
-        self.headers = headers.map { ($0.0.lowercased(), $0.1) }
+        self.headers = headers.map { ($0.0, $0.1) }
     }
 
     public func indices(for name: String) -> [Int] {
         let name = name.lowercased()
-        return headers.enumerated().filter({ $0.element.0 == name }).map { $0.offset }
+        return headers.enumerated().filter({ $0.element.0.lowercased() == name }).map { $0.offset }
     }
 
     public func indices(for name: HeaderName) -> [Int] {
@@ -28,7 +28,6 @@ public struct Headers {
     }
 
     public mutating func add(_ value: String, for name: String) {
-        let name = name.lowercased()
         headers.append((name, value))
     }
 
@@ -37,7 +36,6 @@ public struct Headers {
     }
 
     public mutating func set(_ value: String, for name: String) {
-        let name = name.lowercased()
         let indices = self.indices(for: name)
 
         if indices.isEmpty {
@@ -71,7 +69,7 @@ public struct Headers {
 
     public func has(_ name: String) -> Bool {
         let name = name.lowercased()
-        return headers.contains(where: { $0.0 == name })
+        return headers.contains(where: { $0.0.lowercased() == name })
     }
 
     public func has(_ name: HeaderName) -> Bool {
@@ -80,7 +78,7 @@ public struct Headers {
 
     public func values(for name: String) -> [String] {
         let name = name.lowercased()
-        return headers.filter({ $0.0 == name }).map { $0.1 }
+        return headers.filter({ $0.0.lowercased() == name }).map { $0.1 }
     }
 
     public func values(for name: HeaderName) -> [String] {
@@ -118,6 +116,6 @@ extension Headers: ExpressibleByDictionaryLiteral {
     public typealias Value = String
 
     public init(dictionaryLiteral headers: (String, String)...) {
-        self.headers = headers.map { ($0.0.lowercased(), $0.1) }
+        self.headers = headers.map { ($0.0, $0.1) }
     }
 }

@@ -51,8 +51,8 @@ final class HeadersTests: XCTestCase {
     func testInitWithTuplesHavingStringTypeKey() {
         // Act
         let headers = Headers(
-            ("Connection", "close"),
-            ("Content-Type", "text/plain")
+            ("connection", "close"),
+            ("content-type", "text/plain")
         )
 
         // Assert
