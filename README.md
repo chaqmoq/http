@@ -38,7 +38,7 @@ let package = Package(
 import HTTP
 
 let server = Server()
-erver.onStart = { _ in
+server.onStart = { _ in
     print("Server has started")
 }
 server.onStop = {
