@@ -51,12 +51,7 @@ server.onReceive = { request, _ in
     // Do something...
     // Return String, Response, EventLoopFuture<String>, EventLoopFuture<Response>, etc
 }
-
-do {
-    try server.start()
-} catch {
-    print(error)
-}
+try server.start()
 ```
 
 ### Shell
