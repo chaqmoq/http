@@ -38,7 +38,7 @@ let package = Package(
 import HTTP
 
 let server = Server()
-erver.onStart = { _ in
+server.onStart = { _ in
     print("Server has started")
 }
 server.onStop = {
@@ -51,12 +51,7 @@ server.onReceive = { request, _ in
     // Do something...
     // Return String, Response, EventLoopFuture<String>, EventLoopFuture<Response>, etc
 }
-
-do {
-    try server.start()
-} catch {
-    print(error)
-}
+try server.start()
 ```
 
 ### Shell
