@@ -29,6 +29,25 @@ final class HeadersTests: XCTestCase {
         }))
     }
 
+    func testInitWithDictionaryHavingKeyOfTypeString() {
+        // Act
+        let headers: Headers = [
+            "connection": "keep-alive",
+            "content-type": "text/css"
+        ]
+
+        // Assert
+        XCTAssertEqual(headers.count, 2)
+        XCTAssertTrue(headers.contains(where: {
+            $0.0 == HeaderName.connection.rawValue &&
+            $0.1 == "keep-alive"
+        }))
+        XCTAssertTrue(headers.contains(where: {
+            $0.0 == HeaderName.contentType.rawValue &&
+            $0.1 == "text/css"
+        }))
+    }
+
     func testInitWithTuples() {
         // Act
         let headers = Headers(
