@@ -114,4 +114,24 @@ final class HeadersTests: XCTestCase {
         XCTAssertEqual(headers.count, 2)
         XCTAssertEqual(headers.value(for: .contentType), "text/html")
     }
+
+    func testSet() {
+        // Arrange
+        var headers: Headers = ["content-type": "text/html"]
+
+        // Act
+        headers.set("text/css", for: .contentType)
+
+        // Assert
+        XCTAssertEqual(headers.count, 1)
+        XCTAssertEqual(headers.value(for: .contentType), "text/css")
+
+        // Act
+        headers.set("close", for: .connection)
+
+        // Assert
+        XCTAssertEqual(headers.count, 2)
+        XCTAssertEqual(headers.value(for: .contentType), "text/css")
+        XCTAssertEqual(headers.value(for: .connection), "close")
+    }
 }
