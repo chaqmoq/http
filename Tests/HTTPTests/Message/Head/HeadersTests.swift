@@ -48,7 +48,7 @@ final class HeadersTests: XCTestCase {
         }))
     }
 
-    func testInitWithTuplesHavingStringTypeKey() {
+    func testInitWithTuplesHavingKeyTypeOfString() {
         // Act
         let headers = Headers(
             ("connection", "close"),
