@@ -85,4 +85,21 @@ final class HeadersTests: XCTestCase {
             $0.1 == "text/plain"
         }))
     }
+
+    func testIndices() {
+        // Arrange
+        let headers = Headers(
+            (.setCookie, "sessionId=abc"),
+            (.contentType, "application/js"),
+            (.setCookie, "userId=1")
+        )
+
+        // Act
+        let indices = headers.indices(for: .setCookie)
+
+        // Assert
+        XCTAssertEqual(headers.count, 3)
+        XCTAssertEqual(indices.first, 0)
+        XCTAssertEqual(indices.last, 2)
+    }
 }
