@@ -70,15 +70,15 @@ final class HeadersTests: XCTestCase {
     func testInitWithTuplesHavingKeyTypeOfString() {
         // Act
         let headers = Headers(
-            ("connection", "close"),
+            ("accept-charset", "utf-8, iso-8859-1;q=0.8"),
             ("content-type", "text/plain")
         )
 
         // Assert
         XCTAssertEqual(headers.count, 2)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.connection.rawValue &&
-            $0.1 == "close"
+            $0.0 == HeaderName.acceptCharset.rawValue &&
+            $0.1 == "utf-8, iso-8859-1;q=0.8"
         }))
         XCTAssertTrue(headers.contains(where: {
             $0.0 == HeaderName.contentType.rawValue &&
