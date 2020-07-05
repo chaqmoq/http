@@ -58,9 +58,13 @@ final class RequestResponseHandler: ChannelInboundHandler {
                     context.fireErrorCaught(error)
                 }
             } else {
-                var response = response
-                response.body = .init(string: String(describing: result))
-                write(response: response, for: request, in: context)
+                if let response = result as? Response {
+                    write(response: response, for: request, in: context)
+                } else {
+                    var response = response
+                    response.body = .init(string: String(describing: result))
+                    write(response: response, for: request, in: context)
+                }
             }
         } else {
             write(response: response, for: request, in: context)
