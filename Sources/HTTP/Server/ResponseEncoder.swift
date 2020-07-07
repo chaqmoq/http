@@ -5,12 +5,6 @@ final class ResponseEncoder: ChannelOutboundHandler {
     typealias OutboundIn = Response
     typealias OutboundOut = HTTPServerResponsePart
 
-    let server: Server
-
-    init(server: Server) {
-        self.server = server
-    }
-
     func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {
         let response = unwrapOutboundIn(data)
         let version = HTTPVersion(major: response.version.major, minor: response.version.minor)

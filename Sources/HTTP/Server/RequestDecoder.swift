@@ -5,11 +5,9 @@ final class RequestDecoder: ChannelInboundHandler {
     typealias InboundIn = HTTPServerRequestPart
     typealias InboundOut = Request
 
-    let server: Server
     private(set) var state: State
 
-    init(server: Server) {
-        self.server = server
+    init() {
         state = .idle
     }
 
