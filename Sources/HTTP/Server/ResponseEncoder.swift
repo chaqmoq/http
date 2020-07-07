@@ -18,13 +18,12 @@ final class ResponseEncoder: ChannelOutboundHandler {
         let head = HTTPResponseHead(version: version, status: status, headers: headers)
         context.write(wrapOutboundOut(.head(head)), promise: nil)
 
-        if response.body.isEmpty {
-            context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: promise)
-        } else {
+        if !response.body.isEmpty {
             var buffer = context.channel.allocator.buffer(capacity: response.body.count)
             buffer.writeBytes(response.body.bytes)
             _ = context.write(wrapOutboundOut(.body(.byteBuffer(buffer))))
-            context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: promise)
         }
+
+        context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: promise)
     }
 }
