@@ -52,7 +52,6 @@ server.onError = { error, _ in
     print("Error: \(error)")
 }
 server.onReceive = { request, _ in
-    // Do something...
     // Return String, Response, EventLoopFuture<String>, EventLoopFuture<Response>, etc
 }
 try server.start()
