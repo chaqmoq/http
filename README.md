@@ -6,14 +6,13 @@
 Download and install [Swift](https://swift.org/download)
 
 ### Swift Package
-#### Shell
 ```shell
 mkdir MyApp
 cd MyApp
 swift package init --type executable // Creates an executable app named "MyApp"
 ```
 
-#### Package.swift
+### Package.swift
 ```swift
 // swift-tools-version:5.1
 
@@ -29,6 +28,11 @@ let package = Package(
         .testTarget(name: "MyAppTests", dependencies: ["MyApp"])
     ]
 )
+```
+
+### Build
+```shell
+swift build -c release
 ```
 
 ## Usage
@@ -54,22 +58,16 @@ server.onReceive = { request, _ in
 try server.start()
 ```
 
-### Shell
-```shell
-swift build -c release
-swift run
-```
-
-### onReceive
+#### onReceive
 ```swift
 // String
 server.onReceive = { request, _ in
-    return "Hello World"
+    "Hello World"
 }
 
 // Response
 server.onReceive = { request, _ in
-    return Response("Hello World")
+    Response("Hello World")
 }
 
 // EventLoopFuture<String>
@@ -93,4 +91,14 @@ server.onReceive = { request, eventLoop in
 
     return promise.futureResult
 }
+```
+
+### Run
+```shell
+swift run
+```
+
+### Tests
+```shell
+swift test --enable-test-discovery --sanitize=thread
 ```
