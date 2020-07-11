@@ -1,6 +1,6 @@
-import enum NIO.System
-import XCTest
 @testable import HTTP
+import NIO
+import XCTest
 
 final class ServerConfigurationTests: XCTestCase {
     func testDefaultConfiguration() {

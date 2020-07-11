@@ -1,4 +1,4 @@
-import struct Logging.Logger
+import Logging
 import NIO
 import NIOHTTP1
 import NIOHTTP2

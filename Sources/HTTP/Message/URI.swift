@@ -1,5 +1,4 @@
-import struct Foundation.URL
-import struct Foundation.URLComponents
+import Foundation
 
 public struct URI {
     public static var `default`: Self{ Self(string: "/")! }

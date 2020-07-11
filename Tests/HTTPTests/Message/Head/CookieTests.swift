@@ -1,5 +1,5 @@
+@testable import HTTP
 import XCTest
-@testable import struct HTTP.Cookie
 
 final class CookieTests: XCTestCase {
     func testInit() {

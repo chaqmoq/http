@@ -1,4 +1,4 @@
-import struct Foundation.Data
+import Foundation
 
 extension Body {
     public struct File {

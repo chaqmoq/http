@@ -1,4 +1,4 @@
-import struct Foundation.Date
+import Foundation
 
 public struct Cookie {
     public let name: String

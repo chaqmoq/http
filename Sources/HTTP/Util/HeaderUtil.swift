@@ -1,5 +1,4 @@
-import class Foundation.NSRegularExpression
-import struct Foundation.NSRange
+import Foundation
 
 public final class HeaderUtil {
     static let parameterValuePattern = "(?:\"([^\"]+)\"|([^;]+))"

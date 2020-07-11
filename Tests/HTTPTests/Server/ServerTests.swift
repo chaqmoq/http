@@ -1,6 +1,5 @@
+@testable import HTTP
 import XCTest
-@testable import class HTTP.Server
-@testable import struct HTTP.Response
 
 final class ServerTests: XCTestCase {
     var server: Server!

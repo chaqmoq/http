@@ -1,5 +1,4 @@
-import struct Foundation.Data
-import struct Foundation.Date
+import Foundation
 
 public struct Response: Message {
     public var version: Version

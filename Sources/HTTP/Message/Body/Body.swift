@@ -1,4 +1,4 @@
-import struct Foundation.Data
+import Foundation
 
 public struct Body {
     public var bytes: [UInt8] { content }
