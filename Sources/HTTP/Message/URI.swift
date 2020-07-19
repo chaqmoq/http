@@ -1,7 +1,7 @@
 import Foundation
 
 public struct URI {
-    public static var `default`: Self{ Self(string: "/")! }
+    public static var `default`: Self { Self(string: "/")! }
 
     public var scheme: String? { urlComponents?.scheme }
     public var host: String? { urlComponents?.host }
