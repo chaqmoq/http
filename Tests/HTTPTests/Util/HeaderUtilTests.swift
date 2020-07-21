@@ -127,4 +127,36 @@ final class HeaderUtilTests: XCTestCase {
         // Assert
         XCTAssertEqual(headerLine, "\(anotherCustomKey)=\(anotherCustomValue)")
     }
+
+    func testRemoveParameterValue() {
+        // Act
+        HeaderUtil.removeParameter(named: "", in: &headerLine)
+
+        // Assert
+        XCTAssertEqual(
+            headerLine,
+            "Content-Disposition: form-data; \(nameKey!)=\"\(nameValue!)\"; \(filenameKey!)=\"\(filenameValue!)\""
+        )
+
+        // Act
+        HeaderUtil.removeParameter(named: "invalidKey=", in: &headerLine)
+
+        // Assert
+        XCTAssertEqual(
+            headerLine,
+            "Content-Disposition: form-data; \(nameKey!)=\"\(nameValue!)\"; \(filenameKey!)=\"\(filenameValue!)\""
+        )
+
+        // Act
+        HeaderUtil.removeParameter(named: nameKey, in: &headerLine)
+
+        // Assert
+        XCTAssertEqual(headerLine, "Content-Disposition: form-data; \(filenameKey!)=\"\(filenameValue!)\"")
+
+        // Act
+        HeaderUtil.removeParameter(named: filenameKey, in: &headerLine)
+
+        // Assert
+        XCTAssertEqual(headerLine, "Content-Disposition: form-data")
+    }
 }
