@@ -3,8 +3,6 @@ import Foundation
 public final class HeaderUtil {
     static let parameterValuePattern = "(?:\"([^\"]+)\"|([^;]+))"
 
-    private init() {}
-
     public class func getParameterValue(named name: String, in headerLine: String) -> String? {
         let delimiter = "="
         let pattern = ";\\s*([^=]+)=\(parameterValuePattern)"
@@ -32,39 +30,67 @@ public final class HeaderUtil {
         return nil
     }
 
-    public class func setParameterValue(_ value: String, named name: String, in headerLine: inout String) {
+    public class func setParameterValue(
+        _ value: String,
+        named name: String,
+        enclosingInQuotes: Bool = false,
+        in headerLine: inout String
+    ) {
+        let delimiter: Character = "="
+        guard !name.isEmpty && !name.contains(delimiter) else { return }
+        let value = enclosingInQuotes ? "\"" + value + "\"" : value
+        let nameValue = "\(name)\(delimiter)\(value)"
+
         if headerLine.isEmpty {
-            headerLine = "\(name)=\(value)"
+            headerLine = nameValue
         } else {
-            let pattern = "\(name)=\(parameterValuePattern)"
+            let terminator: Character = ";"
+            let pattern = "(^|\\s)\(name)\(delimiter)\(parameterValuePattern)(\(terminator))?"
+            guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { return }
+            let range = NSRange(location: 0, length: headerLine.utf8.count)
+            let matches = regex.matches(in: headerLine, range: range)
 
-            if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
-                let range = NSRange(location: 0, length: headerLine.utf8.count)
-                let nameValue = "\(name)=\(value)"
+            if matches.isEmpty {
+                headerLine = headerLine.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                if regex.firstMatch(in: headerLine, range: range) == nil {
-                    if headerLine.last != ";" { headerLine += "; " }
-                    headerLine += nameValue
+                if headerLine.last == terminator {
+                    headerLine += " " + nameValue
                 } else {
-                    headerLine = regex.stringByReplacingMatches(
-                        in: headerLine,
-                        range: range,
-                        withTemplate: nameValue
-                    )
+                    headerLine += "\(terminator) " + nameValue
+                }
+            } else {
+                for match in matches {
+                    if let range = Range(match.range, in: headerLine) {
+                        var parameter = String(headerLine[range])
+
+                        if let delimiterIndex = parameter.firstIndex(of: delimiter) {
+                            if parameter.last == terminator {
+                                parameter = String(parameter[...delimiterIndex]) + value + String(terminator)
+                            } else {
+                                parameter = String(parameter[...delimiterIndex]) + value
+                            }
+
+                            headerLine = regex.stringByReplacingMatches(
+                                in: headerLine,
+                                range: match.range,
+                                withTemplate: parameter
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 
     public class func removeParameter(named name: String, in headerLine: inout String) {
-        let pattern = "\(name)=\(parameterValuePattern)(; )?"
-
-        if let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) {
-            let range = NSRange(location: 0, length: headerLine.utf8.count)
-            headerLine = regex.stringByReplacingMatches(in: headerLine, range: range, withTemplate: "")
-        }
-
-        if headerLine.last == " " { headerLine.removeLast() }
-        if headerLine.last == ";" { headerLine.removeLast() }
+        let delimiter: Character = "="
+        let terminator: Character = ";"
+        guard !name.isEmpty && !name.contains(delimiter) else { return }
+        let pattern = "(^|\\s)\(name)\(delimiter)\(parameterValuePattern)(\(terminator))?"
+        guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { return }
+        let range = NSRange(location: 0, length: headerLine.utf8.count)
+        headerLine = regex.stringByReplacingMatches(in: headerLine, range: range, withTemplate: "")
+        headerLine = headerLine.trimmingCharacters(in: .whitespacesAndNewlines)
+        if headerLine.last == terminator { headerLine.removeLast() }
     }
 }
