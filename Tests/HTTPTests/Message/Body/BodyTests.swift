@@ -1,5 +1,5 @@
+@testable import HTTP
 import XCTest
-@testable import struct HTTP.Body
 
 final class BodyTests: XCTestCase {
     func testInitWithEmptyBytes() {
