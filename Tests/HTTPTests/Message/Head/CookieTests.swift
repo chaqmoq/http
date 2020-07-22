@@ -103,4 +103,18 @@ final class CookieTests: XCTestCase {
         // Assert
         XCTAssertEqual(cookie1, cookie2)
     }
+
+    func testHashable() {
+        // Arrange
+        let cookie1 = Cookie(name: "sessionId", value: "abcd")
+        let cookie2 = Cookie(name: "username", value: "chaqmoq")
+
+        // Act
+        let cookies: Set<Cookie> = [cookie1, cookie2]
+
+        // Assert
+        XCTAssertEqual(cookies.count, 2)
+        XCTAssertTrue(cookies.contains(cookie1))
+        XCTAssertTrue(cookies.contains(cookie2))
+    }
 }
