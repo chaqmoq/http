@@ -34,3 +34,23 @@ extension Body {
         content.append(contentsOf: [UInt8](string.utf8))
     }
 }
+
+extension Body: Equatable {
+    public static func ==(lhs: Body, rhs: Body) -> Bool { lhs.bytes == rhs.bytes }
+}
+
+extension Body: CustomStringConvertible {
+    public var description: String { string }
+}
+
+extension Body {
+    public struct File {
+        public var filename: String
+        public var data: Data
+
+        public init(filename: String, data: Data) {
+            self.filename = filename
+            self.data = data
+        }
+    }
+}
