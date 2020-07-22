@@ -7,6 +7,7 @@ final class BodyTests: XCTestCase {
         let body = Body()
 
         // Assert
+        XCTAssertEqual(body.count, 0)
         XCTAssertTrue(body.isEmpty)
         XCTAssertTrue(body.string.isEmpty)
         XCTAssertTrue(body.data.isEmpty)
@@ -21,6 +22,7 @@ final class BodyTests: XCTestCase {
         let body = Body(bytes: bytes)
 
         // Assert
+        XCTAssertEqual(body.count, string.count)
         XCTAssertFalse(body.isEmpty)
         XCTAssertEqual(body.string, string)
         XCTAssertEqual(body.data, data)
@@ -35,6 +37,7 @@ final class BodyTests: XCTestCase {
         let body = Body(data: data)
 
         // Assert
+        XCTAssertEqual(body.count, string.count)
         XCTAssertTrue(body.isEmpty)
         XCTAssertEqual(body.string, string)
         XCTAssertEqual(body.data, data)
@@ -49,6 +52,7 @@ final class BodyTests: XCTestCase {
         let body = Body(data: data)
 
         // Assert
+        XCTAssertEqual(body.count, string.count)
         XCTAssertFalse(body.isEmpty)
         XCTAssertEqual(body.string, string)
         XCTAssertEqual(body.data, data)
@@ -63,6 +67,7 @@ final class BodyTests: XCTestCase {
         let body = Body(string: string)
 
         // Assert
+        XCTAssertEqual(body.count, string.count)
         XCTAssertTrue(body.isEmpty)
         XCTAssertEqual(body.string, string)
         XCTAssertEqual(body.data, data)
@@ -77,6 +82,7 @@ final class BodyTests: XCTestCase {
         let body = Body(string: string)
 
         // Assert
+        XCTAssertEqual(body.count, string.count)
         XCTAssertFalse(body.isEmpty)
         XCTAssertEqual(body.string, string)
         XCTAssertEqual(body.data, data)
