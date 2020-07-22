@@ -9,6 +9,7 @@ final class VersionTests: XCTestCase {
         // Assert
         XCTAssertEqual(version.major, 1)
         XCTAssertEqual(version.minor, 1)
+        XCTAssertEqual("\(version)", "HTTP/\(version.major).\(version.minor)")
     }
 
     func testCustomInit() {
@@ -18,6 +19,7 @@ final class VersionTests: XCTestCase {
         // Assert
         XCTAssertEqual(version.major, 2)
         XCTAssertEqual(version.minor, 0)
+        XCTAssertEqual("\(version)", "HTTP/\(version.major).\(version.minor)")
     }
 
     func testUpdate() {
@@ -31,5 +33,6 @@ final class VersionTests: XCTestCase {
         // Assert
         XCTAssertEqual(version.major, 2)
         XCTAssertEqual(version.minor, 0)
+        XCTAssertEqual("\(version)", "HTTP/\(version.major).\(version.minor)")
     }
 }
