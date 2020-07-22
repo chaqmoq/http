@@ -91,4 +91,16 @@ final class CookieTests: XCTestCase {
             }
         }
     }
+
+    func testEquatable() {
+        // Arrange
+        let name = "sessionId"
+
+        // Act
+        let cookie1 = Cookie(name: name, value: "abcd")
+        let cookie2 = Cookie(name: name, value: "efgh")
+
+        // Assert
+        XCTAssertEqual(cookie1, cookie2)
+    }
 }
