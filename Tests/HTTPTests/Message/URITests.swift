@@ -20,6 +20,8 @@ final class URITests: XCTestCase {
     func testInit() {
         // Arrange
         let string = "http://localhost:8080/posts?id=1"
+
+        // Act
         let uri = URI(string: string)!
 
         // Assert
@@ -34,7 +36,7 @@ final class URITests: XCTestCase {
     }
 
     func testInvalidInit() {
-        // Arrange
+        // Act
         let uri = URI(string: "\\")
 
         // Assert
