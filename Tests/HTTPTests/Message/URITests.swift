@@ -42,4 +42,16 @@ final class URITests: XCTestCase {
         // Assert
         XCTAssertNil(uri)
     }
+
+    func testEquality() {
+        // Arrange
+        let string = "http://localhost:8080"
+
+        // Act
+        let uri1 = URI(string: string)
+        let uri2 = URI(string: string)
+
+        // Assert
+        XCTAssertEqual(uri1, uri2)
+    }
 }
