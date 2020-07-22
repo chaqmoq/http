@@ -43,7 +43,7 @@ final class URITests: XCTestCase {
         XCTAssertNil(uri)
     }
 
-    func testEquality() {
+    func testEquatable() {
         // Arrange
         let string = "http://localhost:8080"
 
