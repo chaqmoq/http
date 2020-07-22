@@ -128,6 +128,18 @@ final class BodyTests: XCTestCase {
         XCTAssertEqual(body.string, "\(string1)\(string2)")
     }
 
+    func testEquatable() {
+        // Arrange
+        let string = "Hello World"
+
+        // Act
+        let body1 = Body(string: string)
+        let body2 = Body(string: string)
+
+        // Assert
+        XCTAssertEqual(body1, body2)
+    }
+
     func testDescription() {
         // Arrange
         let string = "Hello World"
