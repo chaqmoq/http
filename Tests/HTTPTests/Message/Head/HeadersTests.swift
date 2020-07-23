@@ -162,4 +162,19 @@ final class HeadersTests: XCTestCase {
         // Act/Assert
         XCTAssertTrue(headers.has(.contentType))
     }
+
+    func testValuesByName() {
+        // Arrange
+        let headers = Headers([.connection: "close", .contentType: "application/javascript"])
+
+        // Act
+        let connectionValues = headers.values(for: .connection)
+        let contentTypeValues = headers.values(for: .contentType)
+
+        // Assert
+        XCTAssertEqual(connectionValues.count, 1)
+        XCTAssertEqual(connectionValues.first, "close")
+        XCTAssertEqual(contentTypeValues.count, 1)
+        XCTAssertEqual(contentTypeValues.first, "application/javascript")
+    }
 }
