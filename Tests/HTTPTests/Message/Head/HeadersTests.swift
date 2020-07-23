@@ -46,7 +46,7 @@ final class HeadersTests: XCTestCase {
         }))
     }
 
-    func testInitWithTuplesHavingKeyTypeOfString() {
+    func testInitWithTuplesHavingKeyOfStringType() {
         // Act
         let headers = Headers(("accept-charset", "utf-8, iso-8859-1;q=0.8"), ("content-type", "text/plain"))
 
