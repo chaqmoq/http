@@ -134,4 +134,24 @@ final class HeadersTests: XCTestCase {
         // Assert
         XCTAssertTrue(headers.isEmpty)
     }
+
+    func testRemoveAtIndex() {
+        // Arrange
+        var headers = Headers((.connection, "keep-alive"), (.contentType, "application/json"))
+
+        // Act
+        headers.remove(at: 1)
+
+        // Assert
+        XCTAssertEqual(headers.count, 1)
+        XCTAssertTrue(headers.contains(where: {
+            $0.0 == HeaderName.connection.rawValue && $0.1 == "keep-alive"
+        }))
+
+        // Act
+        headers.remove(at: 0)
+
+        // Assert
+        XCTAssertTrue(headers.isEmpty)
+    }
 }
