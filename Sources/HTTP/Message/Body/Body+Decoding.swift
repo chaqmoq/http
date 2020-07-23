@@ -2,7 +2,7 @@ import Foundation
 
 extension Body {
     public var json: Parameters<String, Any>? {
-        return try? JSONSerialization.jsonObject(with: data, options: []) as? Parameters<String, Any>
+        try? JSONSerialization.jsonObject(with: data, options: []) as? Parameters<String, Any>
     }
 
     public var urlEncoded: Parameters<String, Any>? {
