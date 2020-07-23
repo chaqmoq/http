@@ -3,7 +3,7 @@ import XCTest
 
 final class ResponseTests: XCTestCase {
     func testDefaultInit() {
-        // Arrange
+        // Act
         let response = Response()
 
         // Assert
@@ -17,6 +17,8 @@ final class ResponseTests: XCTestCase {
     func testInitWithString() {
         // Arrange
         let string = "Hello World"
+
+        // Act
         let response = Response(string)
 
         // Assert
@@ -30,6 +32,8 @@ final class ResponseTests: XCTestCase {
     func testInitWithData() {
         // Arrange
         let data = "Hello World".data(using: .utf8)!
+
+        // Act
         let response = Response(data)
 
         // Assert
@@ -50,6 +54,8 @@ final class ResponseTests: XCTestCase {
             (.setCookie, "sessionId=abcd; Path=/blog; Secure; HttpOnly; SameSite=Lax")
         )
         let body: Body = .init(string: "{\"title\": \"New post\"}")
+
+        // Act
         let response = Response(body, status: status, headers: headers, version: version)
 
         // Assert

@@ -3,7 +3,7 @@ import XCTest
 
 final class BodyTests: XCTestCase {
     func testInitWithEmptyBytes() {
-        // Arrange
+        // Act
         let body = Body()
 
         // Assert
@@ -19,6 +19,8 @@ final class BodyTests: XCTestCase {
         let string = "Hello World"
         let data = string.data(using: .utf8)!
         let bytes = [UInt8](data)
+
+        // Act
         let body = Body(bytes: bytes)
 
         // Assert
@@ -34,6 +36,8 @@ final class BodyTests: XCTestCase {
         let string = ""
         let data = string.data(using: .utf8)!
         let bytes = [UInt8](data)
+
+        // Act
         let body = Body(data: data)
 
         // Assert
@@ -49,6 +53,8 @@ final class BodyTests: XCTestCase {
         let string = "Hello World"
         let data = string.data(using: .utf8)!
         let bytes = [UInt8](data)
+
+        // Act
         let body = Body(data: data)
 
         // Assert
@@ -64,6 +70,8 @@ final class BodyTests: XCTestCase {
         let string = ""
         let data = string.data(using: .utf8)!
         let bytes = [UInt8](data)
+
+        // Act
         let body = Body(string: string)
 
         // Assert
@@ -79,6 +87,8 @@ final class BodyTests: XCTestCase {
         let string = "Hello World"
         let data = string.data(using: .utf8)!
         let bytes = [UInt8](data)
+
+        // Act
         let body = Body(string: string)
 
         // Assert

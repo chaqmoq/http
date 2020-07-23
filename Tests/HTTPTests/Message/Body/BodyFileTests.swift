@@ -6,6 +6,8 @@ final class BodyFileTests: XCTestCase {
         // Arrange
         let filename = "text.txt"
         let data = "Text".data(using: .utf8)!
+
+        // Act
         let file = Body.File(filename: filename, data: data)
 
         // Assert
@@ -19,6 +21,7 @@ final class BodyFileTests: XCTestCase {
         let data = "Another text".data(using: .utf8)!
         var file = Body.File(filename: "text.txt", data: "Text".data(using: .utf8)!)
 
+        // Act
         file.filename = filename
         file.data = data
 

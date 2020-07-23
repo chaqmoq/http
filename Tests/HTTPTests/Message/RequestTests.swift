@@ -3,7 +3,7 @@ import XCTest
 
 final class RequestTests: XCTestCase {
     func testDefaultInit() {
-        // Arrange
+        // Act
         let request = Request()
 
         // Assert
@@ -26,6 +26,8 @@ final class RequestTests: XCTestCase {
             (.cookie, "sessionId=efgh; userId=2; username")
         )
         let body: Body = .init(string: "{\"title\": \"New post\"}")
+
+        // Act
         let request = Request(method: method, uri: uri, version: version, headers: headers, body: body)
 
         // Assert
