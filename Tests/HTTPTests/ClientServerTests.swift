@@ -1,8 +1,9 @@
+import AsyncHTTPClient
+@testable import HTTP
 import NIO
 import NIOHTTP1
-import AsyncHTTPClient
 import XCTest
-@testable import HTTP
+
 
 class ClientServerTests: XCTestCase {
     var client: HTTPClient!
