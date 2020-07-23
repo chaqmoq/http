@@ -12,78 +12,50 @@ final class HeadersTests: XCTestCase {
 
     func testInitWithDictionary() {
         // Act
-        let headers = Headers([
-            .connection: "keep-alive",
-            .contentType: "application/json"
-        ])
+        let headers = Headers([.connection: "keep-alive", .contentType: "application/json"])
 
         // Assert
         XCTAssertEqual(headers.count, 2)
+        XCTAssertTrue(headers.contains(where: { $0.0 == HeaderName.connection.rawValue && $0.1 == "keep-alive" }))
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.connection.rawValue &&
-            $0.1 == "keep-alive"
-        }))
-        XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue &&
-            $0.1 == "application/json"
+            $0.0 == HeaderName.contentType.rawValue && $0.1 == "application/json"
         }))
     }
 
-    func testInitWithDictionaryHavingKeyOfTypeString() {
+    func testInitWithDictionaryHavingKeyOfStringType() {
         // Act
-        let headers: Headers = [
-            "connection": "keep-alive",
-            "content-type": "text/css"
-        ]
+        let headers: Headers = ["connection": "keep-alive", "content-type": "text/css"]
 
         // Assert
         XCTAssertEqual(headers.count, 2)
-        XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.connection.rawValue &&
-            $0.1 == "keep-alive"
-        }))
-        XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue &&
-            $0.1 == "text/css"
-        }))
+        XCTAssertTrue(headers.contains(where: { $0.0 == HeaderName.connection.rawValue && $0.1 == "keep-alive" }))
+        XCTAssertTrue(headers.contains(where: { $0.0 == HeaderName.contentType.rawValue && $0.1 == "text/css" }))
     }
 
     func testInitWithTuples() {
         // Act
-        let headers = Headers(
-            (.acceptCharset, "utf-8, iso-8859-1;q=0.5"),
-            (.contentType, "application/xml")
-        )
+        let headers = Headers((.acceptCharset, "utf-8, iso-8859-1;q=0.5"), (.contentType, "application/xml"))
 
         // Assert
         XCTAssertEqual(headers.count, 2)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.acceptCharset.rawValue &&
-            $0.1 == "utf-8, iso-8859-1;q=0.5"
+            $0.0 == HeaderName.acceptCharset.rawValue && $0.1 == "utf-8, iso-8859-1;q=0.5"
         }))
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue &&
-            $0.1 == "application/xml"
+            $0.0 == HeaderName.contentType.rawValue && $0.1 == "application/xml"
         }))
     }
 
     func testInitWithTuplesHavingKeyTypeOfString() {
         // Act
-        let headers = Headers(
-            ("accept-charset", "utf-8, iso-8859-1;q=0.8"),
-            ("content-type", "text/plain")
-        )
+        let headers = Headers(("accept-charset", "utf-8, iso-8859-1;q=0.8"), ("content-type", "text/plain"))
 
         // Assert
         XCTAssertEqual(headers.count, 2)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.acceptCharset.rawValue &&
-            $0.1 == "utf-8, iso-8859-1;q=0.8"
+            $0.0 == HeaderName.acceptCharset.rawValue && $0.1 == "utf-8, iso-8859-1;q=0.8"
         }))
-        XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue &&
-            $0.1 == "text/plain"
-        }))
+        XCTAssertTrue(headers.contains(where: { $0.0 == HeaderName.contentType.rawValue && $0.1 == "text/plain" }))
     }
 
     func testIndices() {
