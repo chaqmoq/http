@@ -105,5 +105,13 @@ final class HeadersTests: XCTestCase {
         XCTAssertEqual(headers.count, 2)
         XCTAssertEqual(headers.value(for: .contentType), "text/css")
         XCTAssertEqual(headers.value(for: .connection), "close")
+
+        // Act
+        headers[0] = (HeaderName.contentType.rawValue, "text/plain")
+
+        // Assert
+        XCTAssertEqual(headers.count, 2)
+        XCTAssertEqual(headers.value(for: .contentType), "text/plain")
+        XCTAssertEqual(headers.value(for: .connection), "close")
     }
 }
