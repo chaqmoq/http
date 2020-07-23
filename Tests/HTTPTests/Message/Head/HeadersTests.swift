@@ -154,4 +154,12 @@ final class HeadersTests: XCTestCase {
         // Assert
         XCTAssertTrue(headers.isEmpty)
     }
+
+    func testHas() {
+        // Arrange
+        let headers: Headers = ["content-type": "text/html"]
+
+        // Act/Assert
+        XCTAssertTrue(headers.has(.contentType))
+    }
 }
