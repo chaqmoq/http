@@ -172,4 +172,18 @@ final class BodyTests: XCTestCase {
         XCTAssertEqual(parameters?["title"] as? String, "New post")
         XCTAssertEqual(parameters?["likesCount"] as? Int, 100)
     }
+
+    func testURLEncoded() {
+        // Arrange
+        let urlEncodedString = "title=New+post&likesCount=100"
+        let body = Body(string: urlEncodedString)
+
+        // Act
+        let parameters = body.urlEncoded
+
+        // Assert
+        XCTAssertEqual(parameters?.count, 2)
+        XCTAssertEqual(parameters?["title"] as? String, "New post")
+        XCTAssertEqual(Int(parameters?["likesCount"] as! String), 100)
+    }
 }
