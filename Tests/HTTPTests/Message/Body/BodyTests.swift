@@ -158,4 +158,18 @@ final class BodyTests: XCTestCase {
         // Assert
         XCTAssertEqual("\(body)", string)
     }
+
+    func testJSON() {
+        // Arrange
+        let jsonString = "{\"title\": \"New post\", \"likesCount\": 100}"
+        let body = Body(string: jsonString)
+
+        // Act
+        let parameters = body.json
+
+        // Assert
+        XCTAssertEqual(parameters?.count, 2)
+        XCTAssertEqual(parameters?["title"] as? String, "New post")
+        XCTAssertEqual(parameters?["likesCount"] as? Int, 100)
+    }
 }
