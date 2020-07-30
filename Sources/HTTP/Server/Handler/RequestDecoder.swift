@@ -18,18 +18,10 @@ final class RequestDecoder: ChannelInboundHandler {
         case .head(let head):
             switch state {
             case .idle:
+                let method = Request.Method(rawValue: head.method.rawValue) ?? .HEAD
+                let uri = URI(string: head.uri) ?? URI.default
                 let version = Version(major: head.version.major, minor: head.version.minor)
-                var request: Request
-
-                if let method = Request.Method(rawValue: head.method.rawValue), let uri = URI(string: head.uri) {
-                    request = Request(method: method, uri: uri, version: version)
-                } else if let method = Request.Method(rawValue: head.method.rawValue) {
-                    request = Request(method: method, version: version)
-                } else if let uri = URI(string: head.uri) {
-                    request = Request(uri: uri, version: version)
-                } else {
-                    request = Request(version: version)
-                }
+                var request = Request(method: method, uri: uri, version: version)
 
                 for header in head.headers {
                     request.headers.set(header.value, for: header.name)
