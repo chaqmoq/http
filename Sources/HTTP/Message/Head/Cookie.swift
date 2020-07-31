@@ -1,6 +1,8 @@
 import Foundation
 
 public struct Cookie {
+    public static let path: String = "/"
+
     public let name: String
     public var value: String
     public var expires: Date?
@@ -31,6 +33,18 @@ public struct Cookie {
         self.isSecure = isSecure
         self.isHTTPOnly = isHTTPOnly
         self.sameSite = sameSite
+
+        let lowercasedName = self.name.lowercased()
+
+        if lowercasedName.hasPrefix("__host-") {
+            self.domain = nil
+            self.path = Cookie.path
+            self.isSecure = true
+        }
+
+        if lowercasedName.hasPrefix("__secure-") {
+            self.isSecure = true
+        }
     }
 }
 
