@@ -4,7 +4,6 @@ import NIO
 import NIOHTTP1
 import XCTest
 
-
 class ClientServerTests: XCTestCase {
     var client: HTTPClient!
     var server: Server!
@@ -14,9 +13,18 @@ class ClientServerTests: XCTestCase {
         super.setUp()
 
         client = HTTPClient(eventLoopGroupProvider: .createNew)
-        server = Server(configuration: .init(numberOfThreads: 1))
+        server = Server(
+            configuration: .init(
+                serverName: "Apache/2.4.1 (Unix)",
+                numberOfThreads: 1,
+                requestDecompression: .init(isEnabled: true),
+                responseCompression: .init(isEnabled: true)
+            )
+        )
     }
+}
 
+extension ClientServerTests {
     func execute(
         _ request: Request,
         expecting response: Response,
