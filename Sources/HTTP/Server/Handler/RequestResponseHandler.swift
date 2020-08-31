@@ -44,15 +44,45 @@ final class RequestResponseHandler: ChannelInboundHandler {
         if let onReceive = server.onReceive {
             let result = onReceive(request, context.eventLoop)
 
-            if let result = result as? EventLoopFuture<Any> {
+            if let result = result as? EventLoopFuture<Response> {
                 result.whenSuccess { [weak self] result in
-                    if let response = result as? Response {
-                        self?.write(response: response, for: request, in: context)
-                    } else {
-                        var response = response
-                        response.body = .init(string: String(describing: result))
-                        self?.write(response: response, for: request, in: context)
-                    }
+                    self?.write(response: result, for: request, in: context)
+                }
+                result.whenFailure { error in
+                    context.fireErrorCaught(error)
+                }
+            } else if let result = result as? EventLoopFuture<String> {
+                result.whenSuccess { [weak self] result in
+                    var response = response
+                    response.body = .init(string: result)
+                    self?.write(response: response, for: request, in: context)
+                }
+                result.whenFailure { error in
+                    context.fireErrorCaught(error)
+                }
+            } else if let result = result as? EventLoopFuture<Int> {
+                result.whenSuccess { [weak self] result in
+                    var response = response
+                    response.body = .init(string: String(result))
+                    self?.write(response: response, for: request, in: context)
+                }
+                result.whenFailure { error in
+                    context.fireErrorCaught(error)
+                }
+            } else if let result = result as? EventLoopFuture<Float> {
+                result.whenSuccess { [weak self] result in
+                    var response = response
+                    response.body = .init(string: String(result))
+                    self?.write(response: response, for: request, in: context)
+                }
+                result.whenFailure { error in
+                    context.fireErrorCaught(error)
+                }
+            } else if let result = result as? EventLoopFuture<Double> {
+                result.whenSuccess { [weak self] result in
+                    var response = response
+                    response.body = .init(string: String(result))
+                    self?.write(response: response, for: request, in: context)
                 }
                 result.whenFailure { error in
                     context.fireErrorCaught(error)
