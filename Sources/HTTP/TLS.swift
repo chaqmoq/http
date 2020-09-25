@@ -7,10 +7,7 @@ public struct TLS {
     let configuration: TLSConfiguration
 
     public init?(certificateFiles: [String], privateKeyFile: String, encoding: Encoding) {
-        if certificateFiles.isEmpty || privateKeyFile.isEmpty {
-            return nil
-        }
-
+        if certificateFiles.isEmpty || privateKeyFile.isEmpty { return nil }
         self.certificateFiles = certificateFiles
         self.privateKeyFile = privateKeyFile
         self.encoding = encoding
