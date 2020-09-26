@@ -10,11 +10,7 @@ final class ResponseEncoder: ChannelOutboundHandler {
         let version = HTTPVersion(major: response.version.major, minor: response.version.minor)
         let status = HTTPResponseStatus(statusCode: response.status.code)
         var headers = HTTPHeaders()
-
-        for (name, value) in response.headers {
-            headers.add(name: name, value: value)
-        }
-
+        for (name, value) in response.headers { headers.add(name: name, value: value)}
         let head = HTTPResponseHead(version: version, status: status, headers: headers)
         context.write(wrapOutboundOut(.head(head)), promise: nil)
 
