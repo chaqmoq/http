@@ -24,8 +24,12 @@ let package = Package(
         .package(url: "https://github.com/chaqmoq/http.git", .branch("master"))
     ],
     targets: [
-        .target(name: "MyApp", dependencies: ["HTTP"]),
-        .testTarget(name: "MyAppTests", dependencies: ["MyApp"])
+        .target(name: "MyApp", dependencies: [
+            .product(name: "HTTP", package: "chaqmoq-http"),
+        ]),
+        .testTarget(name: "MyAppTests", dependencies: [
+            .target(name: "MyApp")
+        ])
     ]
 )
 ```
