@@ -21,7 +21,7 @@ import PackageDescription
 let package = Package(
     name: "MyApp",
     dependencies: [
-        .package(url: "https://github.com/chaqmoq/http.git", .branch("master"))
+        .package(name: "chaqmoq-http", url: "https://github.com/chaqmoq/http.git", .branch("master"))
     ],
     targets: [
         .target(name: "MyApp", dependencies: [
