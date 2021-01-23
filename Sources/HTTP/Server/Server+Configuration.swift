@@ -58,7 +58,7 @@ extension Server.Configuration {
         public var initialByteBufferCapacity: Int
         public var isEnabled: Bool
 
-        public init(initialByteBufferCapacity: Int = 1024, isEnabled: Bool = false) {
+        public init(initialByteBufferCapacity: Int = 1024, isEnabled: Bool = true) {
             self.initialByteBufferCapacity = initialByteBufferCapacity
             self.isEnabled = isEnabled
         }
@@ -76,7 +76,7 @@ extension Server.Configuration {
         public var limit: Limit
         public var isEnabled: Bool
 
-        public init(limit: Limit = .ratio(10), isEnabled: Bool = false) {
+        public init(limit: Limit = .ratio(10), isEnabled: Bool = true) {
             self.limit = limit
             self.isEnabled = isEnabled
         }
