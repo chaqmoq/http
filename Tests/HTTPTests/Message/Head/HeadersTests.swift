@@ -16,9 +16,9 @@ final class HeadersTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(headers.count, 2)
-        XCTAssertTrue(headers.contains(where: { $0.0 == HeaderName.connection.rawValue && $0.1 == "keep-alive" }))
+        XCTAssertTrue(headers.contains(where: { $0.name == HeaderName.connection.rawValue && $0.value == "keep-alive" }))
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue && $0.1 == "application/json"
+            $0.name == HeaderName.contentType.rawValue && $0.value == "application/json"
         }))
     }
 
@@ -28,8 +28,8 @@ final class HeadersTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(headers.count, 2)
-        XCTAssertTrue(headers.contains(where: { $0.0 == HeaderName.connection.rawValue && $0.1 == "keep-alive" }))
-        XCTAssertTrue(headers.contains(where: { $0.0 == HeaderName.contentType.rawValue && $0.1 == "text/css" }))
+        XCTAssertTrue(headers.contains(where: { $0.name == HeaderName.connection.rawValue && $0.value == "keep-alive" }))
+        XCTAssertTrue(headers.contains(where: { $0.name == HeaderName.contentType.rawValue && $0.value == "text/css" }))
     }
 
     func testInitWithTuples() {
@@ -39,10 +39,10 @@ final class HeadersTests: XCTestCase {
         // Assert
         XCTAssertEqual(headers.count, 2)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.acceptCharset.rawValue && $0.1 == "utf-8, iso-8859-1;q=0.5"
+            $0.name == HeaderName.acceptCharset.rawValue && $0.value == "utf-8, iso-8859-1;q=0.5"
         }))
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue && $0.1 == "application/xml"
+            $0.name == HeaderName.contentType.rawValue && $0.value == "application/xml"
         }))
     }
 
@@ -53,9 +53,9 @@ final class HeadersTests: XCTestCase {
         // Assert
         XCTAssertEqual(headers.count, 2)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.acceptCharset.rawValue && $0.1 == "utf-8, iso-8859-1;q=0.8"
+            $0.name == HeaderName.acceptCharset.rawValue && $0.value == "utf-8, iso-8859-1;q=0.8"
         }))
-        XCTAssertTrue(headers.contains(where: { $0.0 == HeaderName.contentType.rawValue && $0.1 == "text/plain" }))
+        XCTAssertTrue(headers.contains(where: { $0.name == HeaderName.contentType.rawValue && $0.value == "text/plain" }))
     }
 
     func testIndices() {
@@ -107,7 +107,7 @@ final class HeadersTests: XCTestCase {
         XCTAssertEqual(headers.value(for: .connection), "close")
 
         // Act
-        headers[0] = (HeaderName.contentType.rawValue, "text/plain")
+        headers[0] = Header(name: HeaderName.contentType, value: "text/plain")
 
         // Assert
         XCTAssertEqual(headers.count, 2)
@@ -125,7 +125,7 @@ final class HeadersTests: XCTestCase {
         // Assert
         XCTAssertEqual(headers.count, 1)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.contentType.rawValue && $0.1 == "application/json"
+            $0.name == HeaderName.contentType.rawValue && $0.value == "application/json"
         }))
 
         // Act
@@ -145,7 +145,7 @@ final class HeadersTests: XCTestCase {
         // Assert
         XCTAssertEqual(headers.count, 1)
         XCTAssertTrue(headers.contains(where: {
-            $0.0 == HeaderName.connection.rawValue && $0.1 == "keep-alive"
+            $0.name == HeaderName.connection.rawValue && $0.value == "keep-alive"
         }))
 
         // Act

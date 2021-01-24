@@ -103,7 +103,7 @@ final class RequestTests: XCTestCase {
 
         // Act
         var description = ""
-        for (name, value) in request.headers { description.append("\(name): \(value)\n") }
+        for header in request.headers { description.append("\(header.name): \(header.value)\n") }
         description.append("\n\(request.body)")
         description = """
         \(request.method) \(request.uri) \(request.version)\n\(description)

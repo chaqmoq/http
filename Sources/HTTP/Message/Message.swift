@@ -1,4 +1,4 @@
-public protocol Message: CustomStringConvertible {
+public protocol Message: CustomStringConvertible, Encodable {
     var version: Version { get set }
     var headers: Headers { get set }
     var cookies: Set<Cookie> { get }

@@ -54,10 +54,10 @@ extension Response {
         let name = cookie.name.lowercased()
 
         if let index = headers.firstIndex(where: {
-            $0.0 == headerName &&
-            $0.1.lowercased().hasPrefix(name)
+            $0.name == headerName &&
+            $0.value.lowercased().hasPrefix(name)
         }) {
-            headers[index] = (headerName, "\(cookie)")
+            headers[index] = Header(name: headerName, value: "\(cookie)")
         } else {
             headers.add("\(cookie)", for: .setCookie)
         }
@@ -128,8 +128,8 @@ extension Response {
         let name = name.lowercased()
 
         if let index = headers.firstIndex(where: {
-            $0.0 == headerName &&
-            $0.1.lowercased().hasPrefix(name)
+            $0.name == headerName &&
+            $0.value.lowercased().hasPrefix(name)
         }) {
             headers.remove(at: index)
         }

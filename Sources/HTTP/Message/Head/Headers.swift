@@ -1,5 +1,5 @@
-public struct Headers {
-    public typealias ArrayType = [(String, String)]
+public struct Headers: Encodable {
+    public typealias ArrayType = [Header]
     private var headers: ArrayType
 
     public init() {
@@ -7,20 +7,20 @@ public struct Headers {
     }
 
     public init(_ headers: [HeaderName: String]) {
-        self.headers = headers.map { ($0.0.rawValue, $0.1) }
+        self.headers = headers.map { Header(name: $0.key, value: $0.value) }
     }
 
     public init(_ headers: (HeaderName, String)...) {
-        self.headers = headers.map { ($0.0.rawValue, $0.1) }
+        self.headers = headers.map { Header(name: $0.0, value: $0.1) }
     }
 
     public init(_ headers: (String, String)...) {
-        self.headers = headers.map { ($0.0, $0.1) }
+        self.headers = headers.map { Header(name: $0.0, value: $0.1) }
     }
 
     public func indices(for name: String) -> [Int] {
         let name = name.lowercased()
-        return headers.enumerated().filter({ $0.element.0.lowercased() == name }).map { $0.offset }
+        return headers.enumerated().filter({ $0.element.name.lowercased() == name }).map { $0.offset }
     }
 
     public func indices(for name: HeaderName) -> [Int] {
@@ -28,7 +28,7 @@ public struct Headers {
     }
 
     public mutating func add(_ value: String, for name: String) {
-        headers.append((name, value))
+        headers.append(Header(name: name, value: value))
     }
 
     public mutating func add(_ value: String, for name: HeaderName) {
@@ -39,10 +39,10 @@ public struct Headers {
         let indices = self.indices(for: name)
 
         if indices.isEmpty {
-            headers.append((name, value))
+            headers.append(Header(name: name, value: value))
         } else {
             for index in indices {
-                headers[index] = (name, value)
+                headers[index] = Header(name: name, value: value)
             }
         }
     }
@@ -69,7 +69,7 @@ public struct Headers {
 
     public func has(_ name: String) -> Bool {
         let name = name.lowercased()
-        return headers.contains(where: { $0.0.lowercased() == name })
+        return headers.contains(where: { $0.name.lowercased() == name })
     }
 
     public func has(_ name: HeaderName) -> Bool {
@@ -78,7 +78,7 @@ public struct Headers {
 
     public func values(for name: String) -> [String] {
         let name = name.lowercased()
-        return headers.filter({ $0.0.lowercased() == name }).map { $0.1 }
+        return headers.filter({ $0.name.lowercased() == name }).map { $0.value }
     }
 
     public func values(for name: HeaderName) -> [String] {
@@ -116,6 +116,6 @@ extension Headers: ExpressibleByDictionaryLiteral {
     public typealias Value = String
 
     public init(dictionaryLiteral headers: (String, String)...) {
-        self.headers = headers.map { ($0.0, $0.1) }
+        self.headers = headers.map { Header(name: $0.0, value: $0.1) }
     }
 }

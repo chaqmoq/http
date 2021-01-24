@@ -271,7 +271,7 @@ final class ResponseTests: XCTestCase {
 
         // Act
         var description = ""
-        for (name, value) in response.headers { description.append("\(name): \(value)\n") }
+        for header in response.headers { description.append("\(header.name): \(header.value)\n") }
         description.append("\n\(response.body)")
         description = "\(response.version) \(response.status)\n\(description)"
 

@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Cookie {
+public struct Cookie: Encodable {
     public static let path: String = "/"
 
     public let name: String
@@ -61,7 +61,7 @@ extension Cookie {
 }
 
 extension Cookie {
-    public enum SameSite: String, CaseIterable {
+    public enum SameSite: String, CaseIterable, Encodable {
         case strict
         case lax
         case none

@@ -1,4 +1,4 @@
-public struct Version: Equatable {
+public struct Version: Encodable, Equatable {
     public var major: Int
     public var minor: Int
 

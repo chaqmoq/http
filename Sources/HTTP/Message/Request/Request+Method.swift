@@ -1,5 +1,5 @@
 extension Request {
-    public enum Method: String, CaseIterable {
+    public enum Method: String, CaseIterable, Encodable {
         case DELETE
         case GET
         case HEAD

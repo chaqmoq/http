@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Body {
+public struct Body: Encodable {
     public var bytes: [UInt8] { content }
     public var data: Data { Data(content) }
     public var string: String { String(bytes: content, encoding: .utf8) ?? "" }

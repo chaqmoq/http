@@ -1,6 +1,6 @@
 import Foundation
 
-public struct URI {
+public struct URI: Encodable {
     public static var `default`: Self { Self(string: "/")! }
 
     public var scheme: String? { urlComponents.scheme }

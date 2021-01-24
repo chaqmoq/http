@@ -1,5 +1,5 @@
 extension Response {
-    public enum Status: Int, CaseIterable {
+    public enum Status: Int, CaseIterable, Encodable {
         // 1xx Informational
         case `continue` = 100
         case switchProtocols = 101
