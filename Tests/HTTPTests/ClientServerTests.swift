@@ -37,10 +37,7 @@ extension ClientServerTests {
             let url = weakSelf.request.uri.string!
             let method = HTTPMethod(rawValue: weakSelf.request.method.rawValue)
             var headers = HTTPHeaders()
-
-            for (name, value) in response.headers {
-                headers.add(name: name, value: value)
-            }
+            for header in response.headers { headers.add(name: header.name, value: header.value) }
 
             var buffer = ByteBufferAllocator().buffer(capacity: request.body.count)
             buffer.writeBytes(request.body.bytes)
