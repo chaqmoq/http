@@ -218,7 +218,7 @@ final class ResponseTests: XCTestCase {
             case .misdirectedRequest:
                 XCTAssertEqual(reason, "Misdirected Request")
             case .unprocessableEntity:
-                XCTAssertEqual(reason,  "Unprocessable Entity")
+                XCTAssertEqual(reason, "Unprocessable Entity")
             case .locked:
                 XCTAssertEqual(reason, "Locked")
             case .failedDependency:

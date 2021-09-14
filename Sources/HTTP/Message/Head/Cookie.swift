@@ -69,7 +69,7 @@ extension Cookie {
 }
 
 extension Cookie: Hashable {
-    public static func ==(lhs: Cookie, rhs: Cookie) -> Bool { lhs.name == rhs.name }
+    public static func == (lhs: Cookie, rhs: Cookie) -> Bool { lhs.name == rhs.name }
     public func hash(into hasher: inout Hasher) { hasher.combine(name) }
 }
 

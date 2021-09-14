@@ -25,7 +25,7 @@ final class RequestResponseHandler: ChannelInboundHandler {
             if let connection = request.headers.value(for: connectionKey) {
                 response.headers.set(connection, for: connectionKey)
             } else {
-                if request.version.major == Version.Major.one.rawValue && request.version.minor >= 1 {
+                if request.version.major == Version.Major.one.rawValue, request.version.minor >= 1 {
                     response.headers.set("keep-alive", for: connectionKey)
                 } else {
                     response.headers.set("close", for: connectionKey)

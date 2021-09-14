@@ -44,7 +44,7 @@ extension Body {
             if boundaryCounter == boundaryLength {
                 let offset: Int
 
-                if bytes[index + 1] == carriageReturn && bytes[index + 2] == newLine {
+                if bytes[index + 1] == carriageReturn, bytes[index + 2] == newLine {
                     offset = 2
                 } else {
                     offset = 1
@@ -70,16 +70,18 @@ extension Body {
             let valueEndIndex = contentRanges[index]
             var valueStartIndex = valueEndIndex
 
-            for index in headerStartIndex...valueEndIndex {
+            for index in headerStartIndex ... valueEndIndex {
                 if bytes[index] == carriageReturn &&
                     bytes[index + 1] == newLine &&
                     bytes[index + 2] == carriageReturn &&
-                    bytes[index + 3] == newLine {
+                    bytes[index + 3] == newLine
+                {
                     headerEndIndex = index - 1
                     valueStartIndex = index + 4
                     break
                 } else if (bytes[index] == newLine && bytes[index + 1] == newLine) ||
-                    (bytes[index] == carriageReturn && bytes[index + 1] == carriageReturn) {
+                    (bytes[index] == carriageReturn && bytes[index + 1] == carriageReturn)
+                {
                     headerEndIndex = index - 1
                     valueStartIndex = index + 2
                     break
@@ -87,14 +89,15 @@ extension Body {
             }
 
             if headerStartIndex < headerEndIndex,
-                let headerLines = String(bytes: bytes[headerStartIndex...headerEndIndex], encoding: .utf8) {
+               let headerLines = String(bytes: bytes[headerStartIndex ... headerEndIndex], encoding: .utf8)
+            {
                 if let name = HeaderUtil.getParameterValue(named: "name", in: headerLines) {
                     if let filename = HeaderUtil.getParameterValue(named: "filename", in: headerLines) {
                         if files == nil { files = [:] }
-                        files?[name] = File(filename: filename, data: Data(bytes[valueStartIndex...valueEndIndex]))
+                        files?[name] = File(filename: filename, data: Data(bytes[valueStartIndex ... valueEndIndex]))
                     } else {
                         if parameters == nil { parameters = [:] }
-                        parameters?[name] = String(bytes: bytes[valueStartIndex...valueEndIndex], encoding: .utf8)
+                        parameters?[name] = String(bytes: bytes[valueStartIndex ... valueEndIndex], encoding: .utf8)
                     }
                 }
             }

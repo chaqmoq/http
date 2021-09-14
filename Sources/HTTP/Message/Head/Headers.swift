@@ -20,7 +20,7 @@ public struct Headers: Encodable {
 
     public func indices(for name: String) -> [Int] {
         let name = name.lowercased()
-        return headers.enumerated().filter({ $0.element.name.lowercased() == name }).map { $0.offset }
+        return headers.enumerated().filter { $0.element.name.lowercased() == name }.map { $0.offset }
     }
 
     public func indices(for name: HeaderName) -> [Int] {
@@ -78,7 +78,7 @@ public struct Headers: Encodable {
 
     public func values(for name: String) -> [String] {
         let name = name.lowercased()
-        return headers.filter({ $0.name.lowercased() == name }).map { $0.value }
+        return headers.filter { $0.name.lowercased() == name }.map { $0.value }
     }
 
     public func values(for name: HeaderName) -> [String] {

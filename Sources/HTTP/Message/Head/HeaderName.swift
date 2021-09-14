@@ -1,5 +1,5 @@
 public enum HeaderName: String {
-    case accept = "accept"
+    case accept
     case acceptCH = "accept-ch"
     case acceptCHLifetime = "accept-ch-lifetime"
     case acceptCharset = "accept-charset"

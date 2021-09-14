@@ -15,7 +15,7 @@ final class RequestDecoder: ChannelInboundHandler {
         let requestPart = unwrapInboundIn(data)
 
         switch requestPart {
-        case .head(let head):
+        case let .head(head):
             switch state {
             case .idle:
                 let method = Request.Method(rawValue: head.method.rawValue) ?? .HEAD
@@ -30,10 +30,10 @@ final class RequestDecoder: ChannelInboundHandler {
                 state = .decoding(request)
             case .decoding: assertionFailure("\(type(of: self))'s state is invalid: \(state)")
             }
-        case .body(let chunk):
+        case let .body(chunk):
             switch state {
             case .idle: assertionFailure("\(type(of: self))'s state is invalid: \(state)")
-            case .decoding(var request):
+            case var .decoding(request):
                 if let bytes = chunk.getBytes(at: 0, length: chunk.readableBytes) {
                     request.body.append(bytes: bytes)
                 }
@@ -43,7 +43,7 @@ final class RequestDecoder: ChannelInboundHandler {
         case .end:
             switch state {
             case .idle: assertionFailure("\(type(of: self))'s state is invalid: \(state)")
-            case .decoding(let request): context.fireChannelRead(wrapInboundOut(request))
+            case let .decoding(request): context.fireChannelRead(wrapInboundOut(request))
             }
 
             state = .idle

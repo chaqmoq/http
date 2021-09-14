@@ -37,7 +37,7 @@ public final class HeaderUtil {
         in headerLine: inout String
     ) {
         let delimiter: Character = "="
-        guard !name.isEmpty && !name.contains(delimiter) else { return }
+        guard !name.isEmpty, !name.contains(delimiter) else { return }
         let value = enclosingInQuotes ? "\"" + value + "\"" : value
         let nameValue = "\(name)\(delimiter)\(value)"
 
@@ -85,7 +85,7 @@ public final class HeaderUtil {
     public class func removeParameter(named name: String, in headerLine: inout String) {
         let delimiter: Character = "="
         let terminator: Character = ";"
-        guard !name.isEmpty && !name.contains(delimiter) else { return }
+        guard !name.isEmpty, !name.contains(delimiter) else { return }
         let pattern = "(^|\\s)\(name)\(delimiter)\(parameterValuePattern)(\(terminator))?"
         guard let regex = try? NSRegularExpression(pattern: pattern, options: .caseInsensitive) else { return }
         let range = NSRange(location: 0, length: headerLine.utf8.count)

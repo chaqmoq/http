@@ -34,7 +34,7 @@ public final class Server {
             .childChannelInitializer { [weak self] channel in
                 guard let server = self else { return channel.close() }
                 return server.initializeChild(channel: channel)
-        }
+            }
 
         let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
         logger.info("Server has started on: \(configuration.socketAddress)")
@@ -59,7 +59,7 @@ extension Server {
                     channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
                         channel.configureHTTP2Pipeline(
                             mode: .server,
-                            inboundStreamStateInitializer: { (channel, streamID) in
+                            inboundStreamStateInitializer: { channel, streamID in
                                 server.addHandlers(to: channel, with: streamID)
                             }
                         ).map { _ in }
@@ -135,9 +135,9 @@ extension Server {
                 switch limit {
                 case .none:
                     decompressionLimit = .none
-                case .size(let size):
+                case let .size(size):
                     decompressionLimit = .size(size)
-                case .ratio(let ratio):
+                case let .ratio(ratio):
                     decompressionLimit = .ratio(ratio)
                 }
 
@@ -147,7 +147,7 @@ extension Server {
             let otherHandlers: [ChannelHandler] = [
                 RequestDecoder(),
                 ResponseEncoder(),
-                RequestResponseHandler(server: server)
+                RequestResponseHandler(server: server),
             ]
             handlers.append(contentsOf: otherHandlers)
 
