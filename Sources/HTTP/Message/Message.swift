@@ -1,7 +1,15 @@
+/// An HTTP `Request` or `Response` message.
 public protocol Message: CustomStringConvertible, Encodable {
+    /// An HTTP version.
     var version: Version { get set }
+
+    /// HTTP headers.
     var headers: Headers { get set }
+
+    /// HTTP cookies.
     var cookies: Set<Cookie> { get }
+
+    /// An HTTP body.
     var body: Body { get set }
 }
 
