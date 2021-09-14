@@ -24,7 +24,7 @@ public struct URI: Encodable {
     public var path: String? { urlComponents.path }
 
     /// Query parameters.
-    public var query: Parameters<String, String>? { getQueryParameters() }
+    public var query: [String: String]? { getQueryParameters() }
 
     private var urlComponents: URLComponents
 
@@ -42,9 +42,9 @@ public struct URI: Encodable {
 }
 
 extension URI {
-    private func getQueryParameters() -> Parameters<String, String>? {
+    private func getQueryParameters() -> [String: String]? {
         if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
-            var parameters = Parameters<String, String>()
+            var parameters = [String: String]()
             for queryItem in queryItems { parameters[queryItem.name] = queryItem.value }
 
             return parameters

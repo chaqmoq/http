@@ -1,17 +1,17 @@
 import Foundation
 
 extension Body {
-    public var json: Parameters<String, Any>? {
-        try? JSONSerialization.jsonObject(with: data, options: []) as? Parameters<String, Any>
+    public var json: [String: Any]? {
+        try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
     }
 
-    public var urlEncoded: Parameters<String, Any>? {
+    public var urlEncoded: [String: Any]? {
         if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
             var urlComponents = URLComponents()
             urlComponents.query = string
 
             if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
-                var parameters = Parameters<String, Any>()
+                var parameters = [String: Any]()
 
                 for queryItem in queryItems {
                     parameters[queryItem.name] = queryItem.value
@@ -24,7 +24,7 @@ extension Body {
         return nil
     }
 
-    public func multipart(boundary: String) -> (Parameters<String, Any>?, Parameters<String, File>?) {
+    public func multipart(boundary: String) -> ([String: Any]?, [String: File]?) {
         guard !isEmpty else { return (nil, nil) }
         let boundary = "--" + boundary
         let boundaryBytes = [UInt8](boundary.utf8)
@@ -61,8 +61,8 @@ extension Body {
 
         contentRanges.removeLast()
         guard !contentRanges.isEmpty else { return (nil, nil) }
-        var parameters: Parameters<String, Any>?
-        var files: Parameters<String, File>?
+        var parameters: [String: Any]?
+        var files: [String: File]?
 
         for index in stride(from: 1, through: contentRanges.count - 1, by: 2) {
             let headerStartIndex = contentRanges[index - 1]
