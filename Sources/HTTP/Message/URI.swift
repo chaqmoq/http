@@ -23,6 +23,9 @@ public struct URI: Encodable {
     /// A `path` subcomponent of `URLComponents`.
     public var path: String? { urlComponents.path }
 
+    /// Path parameters.
+    public var parameters: [String: String] = .init()
+
     /// Query parameters.
     public var query: [String: String]? { getQueryParameters() }
 

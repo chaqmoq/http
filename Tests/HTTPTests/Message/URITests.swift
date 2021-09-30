@@ -13,6 +13,7 @@ final class URITests: XCTestCase {
         XCTAssertEqual(uri.url, URL(string: "/"))
         XCTAssertEqual(uri.string, "/")
         XCTAssertEqual(uri.path, "/")
+        XCTAssertTrue(uri.parameters.isEmpty)
         XCTAssertNil(uri.query)
         XCTAssertEqual("\(uri)", uri.string)
     }
@@ -31,6 +32,7 @@ final class URITests: XCTestCase {
         XCTAssertEqual(uri.url, URL(string: string))
         XCTAssertEqual(uri.string, string)
         XCTAssertEqual(uri.path, "/posts")
+        XCTAssertTrue(uri.parameters.isEmpty)
         XCTAssertEqual(uri.query, ["id": "1"])
         XCTAssertEqual("\(uri)", uri.string)
     }
