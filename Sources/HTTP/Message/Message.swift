@@ -1,5 +1,5 @@
 /// An HTTP `Request` or `Response` message.
-public protocol Message: CustomStringConvertible, Encodable {
+public protocol Message: CustomStringConvertible {
     /// An HTTP version.
     var version: Version { get set }
 

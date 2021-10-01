@@ -3,9 +3,18 @@ public struct Request: Message {
     public var uri: URI
     public var version: Version
     public var headers: Headers { didSet { setCookies() } }
+    public var parameters: [String: Any]? { mutableParameters }
+    public var files: [String: Body.File]? { mutableFiles }
     public var cookies: Set<Cookie> { mutableCookies }
+    public var body: Body {
+        didSet {
+            setContentLengthHeader()
+            setParametersAndFiles()
+        }
+    }
+    private var mutableParameters: [String: Any]?
+    private var mutableFiles: [String: Body.File]?
     private var mutableCookies: Set<Cookie>
-    public var body: Body { didSet { setContentLengthHeader() }}
 
     public init(
         method: Method = .GET,
@@ -22,7 +31,21 @@ public struct Request: Message {
         self.body = body
 
         setContentLengthHeader()
+        setParametersAndFiles()
         setCookies()
+    }
+}
+
+extension Request {
+    mutating func setParametersAndFiles() {
+        guard let contentType = headers.value(for: .contentType) else { return }
+
+        if contentType == "application/x-www-form-urlencoded", let urlEncoded = body.urlEncoded {
+            mutableParameters = urlEncoded
+        } else if contentType.hasPrefix("multipart/"),
+                  let boundary = HeaderUtil.getParameterValue(named: "boundary", in: contentType) {
+            (mutableParameters, mutableFiles) = body.multipart(boundary: boundary)
+        }
     }
 }
 

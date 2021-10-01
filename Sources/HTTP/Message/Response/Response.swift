@@ -130,8 +130,7 @@ extension Response {
         let name = name.lowercased()
 
         if let index = headers.firstIndex(where: {
-            $0.name == headerName &&
-                $0.value.lowercased().hasPrefix(name)
+            $0.name == headerName && $0.value.lowercased().hasPrefix(name)
         }) {
             headers.remove(at: index)
         }

@@ -44,7 +44,7 @@ extension Body: CustomStringConvertible {
 }
 
 extension Body {
-    public struct File {
+    public struct File: Encodable {
         public var filename: String
         public var data: Data
 
