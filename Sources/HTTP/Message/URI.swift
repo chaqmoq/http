@@ -29,6 +29,9 @@ public struct URI: Encodable {
     /// Query parameters.
     public var query: [String: String]? { getQueryParameters() }
 
+    /// Fragment.
+    public var fragment: String? { urlComponents.fragment }
+
     private var urlComponents: URLComponents
 
     /// Initializes a new instance with a URL string.

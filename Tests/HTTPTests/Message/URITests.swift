@@ -15,12 +15,13 @@ final class URITests: XCTestCase {
         XCTAssertEqual(uri.path, "/")
         XCTAssertTrue(uri.parameters.isEmpty)
         XCTAssertNil(uri.query)
+        XCTAssertNil(uri.fragment)
         XCTAssertEqual("\(uri)", uri.string)
     }
 
     func testInit() {
         // Arrange
-        let string = "http://localhost:8080/posts?id=1"
+        let string = "http://localhost:8080/posts?id=1#header"
 
         // Act
         let uri = URI(string: string)!
@@ -34,6 +35,7 @@ final class URITests: XCTestCase {
         XCTAssertEqual(uri.path, "/posts")
         XCTAssertTrue(uri.parameters.isEmpty)
         XCTAssertEqual(uri.query, ["id": "1"])
+        XCTAssertEqual(uri.fragment, "header")
         XCTAssertEqual("\(uri)", uri.string)
     }
 
