@@ -1,31 +1,31 @@
 import Foundation
 
 extension Body {
-    public var json: [String: Any]? {
-        try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]
+    public var json: [String: Any] {
+        (try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]) ?? .init()
     }
 
-    public var urlEncoded: [String: Any]? {
+    public var urlEncoded: [String: Any] {
+        var parameters: [String: Any] = .init()
+
         if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
             var urlComponents = URLComponents()
             urlComponents.query = string
 
             if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
-                var parameters = [String: Any]()
-
                 for queryItem in queryItems {
                     parameters[queryItem.name] = queryItem.value
                 }
-
-                return parameters
             }
         }
 
-        return nil
+        return parameters
     }
 
-    public func multipart(boundary: String) -> ([String: Any]?, [String: File]?) {
-        guard !isEmpty else { return (nil, nil) }
+    public func multipart(boundary: String) -> ([String: Any], [String: File]) {
+        var parameters: [String: Any] = .init()
+        var files: [String: File] = .init()
+        guard !isEmpty else { return (parameters, files) }
         let boundary = "--" + boundary
         let boundaryBytes = [UInt8](boundary.utf8)
         let boundaryLength = boundaryBytes.count
@@ -60,9 +60,7 @@ extension Body {
         }
 
         contentRanges.removeLast()
-        guard !contentRanges.isEmpty else { return (nil, nil) }
-        var parameters: [String: Any]?
-        var files: [String: File]?
+        guard !contentRanges.isEmpty else { return (parameters, files) }
 
         for index in stride(from: 1, through: contentRanges.count - 1, by: 2) {
             let headerStartIndex = contentRanges[index - 1]
@@ -93,11 +91,9 @@ extension Body {
             {
                 if let name = HeaderUtil.getParameterValue(named: "name", in: headerLines) {
                     if let filename = HeaderUtil.getParameterValue(named: "filename", in: headerLines) {
-                        if files == nil { files = [:] }
-                        files?[name] = File(filename: filename, data: Data(bytes[valueStartIndex ... valueEndIndex]))
+                        files[name] = File(filename: filename, data: Data(bytes[valueStartIndex ... valueEndIndex]))
                     } else {
-                        if parameters == nil { parameters = [:] }
-                        parameters?[name] = String(bytes: bytes[valueStartIndex ... valueEndIndex], encoding: .utf8)
+                        parameters[name] = String(bytes: bytes[valueStartIndex ... valueEndIndex], encoding: .utf8)
                     }
                 }
             }
