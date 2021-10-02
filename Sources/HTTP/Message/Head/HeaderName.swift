@@ -93,5 +93,6 @@ public enum HeaderName: String {
     case xForwardedHost = "x-forwarded-host"
     case xForwardedProto = "x-forwarded-proto"
     case xFrameOptions = "x-frame-options"
+    case xHTTPMethodOverride = "x-http-method-override"
     case xXSSProtection = "x-xss-protection"
 }
