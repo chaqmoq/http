@@ -57,12 +57,9 @@ extension Server {
             if let tls = server.configuration.tls {
                 return server.configure(tls: tls, for: channel).flatMap { _ in
                     channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
-                        channel.configureHTTP2Pipeline(
-                            mode: .server,
-                            inboundStreamStateInitializer: { channel, streamID in
-                                server.addHandlers(to: channel, with: streamID)
-                            }
-                        ).map { _ in }
+                        channel.configureHTTP2Pipeline(mode: .server) { channel in
+                            server.addHandlers(to: channel, isHTTP2: true)
+                        }.map { _ in }
                     }, http1ChannelConfigurator: { channel in
                         server.addHandlers(to: channel)
                     })
@@ -85,25 +82,25 @@ extension Server {
         }
 
         let sslContext: NIOSSLContext
-        let sslHandler: NIOSSLServerHandler
 
         do {
             sslContext = try NIOSSLContext(configuration: tlsConfiguration)
-            sslHandler = try NIOSSLServerHandler(context: sslContext)
         } catch {
             logger.error("Failed to configure TLS: \(error)")
             return channel.close()
         }
 
+        let sslHandler = NIOSSLServerHandler(context: sslContext)
+
         return channel.pipeline.addHandler(sslHandler)
     }
 
-    private func addHandlers(to channel: Channel, with streamID: HTTP2StreamID? = nil) -> EventLoopFuture<Void> {
-        if let streamID = streamID {
+    private func addHandlers(to channel: Channel, isHTTP2: Bool = false) -> EventLoopFuture<Void> {
+        if isHTTP2 {
             return channel.pipeline.configureHTTPServerPipeline().flatMap { [weak self] in
                 guard let server = self else { return channel.close() }
                 let handlers: [ChannelHandler] = [
-                    HTTP2ToHTTP1ServerCodec(streamID: streamID),
+                    HTTP2FramePayloadToHTTP1ServerCodec(),
                     RequestDecoder(),
                     ResponseEncoder(),
                     RequestResponseHandler(server: server)

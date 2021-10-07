@@ -31,7 +31,7 @@ public struct TLS {
             }
         }
 
-        configuration = TLSConfiguration.forServer(
+        configuration = TLSConfiguration.makeServerConfiguration(
             certificateChain: certificateChain,
             privateKey: .file(privateKeyFile)
         )
