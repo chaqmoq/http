@@ -183,7 +183,7 @@ final class BodyTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(parameters.count, 2)
-        XCTAssertEqual(parameters["title"] as? String, "New post")
-        XCTAssertEqual(Int(parameters["likesCount"] as! String), 100)
+        XCTAssertEqual(parameters["title"], "New post")
+        XCTAssertEqual(parameters["likesCount"], "100")
     }
 }

@@ -9,10 +9,10 @@ public struct Request: Message {
             setParametersAndFiles()
         }
     }
-    public var parameters: [String: Any] { mutableParameters }
+    public var parameters: [String: String] { mutableParameters }
     public var files: [String: Body.File] { mutableFiles }
     public var cookies: Set<Cookie> { mutableCookies }
-    private var mutableParameters: [String: Any] = .init()
+    private var mutableParameters: [String: String] = .init()
     private var mutableFiles: [String: Body.File] = .init()
     private var mutableCookies: Set<Cookie> = .init()
 

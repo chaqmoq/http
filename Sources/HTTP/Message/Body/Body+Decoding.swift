@@ -1,12 +1,12 @@
 import Foundation
 
 extension Body {
-    public var json: [String: Any] {
-        (try? JSONSerialization.jsonObject(with: data, options: []) as? [String: Any]) ?? .init()
+    public var json: [String: Any?] {
+        (try? JSONSerialization.jsonObject(with: data) as? [String: Any?]) ?? .init()
     }
 
-    public var urlEncoded: [String: Any] {
-        var parameters: [String: Any] = .init()
+    public var urlEncoded: [String: String] {
+        var parameters: [String: String] = .init()
 
         if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
             var urlComponents = URLComponents()
@@ -22,8 +22,8 @@ extension Body {
         return parameters
     }
 
-    public func multipart(boundary: String) -> ([String: Any], [String: File]) {
-        var parameters: [String: Any] = .init()
+    public func multipart(boundary: String) -> ([String: String], [String: File]) {
+        var parameters: [String: String] = .init()
         var files: [String: File] = .init()
         guard !isEmpty else { return (parameters, files) }
         let boundary = "--" + boundary
