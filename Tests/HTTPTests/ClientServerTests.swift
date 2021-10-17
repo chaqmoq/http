@@ -46,14 +46,14 @@ extension ClientServerTests {
             let request = try! HTTPClient.Request(url: url, method: method, headers: headers, body: body)
             weakSelf.client.execute(request: request).whenComplete { result in
                 switch result {
-                case .failure(let error):
+                case let .failure(error):
                     responseHandler(.failure(error))
-                case .success(let response):
+                case let .success(response):
                     let status = Response.Status(rawValue: Int(response.status.code))!
                     var headers = Headers()
 
                     for header in response.headers {
-                        headers.set(header.value, for: header.name)
+                        headers.set(.init(name: header.name, value: header.value))
                     }
 
                     let actualResponse: Response
