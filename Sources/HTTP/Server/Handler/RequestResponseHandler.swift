@@ -23,7 +23,7 @@ final class RequestResponseHandler: ChannelInboundHandler {
         if request.version.major < Version.Major.two.rawValue {
             let connectionKey: HeaderName = .connection
 
-            if let connection = request.headers.value(for: connectionKey) {
+            if let connection = request.headers.get(connectionKey) {
                 response.headers.set(connection, for: connectionKey)
             } else {
                 if request.version.major == Version.Major.one.rawValue, request.version.minor >= 1 {

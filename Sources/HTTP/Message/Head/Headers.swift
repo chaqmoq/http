@@ -18,15 +18,6 @@ public struct Headers: Encodable {
         self.headers = headers.map { Header(name: $0.0, value: $0.1) }
     }
 
-    public func indices(for name: String) -> [Int] {
-        let name = name.lowercased()
-        return headers.enumerated().filter { $0.element.name.lowercased() == name }.map { $0.offset }
-    }
-
-    public func indices(for name: HeaderName) -> [Int] {
-        indices(for: name.rawValue)
-    }
-
     public mutating func add(_ value: String, for name: String) {
         headers.append(Header(name: name, value: value))
     }
@@ -51,6 +42,22 @@ public struct Headers: Encodable {
         set(value, for: name.rawValue)
     }
 
+    public func get(_ name: String) -> String? {
+        values(for: name).last
+    }
+
+    public func get(_ name: HeaderName) -> String? {
+        get(name.rawValue)
+    }
+
+    public func has(_ name: String) -> Bool {
+        headers.contains(where: { $0.name.lowercased() == name.lowercased() })
+    }
+
+    public func has(_ name: HeaderName) -> Bool {
+        has(name.rawValue)
+    }
+
     public mutating func remove(_ name: String) {
         let indices = self.indices(for: name).reversed()
 
@@ -67,30 +74,20 @@ public struct Headers: Encodable {
         headers.remove(at: index)
     }
 
-    public func has(_ name: String) -> Bool {
-        let name = name.lowercased()
-        return headers.contains(where: { $0.name.lowercased() == name })
+    func values(for name: String) -> [String] {
+        headers.filter { $0.name.lowercased() == name.lowercased() }.map { $0.value }
     }
 
-    public func has(_ name: HeaderName) -> Bool {
-        has(name.rawValue)
-    }
-
-    public func values(for name: String) -> [String] {
-        let name = name.lowercased()
-        return headers.filter { $0.name.lowercased() == name }.map { $0.value }
-    }
-
-    public func values(for name: HeaderName) -> [String] {
+    func values(for name: HeaderName) -> [String] {
         values(for: name.rawValue)
     }
 
-    public func value(for name: String) -> String? {
-        return values(for: name).last
+    func indices(for name: String) -> [Int] {
+        headers.enumerated().filter { $0.element.name.lowercased() == name.lowercased() }.map { $0.offset }
     }
 
-    public func value(for name: HeaderName) -> String? {
-        value(for: name.rawValue)
+    func indices(for name: HeaderName) -> [Int] {
+        indices(for: name.rawValue)
     }
 }
 

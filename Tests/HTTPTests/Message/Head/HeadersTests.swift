@@ -84,7 +84,7 @@ final class HeadersTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(headers.count, 2)
-        XCTAssertEqual(headers.value(for: .contentType), "text/html")
+        XCTAssertEqual(headers.get(.contentType), "text/html")
     }
 
     func testSet() {
@@ -96,23 +96,23 @@ final class HeadersTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(headers.count, 1)
-        XCTAssertEqual(headers.value(for: .contentType), "text/css")
+        XCTAssertEqual(headers.get(.contentType), "text/css")
 
         // Act
         headers.set("close", for: .connection)
 
         // Assert
         XCTAssertEqual(headers.count, 2)
-        XCTAssertEqual(headers.value(for: .contentType), "text/css")
-        XCTAssertEqual(headers.value(for: .connection), "close")
+        XCTAssertEqual(headers.get(.contentType), "text/css")
+        XCTAssertEqual(headers.get(.connection), "close")
 
         // Act
         headers[0] = Header(name: HeaderName.contentType, value: "text/plain")
 
         // Assert
         XCTAssertEqual(headers.count, 2)
-        XCTAssertEqual(headers.value(for: .contentType), "text/plain")
-        XCTAssertEqual(headers.value(for: .connection), "close")
+        XCTAssertEqual(headers.get(.contentType), "text/plain")
+        XCTAssertEqual(headers.get(.connection), "close")
     }
 
     func testRemoveByName() {

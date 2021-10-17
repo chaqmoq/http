@@ -10,7 +10,7 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.method, .GET)
         XCTAssertEqual(request.uri, .default)
         XCTAssertEqual(request.version, .init(major: 1, minor: 1))
-        XCTAssertEqual(request.headers.value(for: .contentLength), String(request.body.count))
+        XCTAssertEqual(request.headers.get(.contentLength), String(request.body.count))
         XCTAssertTrue(request.cookies.isEmpty)
         XCTAssertTrue(request.body.isEmpty)
     }
@@ -34,8 +34,8 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.method, method)
         XCTAssertEqual(request.uri, uri)
         XCTAssertEqual(request.version, version)
-        XCTAssertEqual(request.headers.value(for: .contentLength), String(request.body.count))
-        XCTAssertEqual(request.headers.value(for: .contentType), "application/json")
+        XCTAssertEqual(request.headers.get(.contentLength), String(request.body.count))
+        XCTAssertEqual(request.headers.get(.contentType), "application/json")
         XCTAssertEqual(request.cookies.count, 2)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "2" }))
@@ -65,8 +65,8 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.method, method)
         XCTAssertEqual(request.uri, uri)
         XCTAssertEqual(request.version, version)
-        XCTAssertEqual(request.headers.value(for: .contentLength), String(request.body.count))
-        XCTAssertEqual(request.headers.value(for: .contentType), "application/json")
+        XCTAssertEqual(request.headers.get(.contentLength), String(request.body.count))
+        XCTAssertEqual(request.headers.get(.contentType), "application/json")
         XCTAssertEqual(request.cookies.count, 2)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId2" && $0.value == "2" }))
@@ -133,7 +133,7 @@ final class RequestTests: XCTestCase {
         request.setCookie(Cookie(name: "sessionId", value: "abcd"))
 
         // Assert
-        XCTAssertEqual(request.headers.value(for: .cookie), "sessionId=abcd")
+        XCTAssertEqual(request.headers.get(.cookie), "sessionId=abcd")
         XCTAssertEqual(request.cookies.count, 1)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "abcd" }))
 
@@ -141,7 +141,7 @@ final class RequestTests: XCTestCase {
         request.setCookie(Cookie(name: "sessionId", value: "efgh"))
 
         // Assert
-        XCTAssertEqual(request.headers.value(for: .cookie), "sessionId=efgh")
+        XCTAssertEqual(request.headers.get(.cookie), "sessionId=efgh")
         XCTAssertEqual(request.cookies.count, 1)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
 
@@ -149,7 +149,7 @@ final class RequestTests: XCTestCase {
         request.setCookie(Cookie(name: "userId", value: "1"))
 
         // Assert
-        XCTAssertEqual(request.headers.value(for: .cookie), "sessionId=efgh; userId=1")
+        XCTAssertEqual(request.headers.get(.cookie), "sessionId=efgh; userId=1")
         XCTAssertEqual(request.cookies.count, 2)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
@@ -160,14 +160,14 @@ final class RequestTests: XCTestCase {
         var request = Request()
 
         // Assert
-        XCTAssertNil(request.headers.value(for: .cookie))
+        XCTAssertNil(request.headers.get(.cookie))
         XCTAssertTrue(request.cookies.isEmpty)
 
         // Act
         request.clearCookie(named: "sessionId")
 
         // Assert
-        XCTAssertNil(request.headers.value(for: .cookie))
+        XCTAssertNil(request.headers.get(.cookie))
         XCTAssertTrue(request.cookies.isEmpty)
 
         // Act
@@ -177,7 +177,7 @@ final class RequestTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(
-            request.headers.value(for: .cookie),
+            request.headers.get(.cookie),
             "sessionId=abcd; userId=1; email=sukhrob@chaqmoq.dev; username=sukhrob"
         )
         XCTAssertEqual(request.cookies.count, 4)
@@ -190,7 +190,7 @@ final class RequestTests: XCTestCase {
         request.clearCookie(named: "sessionId")
 
         // Assert
-        XCTAssertEqual(request.headers.value(for: .cookie), "userId=1; email=sukhrob@chaqmoq.dev; username=sukhrob")
+        XCTAssertEqual(request.headers.get(.cookie), "userId=1; email=sukhrob@chaqmoq.dev; username=sukhrob")
         XCTAssertEqual(request.cookies.count, 3)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "email" && $0.value == "sukhrob@chaqmoq.dev" }))
@@ -200,7 +200,7 @@ final class RequestTests: XCTestCase {
         request.clearCookie(named: "email")
 
         // Assert
-        XCTAssertEqual(request.headers.value(for: .cookie), "userId=1; username=sukhrob")
+        XCTAssertEqual(request.headers.get(.cookie), "userId=1; username=sukhrob")
         XCTAssertEqual(request.cookies.count, 2)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "username" && $0.value == "sukhrob" }))
@@ -209,7 +209,7 @@ final class RequestTests: XCTestCase {
         request.clearCookie(named: "username")
 
         // Assert
-        XCTAssertEqual(request.headers.value(for: .cookie), "userId=1")
+        XCTAssertEqual(request.headers.get(.cookie), "userId=1")
         XCTAssertEqual(request.cookies.count, 1)
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "1" }))
 
@@ -217,7 +217,7 @@ final class RequestTests: XCTestCase {
         request.clearCookie(named: "userId")
 
         // Assert
-        XCTAssertNil(request.headers.value(for: .cookie))
+        XCTAssertNil(request.headers.get(.cookie))
         XCTAssertTrue(request.cookies.isEmpty)
     }
 
@@ -230,7 +230,7 @@ final class RequestTests: XCTestCase {
         request.clearCookies()
 
         // Assert
-        XCTAssertNil(request.headers.value(for: .cookie))
+        XCTAssertNil(request.headers.get(.cookie))
         XCTAssertTrue(request.cookies.isEmpty)
     }
 }

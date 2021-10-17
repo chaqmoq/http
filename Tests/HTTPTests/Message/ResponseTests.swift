@@ -9,7 +9,7 @@ final class ResponseTests: XCTestCase {
         // Assert
         XCTAssertEqual(response.version, .init(major: 1, minor: 1))
         XCTAssertEqual(response.status, .ok)
-        XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
+        XCTAssertEqual(response.headers.get(.contentLength), String(response.body.count))
         XCTAssertTrue(response.cookies.isEmpty)
         XCTAssertTrue(response.body.isEmpty)
     }
@@ -24,7 +24,7 @@ final class ResponseTests: XCTestCase {
         // Assert
         XCTAssertEqual(response.version, .init(major: 1, minor: 1))
         XCTAssertEqual(response.status, .ok)
-        XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
+        XCTAssertEqual(response.headers.get(.contentLength), String(response.body.count))
         XCTAssertTrue(response.cookies.isEmpty)
         XCTAssertEqual(response.body.string, string)
     }
@@ -39,7 +39,7 @@ final class ResponseTests: XCTestCase {
         // Assert
         XCTAssertEqual(response.version, .init(major: 1, minor: 1))
         XCTAssertEqual(response.status, .ok)
-        XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
+        XCTAssertEqual(response.headers.get(.contentLength), String(response.body.count))
         XCTAssertTrue(response.cookies.isEmpty)
         XCTAssertEqual(response.body.data, data)
     }
@@ -61,8 +61,8 @@ final class ResponseTests: XCTestCase {
         // Assert
         XCTAssertEqual(response.version, version)
         XCTAssertEqual(response.status, status)
-        XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
-        XCTAssertEqual(response.headers.value(for: .contentType), "application/json")
+        XCTAssertEqual(response.headers.get(.contentLength), String(response.body.count))
+        XCTAssertEqual(response.headers.get(.contentType), "application/json")
         XCTAssertEqual(response.cookies.count, 1)
         XCTAssertTrue(response.cookies.contains(where: {
             $0.name == "sessionId" &&
@@ -107,8 +107,8 @@ final class ResponseTests: XCTestCase {
         // Assert
         XCTAssertEqual(response.version, version)
         XCTAssertEqual(response.status, status)
-        XCTAssertEqual(response.headers.value(for: .contentLength), String(response.body.count))
-        XCTAssertEqual(response.headers.value(for: .contentType), "application/json")
+        XCTAssertEqual(response.headers.get(.contentLength), String(response.body.count))
+        XCTAssertEqual(response.headers.get(.contentType), "application/json")
         XCTAssertEqual(response.cookies.count, 1)
         XCTAssertTrue(response.cookies.contains(where: {
             $0.name == "sessionId" &&
@@ -303,7 +303,7 @@ final class ResponseTests: XCTestCase {
         response.setCookie(Cookie(name: "sessionId", value: "abcd"))
 
         // Assert
-        XCTAssertEqual(response.headers.value(for: .setCookie), "sessionId=abcd")
+        XCTAssertEqual(response.headers.get(.setCookie), "sessionId=abcd")
         XCTAssertEqual(response.cookies.count, 1)
         XCTAssertTrue(response.cookies.contains(where: { $0.name == "sessionId" && $0.value == "abcd" }))
 
@@ -311,7 +311,7 @@ final class ResponseTests: XCTestCase {
         response.setCookie(Cookie(name: "sessionId", value: "efgh"))
 
         // Assert
-        XCTAssertEqual(response.headers.value(for: .setCookie), "sessionId=efgh")
+        XCTAssertEqual(response.headers.get(.setCookie), "sessionId=efgh")
         XCTAssertEqual(response.cookies.count, 1)
         XCTAssertTrue(response.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
 
@@ -358,7 +358,7 @@ final class ResponseTests: XCTestCase {
         response.clearCookies()
 
         // Assert
-        XCTAssertNil(response.headers.value(for: .setCookie))
+        XCTAssertNil(response.headers.get(.setCookie))
         XCTAssertTrue(response.cookies.isEmpty)
     }
 }

@@ -37,7 +37,7 @@ public struct Request: Message {
 
 extension Request {
     mutating func setParametersAndFiles() {
-        guard let contentType = headers.value(for: .contentType) else { return }
+        guard let contentType = headers.get(.contentType) else { return }
 
         if contentType == "application/x-www-form-urlencoded" {
             mutableParameters = body.urlEncoded
@@ -55,14 +55,14 @@ extension Request {
     }
 
     public mutating func setCookie(_ cookie: Cookie) {
-        var headerLine = headers.value(for: .cookie) ?? ""
+        var headerLine = headers.get(.cookie) ?? ""
         HeaderUtil.setParameterValue(cookie.value, named: cookie.name, in: &headerLine)
         headers.set(headerLine, for: .cookie)
     }
 
     mutating func setCookies() {
         mutableCookies.removeAll()
-        guard let headerLine = headers.value(for: .cookie) else { return }
+        guard let headerLine = headers.get(.cookie) else { return }
         let parameters = headerLine.components(separatedBy: ";").filter { $0 != "" }
 
         for parameter in parameters {
@@ -76,7 +76,7 @@ extension Request {
     }
 
     public mutating func clearCookie(named name: String) {
-        guard var headerLine = headers.value(for: .cookie) else { return }
+        guard var headerLine = headers.get(.cookie) else { return }
         HeaderUtil.removeParameter(named: name, in: &headerLine)
 
         if headerLine.isEmpty {
