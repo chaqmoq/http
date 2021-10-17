@@ -15,6 +15,6 @@ public protocol Message: CustomStringConvertible, Encodable {
 
 extension Message {
     mutating func setContentLengthHeader() {
-        headers.set(String(body.count), for: .contentLength)
+        headers.set(.init(name: .contentLength, value: String(body.count)))
     }
 }

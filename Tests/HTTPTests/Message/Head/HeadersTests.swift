@@ -80,7 +80,7 @@ final class HeadersTests: XCTestCase {
         var headers: Headers = ["content-type": "text/css"]
 
         // Act
-        headers.add("text/html", for: .contentType)
+        headers.add(.init(name: .contentType, value: "text/html"))
 
         // Assert
         XCTAssertEqual(headers.count, 2)
@@ -92,14 +92,14 @@ final class HeadersTests: XCTestCase {
         var headers: Headers = ["content-type": "text/html"]
 
         // Act
-        headers.set("text/css", for: .contentType)
+        headers.set(.init(name: .contentType, value: "text/css"))
 
         // Assert
         XCTAssertEqual(headers.count, 1)
         XCTAssertEqual(headers.get(.contentType), "text/css")
 
         // Act
-        headers.set("close", for: .connection)
+        headers.set(.init(name: .connection, value: "close"))
 
         // Assert
         XCTAssertEqual(headers.count, 2)

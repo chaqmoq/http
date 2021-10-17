@@ -55,15 +55,15 @@ extension Request {
     }
 
     public mutating func setCookie(_ cookie: Cookie) {
-        var headerLine = headers.get(.cookie) ?? ""
-        HeaderUtil.setParameterValue(cookie.value, named: cookie.name, in: &headerLine)
-        headers.set(headerLine, for: .cookie)
+        var value = headers.get(.cookie) ?? ""
+        HeaderUtil.setParameterValue(cookie.value, named: cookie.name, in: &value)
+        headers.set(.init(name: .cookie, value: value))
     }
 
     mutating func setCookies() {
         mutableCookies.removeAll()
-        guard let headerLine = headers.get(.cookie) else { return }
-        let parameters = headerLine.components(separatedBy: ";").filter { $0 != "" }
+        guard let value = headers.get(.cookie) else { return }
+        let parameters = value.components(separatedBy: ";").filter { $0 != "" }
 
         for parameter in parameters {
             let nameValue = parameter.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
@@ -76,13 +76,13 @@ extension Request {
     }
 
     public mutating func clearCookie(named name: String) {
-        guard var headerLine = headers.get(.cookie) else { return }
-        HeaderUtil.removeParameter(named: name, in: &headerLine)
+        guard var value = headers.get(.cookie) else { return }
+        HeaderUtil.removeParameter(named: name, in: &value)
 
-        if headerLine.isEmpty {
+        if value.isEmpty {
             headers.remove(.cookie)
         } else {
-            headers.set(headerLine, for: .cookie)
+            headers.set(.init(name: .cookie, value: value))
         }
     }
 

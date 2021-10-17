@@ -17,19 +17,19 @@ final class RequestResponseHandler: ChannelInboundHandler {
         var response = Response()
 
         if let serverName = server.configuration.serverName {
-            response.headers.set(serverName, for: .server)
+            response.headers.set(.init(name: .server, value: serverName))
         }
 
         if request.version.major < Version.Major.two.rawValue {
             let connectionKey: HeaderName = .connection
 
             if let connection = request.headers.get(connectionKey) {
-                response.headers.set(connection, for: connectionKey)
+                response.headers.set(.init(name: connectionKey, value: connection))
             } else {
                 if request.version.major == Version.Major.one.rawValue, request.version.minor >= 1 {
-                    response.headers.set("keep-alive", for: connectionKey)
+                    response.headers.set(.init(name: connectionKey, value: "keep-alive"))
                 } else {
-                    response.headers.set("close", for: connectionKey)
+                    response.headers.set(.init(name: connectionKey, value: "close"))
                 }
             }
         }

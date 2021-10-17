@@ -45,8 +45,7 @@ public struct Response: Message {
 
 extension Response {
     public func hasCookie(named name: String) -> Bool {
-        let name = name.lowercased()
-        return cookies.contains(where: { $0.name.lowercased() == name })
+        cookies.contains(where: { $0.name.lowercased() == name.lowercased() })
     }
 
     public mutating func setCookie(_ cookie: Cookie) {
@@ -59,7 +58,7 @@ extension Response {
         }) {
             headers[index] = Header(name: headerName, value: "\(cookie)")
         } else {
-            headers.add("\(cookie)", for: .setCookie)
+            headers.add(.init(name: .setCookie, value: "\(cookie)"))
         }
     }
 

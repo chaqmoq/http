@@ -18,28 +18,20 @@ public struct Headers: Encodable {
         self.headers = headers.map { Header(name: $0.0, value: $0.1) }
     }
 
-    public mutating func add(_ value: String, for name: String) {
-        headers.append(Header(name: name, value: value))
+    public mutating func add(_ header: Header) {
+        headers.append(header)
     }
 
-    public mutating func add(_ value: String, for name: HeaderName) {
-        add(value, for: name.rawValue)
-    }
-
-    public mutating func set(_ value: String, for name: String) {
-        let indices = self.indices(for: name)
+    public mutating func set(_ header: Header) {
+        let indices = self.indices(for: header.name)
 
         if indices.isEmpty {
-            headers.append(Header(name: name, value: value))
+            headers.append(header)
         } else {
             for index in indices {
-                headers[index] = Header(name: name, value: value)
+                headers[index] = header
             }
         }
-    }
-
-    public mutating func set(_ value: String, for name: HeaderName) {
-        set(value, for: name.rawValue)
     }
 
     public func get(_ name: String) -> String? {
