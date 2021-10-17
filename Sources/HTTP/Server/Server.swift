@@ -13,7 +13,7 @@ public final class Server {
     public var onStart: ((EventLoop) -> Void)?
     public var onStop: (() -> Void)?
     public var onError: ((Error, EventLoop) -> Void)?
-    public var onReceive: ((Request, EventLoop) -> Any)?
+    public var onReceive: ((Request, EventLoop) -> Encodable)?
 
     public init(configuration: Configuration = .init()) {
         self.configuration = configuration
