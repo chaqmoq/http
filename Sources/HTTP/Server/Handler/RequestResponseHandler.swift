@@ -42,19 +42,35 @@ final class RequestResponseHandler: ChannelInboundHandler {
     }
 
     private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) {
+        var response = response
+
         if let onReceive = server.onReceive {
             let result = onReceive(request, context.eventLoop)
 
-            if let response = result as? Response {
-                write(response: response, for: request, in: context)
+            if let result = result as? Response {
+                response = result
             } else {
-                var response = response
                 response.body = .init(string: "\(result)")
-                write(response: response, for: request, in: context)
             }
-        } else {
-            write(response: response, for: request, in: context)
         }
+
+        response = handle(request: request, response: response, lastIndex: server.middleware.count - 1)
+        write(response: response, for: request, in: context)
+    }
+
+    private func handle(
+        request: Request,
+        response: Response,
+        nextIndex index: Int = 0,
+        lastIndex: Int
+    ) -> Response {
+        if index <= lastIndex {
+            return server.middleware[index].handle(request: request) { [self] request in
+                handle(request: request, response: response, nextIndex: index + 1, lastIndex: lastIndex)
+            }
+        }
+
+        return response
     }
 
     private func write(response: Response, for request: Request, in context: ChannelHandlerContext) {
