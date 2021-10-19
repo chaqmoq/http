@@ -1,4 +1,6 @@
 public struct HTTPMethodOverrideMiddleware: Middleware {
+    public init() {}
+
     public func handle(request: Request, nextHandler: @escaping (Request) -> Response) -> Response {
         var request = request
 
