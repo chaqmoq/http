@@ -11,7 +11,10 @@ final class RequestTests: XCTestCase {
         XCTAssertEqual(request.uri, .default)
         XCTAssertEqual(request.version, .init(major: 1, minor: 1))
         XCTAssertEqual(request.headers.get(.contentLength), String(request.body.count))
+        XCTAssertTrue(request.attributes.isEmpty)
         XCTAssertTrue(request.cookies.isEmpty)
+        XCTAssertTrue(request.files.isEmpty)
+        XCTAssertTrue(request.parameters.isEmpty)
         XCTAssertTrue(request.body.isEmpty)
     }
 
