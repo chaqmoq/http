@@ -52,9 +52,7 @@ public struct URI: Encodable {
 
 extension URI {
     public mutating func setParameter(_ name: String, value: Any?) {
-        if !name.hasPrefix("_") {
-            mutableParameters[name] = AnyEncodable(value)
-        }
+        mutableParameters[name] = AnyEncodable(value)
     }
 
     public func getParameter<T>(_ name: String) -> T? {
