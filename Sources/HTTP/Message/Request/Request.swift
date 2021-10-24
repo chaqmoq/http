@@ -1,3 +1,5 @@
+import AnyCodable
+
 public struct Request: Message {
     public var method: Method
     public var uri: URI
@@ -9,10 +11,10 @@ public struct Request: Message {
             setParametersAndFiles()
         }
     }
-    public var parameters: [String: String] { mutableParameters }
+    public var parameters: [String: AnyEncodable] { mutableParameters }
     public var files: [String: Body.File] { mutableFiles }
     public var cookies: Set<Cookie> { mutableCookies }
-    private var mutableParameters: [String: String] = .init()
+    private var mutableParameters: [String: AnyEncodable] = .init()
     private var mutableFiles: [String: Body.File] = .init()
     private var mutableCookies: Set<Cookie> = .init()
 
@@ -36,6 +38,10 @@ public struct Request: Message {
 }
 
 extension Request {
+    public func getParameter<T>(_ name: String) -> T? {
+        parameters[name]?.value as? T
+    }
+
     mutating func setParametersAndFiles() {
         guard let contentType = headers.get(.contentType) else { return }
 

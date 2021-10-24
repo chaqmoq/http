@@ -1,3 +1,4 @@
+import AnyCodable
 import Foundation
 
 /// A convenience API to communicate with `URLComponents`.
@@ -24,10 +25,10 @@ public struct URI: Encodable {
     public var path: String? { urlComponents.path }
 
     /// Path parameters.
-    public var parameters: [String: String] = .init()
+    public var parameters: [String: AnyEncodable] = .init()
 
     /// Query parameters.
-    public var query: [String: String]? { getQueryParameters() }
+    public var query: [String: AnyEncodable]? { getQueryParameters() }
 
     /// Fragment.
     public var fragment: String? { urlComponents.fragment }
@@ -48,10 +49,18 @@ public struct URI: Encodable {
 }
 
 extension URI {
-    private func getQueryParameters() -> [String: String]? {
+    public func getParameter<T>(_ name: String) -> T? {
+        parameters[name]?.value as? T
+    }
+
+    public func getQueryParameter<T>(_ name: String) -> T? {
+        query?[name]?.value as? T
+    }
+
+    private func getQueryParameters() -> [String: AnyEncodable]? {
         if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
-            var parameters = [String: String]()
-            for queryItem in queryItems { parameters[queryItem.name] = queryItem.value }
+            var parameters = [String: AnyEncodable]()
+            for queryItem in queryItems { parameters[queryItem.name] = AnyEncodable(queryItem.value) }
 
             return parameters
         }

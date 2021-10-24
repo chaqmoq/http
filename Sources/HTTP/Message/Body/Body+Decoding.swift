@@ -1,3 +1,4 @@
+import AnyCodable
 import Foundation
 
 extension Body {
@@ -5,8 +6,8 @@ extension Body {
         (try? JSONSerialization.jsonObject(with: data) as? [String: Any?]) ?? .init()
     }
 
-    public var urlEncoded: [String: String] {
-        var parameters: [String: String] = .init()
+    public var urlEncoded: [String: AnyEncodable] {
+        var parameters: [String: AnyEncodable] = .init()
 
         if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
             var urlComponents = URLComponents()
@@ -14,7 +15,7 @@ extension Body {
 
             if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
                 for queryItem in queryItems {
-                    parameters[queryItem.name] = queryItem.value
+                    parameters[queryItem.name] = AnyEncodable(queryItem.value)
                 }
             }
         }
@@ -22,8 +23,8 @@ extension Body {
         return parameters
     }
 
-    public func multipart(boundary: String) -> ([String: String], [String: File]) {
-        var parameters: [String: String] = .init()
+    public func multipart(boundary: String) -> ([String: AnyEncodable], [String: File]) {
+        var parameters: [String: AnyEncodable] = .init()
         var files: [String: File] = .init()
         guard !isEmpty else { return (parameters, files) }
         let boundary = "--" + boundary
@@ -93,7 +94,9 @@ extension Body {
                     if let filename = HeaderUtil.getParameterValue(named: "filename", in: headerLines) {
                         files[name] = File(filename: filename, data: Data(bytes[valueStartIndex ... valueEndIndex]))
                     } else {
-                        parameters[name] = String(bytes: bytes[valueStartIndex ... valueEndIndex], encoding: .utf8)
+                        parameters[name] = AnyEncodable(
+                            String(bytes: bytes[valueStartIndex ... valueEndIndex], encoding: .utf8)
+                        )
                     }
                 }
             }

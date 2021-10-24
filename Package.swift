@@ -13,10 +13,12 @@ let package = Package(
         .package(url: "https://github.com/apple/swift-nio-http2.git", from: "1.18.0"),
         .package(url: "https://github.com/apple/swift-nio-extras.git", from: "1.10.0"),
         .package(url: "https://github.com/apple/swift-nio-ssl.git", from: "2.16.0"),
-        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.6.0")
+        .package(url: "https://github.com/swift-server/async-http-client.git", from: "1.6.0"),
+        .package(name: "AnyCodable", url: "https://github.com/sukhrobkhakimov/AnyCodable.git", from: "0.6.0")
     ],
     targets: [
         .target(name: "HTTP", dependencies: [
+            .product(name: "AnyCodable", package: "AnyCodable"),
             .product(name: "Logging", package: "swift-log"),
             .product(name: "NIO", package: "swift-nio"),
             .product(name: "NIOHTTP1", package: "swift-nio"),
