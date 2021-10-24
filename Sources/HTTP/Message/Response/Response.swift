@@ -5,7 +5,7 @@ public struct Response: Message {
     public var status: Status
     public var headers: Headers { didSet { setCookies() } }
     public var cookies: Set<Cookie> { mutableCookies }
-    private var mutableCookies: Set<Cookie>
+    private var mutableCookies: Set<Cookie> = .init()
     public var body: Body { didSet { setContentLengthHeader() } }
 
     public init(
@@ -17,7 +17,6 @@ public struct Response: Message {
         self.version = version
         self.status = status
         self.headers = headers
-        mutableCookies = .init()
         self.body = body
 
         setContentLengthHeader()
@@ -45,7 +44,7 @@ public struct Response: Message {
 
 extension Response {
     public func hasCookie(named name: String) -> Bool {
-        cookies.contains(where: { $0.name.lowercased() == name.lowercased() })
+        mutableCookies.contains(where: { $0.name.lowercased() == name.lowercased() })
     }
 
     public mutating func setCookie(_ cookie: Cookie) {

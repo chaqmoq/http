@@ -24,11 +24,6 @@ public struct URI: Encodable {
     /// A `path` subcomponent of `URLComponents`.
     public var path: String? { urlComponents.path }
 
-    /// Path parameters.
-    public var parameters: [String: AnyEncodable] { mutableParameters }
-
-    private var mutableParameters: [String: AnyEncodable] = .init()
-
     /// Query parameters.
     public var query: [String: AnyEncodable]? { getQueryParameters() }
 
@@ -51,14 +46,6 @@ public struct URI: Encodable {
 }
 
 extension URI {
-    public mutating func setParameter(_ name: String, value: Any?) {
-        mutableParameters[name] = AnyEncodable(value)
-    }
-
-    public func getParameter<T>(_ name: String) -> T? {
-        parameters[name]?.value as? T
-    }
-
     public func getQueryParameter<T>(_ name: String) -> T? {
         query?[name]?.value as? T
     }

@@ -11,12 +11,14 @@ public struct Request: Message {
             setParametersAndFiles()
         }
     }
-    public var parameters: [String: AnyEncodable] { mutableParameters }
-    public var files: [String: Body.File] { mutableFiles }
+    public var attributes: [String: AnyEncodable] { mutableAttributes }
     public var cookies: Set<Cookie> { mutableCookies }
-    private var mutableParameters: [String: AnyEncodable] = .init()
-    private var mutableFiles: [String: Body.File] = .init()
+    public var files: [String: Body.File] { mutableFiles }
+    public var parameters: [String: AnyEncodable] { mutableParameters }
+    private var mutableAttributes: [String: AnyEncodable] = .init()
     private var mutableCookies: Set<Cookie> = .init()
+    private var mutableFiles: [String: Body.File] = .init()
+    private var mutableParameters: [String: AnyEncodable] = .init()
 
     public init(
         method: Method = .GET,
@@ -38,19 +40,12 @@ public struct Request: Message {
 }
 
 extension Request {
-    public func getParameter<T>(_ name: String) -> T? {
-        parameters[name]?.value as? T
+    public mutating func setAttribute(_ name: String, value: Any?) {
+        mutableAttributes[name] = AnyEncodable(value)
     }
 
-    mutating func setParametersAndFiles() {
-        guard let contentType = headers.get(.contentType) else { return }
-
-        if contentType == "application/x-www-form-urlencoded" {
-            mutableParameters = body.urlEncoded
-        } else if contentType.hasPrefix("multipart/"),
-                  let boundary = HeaderUtil.getParameterValue(named: "boundary", in: contentType) {
-            (mutableParameters, mutableFiles) = body.multipart(boundary: boundary)
-        }
+    public func getAttribute<T>(_ name: String) -> T? {
+        mutableAttributes[name]?.value as? T
     }
 }
 
@@ -94,5 +89,22 @@ extension Request {
 
     public mutating func clearCookies() {
         headers.remove(.cookie)
+    }
+}
+
+extension Request {
+    public func getParameter<T>(_ name: String) -> T? {
+        mutableParameters[name]?.value as? T
+    }
+
+    mutating func setParametersAndFiles() {
+        guard let contentType = headers.get(.contentType) else { return }
+
+        if contentType == "application/x-www-form-urlencoded" {
+            mutableParameters = body.urlEncoded
+        } else if contentType.hasPrefix("multipart/"),
+                  let boundary = HeaderUtil.getParameterValue(named: "boundary", in: contentType) {
+            (mutableParameters, mutableFiles) = body.multipart(boundary: boundary)
+        }
     }
 }
