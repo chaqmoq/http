@@ -47,8 +47,7 @@ final class RequestResponseHandler: ChannelInboundHandler {
         var (request, response, index) = handle(
             request: request,
             response: response,
-            middleware: middleware,
-            lastIndex: lastIndex
+            middleware: middleware
         )
 
         if index <= lastIndex {
@@ -67,8 +66,7 @@ final class RequestResponseHandler: ChannelInboundHandler {
             (request, response, index) = handle(
                 request: request,
                 response: response,
-                middleware: middleware.reversed(),
-                lastIndex: lastIndex
+                middleware: middleware.reversed()
             )
 
             write(response: response, for: request, in: context)
@@ -78,24 +76,21 @@ final class RequestResponseHandler: ChannelInboundHandler {
     private func handle(
         request: Request,
         response: Response,
-        middleware: [Middleware],
-        nextIndex index: Int = 0,
-        lastIndex: Int
+        middleware: [Middleware]
     ) -> (Request, Response, Int) {
-        if index <= lastIndex {
-            let response = middleware[index].handle(request: request) { [self] request in
-                handle(
-                    request: request,
-                    response: response,
-                    middleware: middleware,
-                    nextIndex: index + 1,
-                    lastIndex: lastIndex
-                ).1
+        var currentRequest = request
+        var currentResponse = response
+        var index = 0
+
+        for oneMiddleware in middleware {
+            currentResponse = oneMiddleware.handle(request: currentRequest) { request in
+                index += 1
+                currentRequest = request
+                return currentResponse
             }
-            return (request, response, index)
         }
 
-        return (request, response, index)
+        return (currentRequest, currentResponse, index)
     }
 
     private func write(response: Response, for request: Request, in context: ChannelHandlerContext) {
