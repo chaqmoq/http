@@ -42,9 +42,16 @@ final class RequestResponseHandler: ChannelInboundHandler {
     }
 
     private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) {
-        var response = response
+        let middleware = server.middleware
+        let lastIndex = middleware.count - 1
+        var (request, response, index) = handle(
+            request: request,
+            response: response,
+            middleware: middleware,
+            lastIndex: lastIndex
+        )
 
-        if let onReceive = server.onReceive {
+        if index > lastIndex, let onReceive = server.onReceive {
             let result = onReceive(request, context.eventLoop)
 
             if let result = result as? Response {
@@ -52,25 +59,39 @@ final class RequestResponseHandler: ChannelInboundHandler {
             } else {
                 response.body = .init(string: "\(result)")
             }
+
+            (request, response, index) = handle(
+                request: request,
+                response: response,
+                middleware: middleware.reversed(),
+                lastIndex: lastIndex
+            )
         }
 
-        response = handle(request: request, response: response, lastIndex: server.middleware.count - 1)
         write(response: response, for: request, in: context)
     }
 
     private func handle(
         request: Request,
         response: Response,
+        middleware: [Middleware],
         nextIndex index: Int = 0,
         lastIndex: Int
-    ) -> Response {
+    ) -> (Request, Response, Int) {
         if index <= lastIndex {
-            return server.middleware[index].handle(request: request) { [self] request in
-                handle(request: request, response: response, nextIndex: index + 1, lastIndex: lastIndex)
+            let response = middleware[index].handle(request: request) { [self] request in
+                handle(
+                    request: request,
+                    response: response,
+                    middleware: middleware,
+                    nextIndex: index + 1,
+                    lastIndex: lastIndex
+                ).1
             }
+            return (request, response, index)
         }
 
-        return response
+        return (request, response, index)
     }
 
     private func write(response: Response, for request: Request, in context: ChannelHandlerContext) {
