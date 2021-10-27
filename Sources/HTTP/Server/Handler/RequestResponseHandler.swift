@@ -51,13 +51,17 @@ final class RequestResponseHandler: ChannelInboundHandler {
             lastIndex: lastIndex
         )
 
-        if index > lastIndex, let onReceive = server.onReceive {
-            let result = onReceive(request, context.eventLoop)
+        if index <= lastIndex {
+            write(response: response, for: request, in: context)
+        } else {
+            if let onReceive = server.onReceive {
+                let result = onReceive(request, context.eventLoop)
 
-            if let result = result as? Response {
-                response = result
-            } else {
-                response.body = .init(string: "\(result)")
+                if let result = result as? Response {
+                    response = result
+                } else {
+                    response.body = .init(string: "\(result)")
+                }
             }
 
             (request, response, index) = handle(
@@ -66,9 +70,9 @@ final class RequestResponseHandler: ChannelInboundHandler {
                 middleware: middleware.reversed(),
                 lastIndex: lastIndex
             )
-        }
 
-        write(response: response, for: request, in: context)
+            write(response: response, for: request, in: context)
+        }
     }
 
     private func handle(
