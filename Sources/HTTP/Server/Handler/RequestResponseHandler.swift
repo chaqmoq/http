@@ -43,54 +43,60 @@ final class RequestResponseHandler: ChannelInboundHandler {
 
     private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) {
         let middleware = server.middleware
-        let lastIndex = middleware.count - 1
-        var (request, response, index) = handle(
+        let (request, response) = handle(
             request: request,
             response: response,
-            middleware: middleware
+            middleware: middleware,
+            eventLoop: context.eventLoop,
+            lastIndex: middleware.count - 1
         )
-
-        if index <= lastIndex {
-            write(response: response, for: request, in: context)
-        } else {
-            if let onReceive = server.onReceive {
-                let result = onReceive(request, context.eventLoop)
-
-                if let result = result as? Response {
-                    response = result
-                } else {
-                    response.body = .init(string: "\(result)")
-                }
-            }
-
-            (request, response, index) = handle(
-                request: request,
-                response: response,
-                middleware: middleware.reversed()
-            )
-
-            write(response: response, for: request, in: context)
-        }
+        write(response: response, for: request, in: context)
     }
 
     private func handle(
         request: Request,
         response: Response,
-        middleware: [Middleware]
-    ) -> (Request, Response, Int) {
-        var currentRequest = request
-        var currentResponse = response
-        var index = 0
+        middleware: [Middleware],
+        eventLoop: EventLoop,
+        nextIndex index: Int = 0,
+        lastIndex: Int
+    ) -> (Request, Response) {
+        if index > lastIndex {
+            let response = onReceive(request: request, response: response, eventLoop: eventLoop)
+            return (request, response)
+        }
 
-        for oneMiddleware in middleware {
-            currentResponse = oneMiddleware.handle(request: currentRequest) { request in
-                index += 1
-                currentRequest = request
-                return currentResponse
+        let response = middleware[index].handle(request: request) { [self] request in
+            if index == lastIndex {
+                return onReceive(request: request, response: response, eventLoop: eventLoop)
+            }
+
+            return handle(
+                request: request,
+                response: response,
+                middleware: middleware,
+                eventLoop: eventLoop,
+                nextIndex: index + 1,
+                lastIndex: lastIndex
+            ).1
+        }
+        return (request, response)
+    }
+
+    private func onReceive(request: Request, response: Response, eventLoop: EventLoop) -> Response {
+        var response = response
+
+        if let onReceive = server.onReceive {
+            let result = onReceive(request, eventLoop)
+
+            if let result = result as? Response {
+                response = result
+            } else {
+                response.body = .init(string: "\(result)")
             }
         }
 
-        return (currentRequest, currentResponse, index)
+        return response
     }
 
     private func write(response: Response, for request: Request, in context: ChannelHandlerContext) {
