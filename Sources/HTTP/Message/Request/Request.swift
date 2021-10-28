@@ -1,6 +1,8 @@
 import AnyCodable
+import NIO
 
 public struct Request: Message {
+    public let eventLoop: EventLoop
     public var method: Method
     public var uri: URI
     public var version: Version
@@ -21,12 +23,14 @@ public struct Request: Message {
     private var mutableParameters: [String: AnyEncodable] = .init()
 
     public init(
+        eventLoop: EventLoop,
         method: Method = .GET,
         uri: URI = .default,
         version: Version = .init(),
         headers: Headers = .init(),
         body: Body = .init()
     ) {
+        self.eventLoop = eventLoop
         self.method = method
         self.uri = uri
         self.version = version

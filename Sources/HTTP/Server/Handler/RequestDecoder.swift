@@ -21,7 +21,7 @@ final class RequestDecoder: ChannelInboundHandler {
                 let method = Request.Method(rawValue: head.method.rawValue) ?? .HEAD
                 let uri = URI(string: head.uri) ?? URI.default
                 let version = Version(major: head.version.major, minor: head.version.minor)
-                var request = Request(method: method, uri: uri, version: version)
+                var request = Request(eventLoop: context.eventLoop, method: method, uri: uri, version: version)
 
                 for header in head.headers {
                     request.headers.set(.init(name: header.name, value: header.value))

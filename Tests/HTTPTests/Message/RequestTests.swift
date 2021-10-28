@@ -1,10 +1,13 @@
 @testable import HTTP
+import NIO
 import XCTest
 
 final class RequestTests: XCTestCase {
+    let eventLoop = EmbeddedEventLoop()
+
     func testDefaultInit() {
         // Act
-        let request = Request()
+        let request = Request(eventLoop: eventLoop)
 
         // Assert
         XCTAssertEqual(request.method, .GET)
@@ -31,7 +34,14 @@ final class RequestTests: XCTestCase {
         let body: Body = .init(string: "{\"title\": \"New post\"}")
 
         // Act
-        let request = Request(method: method, uri: uri, version: version, headers: headers, body: body)
+        let request = Request(
+            eventLoop: eventLoop,
+            method: method,
+            uri: uri,
+            version: version,
+            headers: headers,
+            body: body
+        )
 
         // Assert
         XCTAssertEqual(request.method, method)
@@ -55,7 +65,10 @@ final class RequestTests: XCTestCase {
             .cookie: "sessionId=efgh; userId2=2; username2"
         ])
         let body: Body = .init(string: "{\"title\": \"New post\"}")
-        var request = Request(headers: .init([.cookie: "sessionId=abcd; userId1=1; username1"]))
+        var request = Request(
+            eventLoop: eventLoop,
+            headers: .init([.cookie: "sessionId=abcd; userId1=1; username1"])
+        )
 
         // Act
         request.method = method
@@ -102,7 +115,7 @@ final class RequestTests: XCTestCase {
 
     func testDescription() {
         // Arrange
-        let request = Request()
+        let request = Request(eventLoop: eventLoop)
 
         // Act
         var description = ""
@@ -118,7 +131,7 @@ final class RequestTests: XCTestCase {
 
     func testHasCookie() {
         // Arrange
-        let request = Request(headers: .init([.cookie: "sessionId=abcd; userId=1"]))
+        let request = Request(eventLoop: eventLoop, headers: .init([.cookie: "sessionId=abcd; userId=1"]))
 
         // Assert
         XCTAssertEqual(request.cookies.count, 2)
@@ -130,7 +143,7 @@ final class RequestTests: XCTestCase {
 
     func testSetCookie() {
         // Arrange
-        var request = Request()
+        var request = Request(eventLoop: eventLoop)
 
         // Act
         request.setCookie(Cookie(name: "sessionId", value: "abcd"))
@@ -160,7 +173,7 @@ final class RequestTests: XCTestCase {
 
     func testClearCookie() {
         // Arrange
-        var request = Request()
+        var request = Request(eventLoop: eventLoop)
 
         // Assert
         XCTAssertNil(request.headers.get(.cookie))
@@ -227,7 +240,7 @@ final class RequestTests: XCTestCase {
     func testClearCookies() {
         // Arrange
         let headers: Headers = .init([.cookie: "sessionId=abcd; userId=1"])
-        var request = Request(headers: headers)
+        var request = Request(eventLoop: eventLoop, headers: headers)
 
         // Act
         request.clearCookies()

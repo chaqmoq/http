@@ -1,6 +1,6 @@
 import Foundation
 
-public struct Response: Message {
+public struct Response: Encodable, Message {
     public var version: Version
     public var status: Status
     public var headers: Headers { didSet { setCookies() } }

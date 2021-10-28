@@ -45,17 +45,16 @@ final class RequestResponseHandler: ChannelInboundHandler {
         let (request, response) = handle(
             request: request,
             response: response,
-            middleware: server.middleware,
-            eventLoop: context.eventLoop
+            middleware: server.middleware
         )
         write(response: response, for: request, in: context)
     }
 
-    private func handle(request: Request, response: Response, eventLoop: EventLoop) -> Response {
+    private func handle(request: Request, response: Response) -> Response {
         var response = response
 
         if let onReceive = server.onReceive {
-            let result = onReceive(request, eventLoop)
+            let result = onReceive(request)
 
             if let result = result as? Response {
                 response = result
@@ -71,13 +70,12 @@ final class RequestResponseHandler: ChannelInboundHandler {
         request: Request,
         response: Response,
         middleware: [Middleware],
-        eventLoop: EventLoop,
         nextIndex index: Int = 0
     ) -> (Request, Response) {
         let lastIndex = middleware.count - 1
 
         if index > lastIndex {
-            let response = handle(request: request, response: response, eventLoop: eventLoop)
+            let response = handle(request: request, response: response)
             return (request, response)
         }
 
@@ -86,14 +84,13 @@ final class RequestResponseHandler: ChannelInboundHandler {
             request = mutatedRequest
 
             if index == lastIndex {
-                return handle(request: request, response: response, eventLoop: eventLoop)
+                return handle(request: request, response: response)
             }
 
             return handle(
                 request: request,
                 response: response,
                 middleware: middleware,
-                eventLoop: eventLoop,
                 nextIndex: index + 1
             ).1
         }

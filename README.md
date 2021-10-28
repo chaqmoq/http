@@ -53,45 +53,10 @@ server.onStop = {
 server.onError = { error, _ in
     print("Error: \(error)")
 }
-server.onReceive = { request, _ in
-    // Return String, Response, EventLoopFuture<String>, EventLoopFuture<Response>, etc
+server.onReceive = { request in
+    // Return String, Response, etc
 }
 try server.start()
-```
-
-#### onReceive
-```swift
-// String
-server.onReceive = { request, _ in
-    "Hello World"
-}
-
-// Response
-server.onReceive = { request, _ in
-    Response("Hello World")
-}
-
-// EventLoopFuture<String>
-server.onReceive = { request, eventLoop in
-    // Some async operation that returns EventLoopFuture<String>
-    let promise = eventLoop.makePromise(of: String.self)
-    eventLoop.execute {
-        promise.succeed("Hello World")
-    }
-
-    return promise.futureResult
-}
-
-// EventLoopFuture<Response>
-server.onReceive = { request, eventLoop in
-    // Some async operation that returns EventLoopFuture<Response>
-    let promise = eventLoop.makePromise(of: Response.self)
-    eventLoop.execute {
-        promise.succeed(Response("Hello World"))
-    }
-
-    return promise.futureResult
-}
 ```
 
 ## Tests

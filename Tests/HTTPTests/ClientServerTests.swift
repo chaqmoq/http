@@ -8,6 +8,7 @@ class ClientServerTests: XCTestCase {
     var client: HTTPClient!
     var server: Server!
     var request: Request!
+    let eventLoop = EmbeddedEventLoop()
 
     override func setUp() {
         super.setUp()
@@ -21,6 +22,9 @@ class ClientServerTests: XCTestCase {
                 responseCompression: .init(isEnabled: true)
             )
         )
+        server.middleware = [
+            HTTPMethodOverrideMiddleware()
+        ]
     }
 }
 
@@ -32,10 +36,9 @@ extension ClientServerTests {
         responseHandler: @escaping (Result<Response, Error>) -> Void
     ) {
         self.request = request
-        server.onStart = { [weak self] _ in
-            guard let weakSelf = self else { fatalError() }
-            let url = weakSelf.request.uri.string!
-            let method = HTTPMethod(rawValue: weakSelf.request.method.rawValue)
+        server.onStart = { [self] _ in
+            let url = self.request.uri.string!
+            let method = HTTPMethod(rawValue: self.request.method.rawValue)
             var headers = HTTPHeaders()
             for header in response.headers { headers.add(name: header.name, value: header.value) }
 
@@ -43,8 +46,9 @@ extension ClientServerTests {
             buffer.writeBytes(request.body.bytes)
             let body: HTTPClient.Body = .byteBuffer(buffer)
 
-            let request = try! HTTPClient.Request(url: url, method: method, headers: headers, body: body)
-            weakSelf.client.execute(request: request).whenComplete { result in
+            var request = try! HTTPClient.Request(url: url, method: method, body: body)
+            for header in self.request.headers { request.headers.add(name: header.name, value: header.value) }
+            self.client.execute(request: request).whenComplete { result in
                 switch result {
                 case let .failure(error):
                     responseHandler(.failure(error))
@@ -68,12 +72,12 @@ extension ClientServerTests {
                 }
 
                 DispatchQueue.global().asyncAfter(deadline: .now()) {
-                    try! weakSelf.client.syncShutdown()
-                    try! weakSelf.server.stop()
+                    try! self.client.syncShutdown()
+                    try! self.server.stop()
                 }
             }
         }
-        server.onReceive = { request, _ in
+        server.onReceive = { request in
             requestHandler(request)
             return response
         }
