@@ -42,48 +42,16 @@ final class RequestResponseHandler: ChannelInboundHandler {
     }
 
     private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) {
-        let middleware = server.middleware
         let (request, response) = handle(
             request: request,
             response: response,
-            middleware: middleware,
-            eventLoop: context.eventLoop,
-            lastIndex: middleware.count - 1
+            middleware: server.middleware,
+            eventLoop: context.eventLoop
         )
         write(response: response, for: request, in: context)
     }
 
-    private func handle(
-        request: Request,
-        response: Response,
-        middleware: [Middleware],
-        eventLoop: EventLoop,
-        nextIndex index: Int = 0,
-        lastIndex: Int
-    ) -> (Request, Response) {
-        if index > lastIndex {
-            let response = onReceive(request: request, response: response, eventLoop: eventLoop)
-            return (request, response)
-        }
-
-        let response = middleware[index].handle(request: request) { [self] request in
-            if index == lastIndex {
-                return onReceive(request: request, response: response, eventLoop: eventLoop)
-            }
-
-            return handle(
-                request: request,
-                response: response,
-                middleware: middleware,
-                eventLoop: eventLoop,
-                nextIndex: index + 1,
-                lastIndex: lastIndex
-            ).1
-        }
-        return (request, response)
-    }
-
-    private func onReceive(request: Request, response: Response, eventLoop: EventLoop) -> Response {
+    private func handle(request: Request, response: Response, eventLoop: EventLoop) -> Response {
         var response = response
 
         if let onReceive = server.onReceive {
@@ -97,6 +65,40 @@ final class RequestResponseHandler: ChannelInboundHandler {
         }
 
         return response
+    }
+
+    private func handle(
+        request: Request,
+        response: Response,
+        middleware: [Middleware],
+        eventLoop: EventLoop,
+        nextIndex index: Int = 0
+    ) -> (Request, Response) {
+        let lastIndex = middleware.count - 1
+
+        if index > lastIndex {
+            let response = handle(request: request, response: response, eventLoop: eventLoop)
+            return (request, response)
+        }
+
+        var request = request
+        let response = middleware[index].handle(request: request) { [self] mutatedRequest in
+            request = mutatedRequest
+
+            if index == lastIndex {
+                return handle(request: request, response: response, eventLoop: eventLoop)
+            }
+
+            return handle(
+                request: request,
+                response: response,
+                middleware: middleware,
+                eventLoop: eventLoop,
+                nextIndex: index + 1
+            ).1
+        }
+
+        return (request, response)
     }
 
     private func write(response: Response, for request: Request, in context: ChannelHandlerContext) {
