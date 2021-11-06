@@ -1,5 +1,4 @@
 @testable import HTTP
-import NIO
 import XCTest
 
 final class RequestTests: XCTestCase {
