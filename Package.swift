@@ -5,7 +5,7 @@ import PackageDescription
 let package = Package(
     name: "chaqmoq-http",
     products: [
-        .library(name: "HTTP", targets: ["HTTP"])
+        .library(name: "ChaqmoqHTTP", targets: ["HTTP"])
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-log.git", from: "1.4.0"),
