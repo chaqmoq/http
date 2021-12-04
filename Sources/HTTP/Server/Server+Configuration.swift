@@ -1,7 +1,7 @@
 import NIO
 
 extension Server {
-    public struct Configuration {
+    public struct Configuration: Equatable {
         public var identifier: String
         public var host: String
         public var port: Int
@@ -54,7 +54,7 @@ extension Server {
 }
 
 extension Server.Configuration {
-    public struct Compression {
+    public struct Compression: Equatable {
         public var initialByteBufferCapacity: Int
         public var isEnabled: Bool
 
@@ -66,8 +66,8 @@ extension Server.Configuration {
 }
 
 extension Server.Configuration {
-    public struct Decompression {
-        public enum Limit {
+    public struct Decompression: Equatable {
+        public enum Limit: Equatable {
             case none
             case size(Int)
             case ratio(Int)
