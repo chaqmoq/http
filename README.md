@@ -1,7 +1,7 @@
 <div align="center">
     <h1>HTTP</h1>
     <p>
-        <a href="https://swift.org/download/#releases"><img src="https://img.shields.io/badge/swift-5.3+-brightgreen.svg" /></a>
+        <a href="https://swift.org/download/#releases"><img src="https://img.shields.io/badge/swift-5.5+-brightgreen.svg" /></a>
         <a href="https://github.com/chaqmoq/http/blob/master/LICENSE/"><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" /></a>
         <a href="https://github.com/chaqmoq/http/actions"><img src="https://github.com/chaqmoq/http/workflows/ci/badge.svg" /></a>
         <a href="https://www.codacy.com/gh/chaqmoq/http/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=chaqmoq/http&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/e88a672e58bb436c97ebf8ecc678ea18" /></a>
