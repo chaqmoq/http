@@ -1,3 +1,3 @@
 public protocol Middleware {
-    func handle(request: Request, nextHandler: @escaping (Request) -> Response) -> Response
+    func handle(request: Request, nextHandler: @escaping (Request) async -> Response) async -> Response
 }

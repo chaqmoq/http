@@ -12,7 +12,7 @@ final class RequestResponseHandler: ChannelInboundHandler {
         self.server = server
     }
 
-    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) async {
         let request = unwrapInboundIn(data)
         var response = Response()
 
@@ -38,11 +38,11 @@ final class RequestResponseHandler: ChannelInboundHandler {
             response.body = .init()
         }
 
-        prepareAndWrite(response: response, for: request, in: context)
+        await prepareAndWrite(response: response, for: request, in: context)
     }
 
-    private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) {
-        let (request, response) = handle(
+    private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) async {
+        let (request, response) = await handle(
             request: request,
             response: response,
             middleware: server.middleware
@@ -71,7 +71,7 @@ final class RequestResponseHandler: ChannelInboundHandler {
         response: Response,
         middleware: [Middleware],
         nextIndex index: Int = 0
-    ) -> (Request, Response) {
+    ) async -> (Request, Response) {
         let lastIndex = middleware.count - 1
 
         if index > lastIndex {
@@ -80,14 +80,14 @@ final class RequestResponseHandler: ChannelInboundHandler {
         }
 
         var request = request
-        let response = middleware[index].handle(request: request) { [self] mutatedRequest in
+        let response = await middleware[index].handle(request: request) { [self] mutatedRequest in
             request = mutatedRequest
 
             if index == lastIndex {
                 return handle(request: request, response: response)
             }
 
-            return handle(
+            return await handle(
                 request: request,
                 response: response,
                 middleware: middleware,
