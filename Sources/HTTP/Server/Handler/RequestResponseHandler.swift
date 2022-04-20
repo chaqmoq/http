@@ -42,13 +42,9 @@ final class RequestResponseHandler: ChannelInboundHandler {
     }
 
     private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) {
-        Task {
-            let (request, response) = await handle(
-                request: request,
-                response: response,
-                middleware: server.middleware
-            )
-            try await write(response: response, for: request, in: context)
+        let future = handle(request: request, response: response, middleware: server.middleware)
+        future.whenSuccess { [self] request, response in
+            write(response: response, for: request, in: context)
         }
     }
 
@@ -73,39 +69,45 @@ final class RequestResponseHandler: ChannelInboundHandler {
         response: Response,
         middleware: [Middleware],
         nextIndex index: Int = 0
-    ) async -> (Request, Response) {
-        let lastIndex = middleware.count - 1
+    ) -> EventLoopFuture<(Request, Response)> {
+        let promise = request.eventLoop.makePromise(of: (Request, Response).self)
+        promise.completeWithTask { [self] in
+            let lastIndex = middleware.count - 1
 
-        if index > lastIndex {
-            let response = handle(request: request, response: response)
+            if index > lastIndex {
+                let response = handle(request: request, response: response)
+                return (request, response)
+            }
+
+            let response = try await middleware[index].handle(request: request) { request in
+                if index == lastIndex {
+                    return handle(request: request, response: response)
+                }
+
+                return try await handle(
+                    request: request,
+                    response: response,
+                    middleware: middleware,
+                    nextIndex: index + 1
+                ).get().1
+            }
+
             return (request, response)
         }
 
-        var request = request
-        let response = await middleware[index].handle(request: request) { [self] mutatedRequest in
-            request = mutatedRequest
-
-            if index == lastIndex {
-                return handle(request: request, response: response)
-            }
-
-            return await handle(
-                request: request,
-                response: response,
-                middleware: middleware,
-                nextIndex: index + 1
-            ).1
-        }
-
-        return (request, response)
+        return promise.futureResult
     }
 
-    private func write(response: Response, for request: Request, in context: ChannelHandlerContext) async throws {
-        try await context.write(wrapOutboundOut(response)).get()
+    private func write(response: Response, for request: Request, in context: ChannelHandlerContext) {
+        if request.version.major >= Version.Major.two.rawValue {
+            context.write(wrapOutboundOut(response), promise: nil)
+        } else {
+            let future = context.write(wrapOutboundOut(response))
 
-        if request.version.major < Version.Major.two.rawValue {
             if response.headers.has("close") {
-                try await context.close()
+                future.whenComplete { _ in
+                    context.close(mode: .output, promise: nil)
+                }
             }
         }
     }

@@ -1,7 +1,10 @@
 public struct HTTPMethodOverrideMiddleware: Middleware {
     public init() {}
 
-    public func handle(request: Request, nextHandler: @escaping (Request) async -> Response) async -> Response {
+    public func handle(
+        request: Request,
+        nextHandler: @escaping (Request) async throws -> Response
+    ) async throws -> Response {
         var request = request
 
         if let methodName: String = request.getParameter("_method"),
@@ -12,6 +15,6 @@ public struct HTTPMethodOverrideMiddleware: Middleware {
             request.method = method
         }
 
-        return await nextHandler(request)
+        return try await nextHandler(request)
     }
 }
