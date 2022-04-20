@@ -12,7 +12,7 @@ final class RequestResponseHandler: ChannelInboundHandler {
         self.server = server
     }
 
-    func channelRead(context: ChannelHandlerContext, data: NIOAny) async {
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let request = unwrapInboundIn(data)
         var response = Response()
 
@@ -38,16 +38,18 @@ final class RequestResponseHandler: ChannelInboundHandler {
             response.body = .init()
         }
 
-        await prepareAndWrite(response: response, for: request, in: context)
+        prepareAndWrite(response: response, for: request, in: context)
     }
 
-    private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) async {
-        let (request, response) = await handle(
-            request: request,
-            response: response,
-            middleware: server.middleware
-        )
-        write(response: response, for: request, in: context)
+    private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) {
+        Task {
+            let (request, response) = await handle(
+                request: request,
+                response: response,
+                middleware: server.middleware
+            )
+            try await write(response: response, for: request, in: context)
+        }
     }
 
     private func handle(request: Request, response: Response) -> Response {
@@ -98,16 +100,12 @@ final class RequestResponseHandler: ChannelInboundHandler {
         return (request, response)
     }
 
-    private func write(response: Response, for request: Request, in context: ChannelHandlerContext) {
-        if request.version.major >= Version.Major.two.rawValue {
-            context.write(wrapOutboundOut(response), promise: nil)
-        } else {
-            let future = context.write(wrapOutboundOut(response))
+    private func write(response: Response, for request: Request, in context: ChannelHandlerContext) async throws {
+        try await context.write(wrapOutboundOut(response)).get()
 
+        if request.version.major < Version.Major.two.rawValue {
             if response.headers.has("close") {
-                future.whenComplete { _ in
-                    context.close(mode: .output, promise: nil)
-                }
+                try await context.close()
             }
         }
     }
