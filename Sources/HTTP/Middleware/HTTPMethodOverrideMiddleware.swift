@@ -10,8 +10,9 @@ public struct HTTPMethodOverrideMiddleware: Middleware {
         if let methodName: String = request.getParameter("_method"),
            let method = Request.Method(rawValue: methodName) {
             request.method = method
-        } else if let methodName = request.headers.get(.xHTTPMethodOverride),
-                  let method = Request.Method(rawValue: methodName) {
+        } else if
+            let methodName = request.headers.get(.xHTTPMethodOverride),
+            let method = Request.Method(rawValue: methodName) {
             request.method = method
         }
 

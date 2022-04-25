@@ -91,6 +91,9 @@ public final class HeaderUtil {
         let range = NSRange(location: 0, length: headerLine.utf8.count)
         headerLine = regex.stringByReplacingMatches(in: headerLine, range: range, withTemplate: "")
         headerLine = headerLine.trimmingCharacters(in: .whitespacesAndNewlines)
-        if headerLine.last == terminator { headerLine.removeLast() }
+
+        if headerLine.last == terminator {
+            headerLine.removeLast()
+        }
     }
 }

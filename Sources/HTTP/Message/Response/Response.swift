@@ -95,13 +95,21 @@ extension Response {
 
                             switch optionName {
                             case .expires:
-                                if let value = nameValue.last, count == 2 { cookie.expires = Date(rfc1123: value) }
+                                if let value = nameValue.last, count == 2 {
+                                    cookie.expires = Date(rfc1123: value)
+                                }
                             case .maxAge:
-                                if let value = nameValue.last, count == 2 { cookie.maxAge = Int(value) }
+                                if let value = nameValue.last, count == 2 {
+                                    cookie.maxAge = Int(value)
+                                }
                             case .domain:
-                                if let value = nameValue.last, count == 2 { cookie.domain = value }
+                                if let value = nameValue.last, count == 2 {
+                                    cookie.domain = value
+                                }
                             case .path:
-                                if let value = nameValue.last, count == 2 { cookie.path = value }
+                                if let value = nameValue.last, count == 2 {
+                                    cookie.path = value
+                                }
                             case .isSecure:
                                 cookie.isSecure = true
                             case .isHTTPOnly:
