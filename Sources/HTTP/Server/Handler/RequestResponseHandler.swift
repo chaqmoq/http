@@ -48,11 +48,11 @@ final class RequestResponseHandler: ChannelInboundHandler {
         }
     }
 
-    private func handle(request: Request, response: Response) -> Response {
+    private func handle(request: Request, response: Response) async -> Response {
         var response = response
 
         if let onReceive = server.onReceive {
-            let result = onReceive(request)
+            let result = await onReceive(request)
 
             if let result = result as? Response {
                 response = result
@@ -75,13 +75,13 @@ final class RequestResponseHandler: ChannelInboundHandler {
             let lastIndex = middleware.count - 1
 
             if index > lastIndex {
-                let response = handle(request: request, response: response)
+                let response = await handle(request: request, response: response)
                 return (request, response)
             }
 
             let response = try await middleware[index].handle(request: request) { request in
                 if index == lastIndex {
-                    return handle(request: request, response: response)
+                    return await handle(request: request, response: response)
                 }
 
                 return try await handle(
