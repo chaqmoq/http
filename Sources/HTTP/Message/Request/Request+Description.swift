@@ -1,9 +1,13 @@
 extension Request {
     public var description: String {
-        var description = ""
-        for header in headers { description.append("\(header.name): \(header.value)\n") }
-        description.append("\n\(body)")
+        var content = ""
 
-        return "\(method) \(uri) \(version)\n\(description)"
+        for header in headers {
+            content.append("\(header.name): \(header.value)\n")
+        }
+
+        content.append("\n\(body)")
+
+        return "\(method) \(uri) \(version)\n\(content)"
     }
 }

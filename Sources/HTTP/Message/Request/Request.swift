@@ -6,7 +6,9 @@ public struct Request: Message {
     public var method: Method
     public var uri: URI
     public var version: Version
-    public var headers: Headers { didSet { setCookies() } }
+    public var headers: Headers {
+        didSet { setCookies() }
+    }
     public var body: Body {
         didSet {
             setContentLengthHeader()

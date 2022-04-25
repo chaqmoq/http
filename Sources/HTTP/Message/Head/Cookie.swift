@@ -69,21 +69,47 @@ extension Cookie {
 }
 
 extension Cookie: Hashable {
-    public static func == (lhs: Cookie, rhs: Cookie) -> Bool { lhs.name == rhs.name }
-    public func hash(into hasher: inout Hasher) { hasher.combine(name) }
+    public static func == (lhs: Cookie, rhs: Cookie) -> Bool {
+        lhs.name == rhs.name
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(name)
+    }
 }
 
 extension Cookie: CustomStringConvertible {
     public var description: String {
-        var description = "\(name)=\(value)"
-        if let expires = expires { description += "; \(OptionName.expires.rawValue)=\(expires.rfc1123)" }
-        if let maxAge = maxAge { description += "; \(OptionName.maxAge.rawValue)=\(maxAge)" }
-        if let domain = domain { description += "; \(OptionName.domain.rawValue)=\(domain)" }
-        if let path = path { description += "; \(OptionName.path.rawValue)=\(path)" }
-        if isSecure { description += "; \(OptionName.isSecure.rawValue)" }
-        if isHTTPOnly { description += "; \(OptionName.isHTTPOnly.rawValue)" }
-        if let sameSite = sameSite { description += "; \(OptionName.sameSite.rawValue)=\(sameSite.rawValue)" }
+        var content = "\(name)=\(value)"
 
-        return description
+        if let expires = expires {
+            content += "; \(OptionName.expires.rawValue)=\(expires.rfc1123)"
+        }
+
+        if let maxAge = maxAge {
+            content += "; \(OptionName.maxAge.rawValue)=\(maxAge)"
+        }
+
+        if let domain = domain {
+            content += "; \(OptionName.domain.rawValue)=\(domain)"
+        }
+
+        if let path = path {
+            content += "; \(OptionName.path.rawValue)=\(path)"
+        }
+
+        if isSecure {
+            content += "; \(OptionName.isSecure.rawValue)"
+        }
+
+        if isHTTPOnly {
+            content += "; \(OptionName.isHTTPOnly.rawValue)"
+        }
+
+        if let sameSite = sameSite {
+            content += "; \(OptionName.sameSite.rawValue)=\(sameSite.rawValue)"
+        }
+
+        return content
     }
 }

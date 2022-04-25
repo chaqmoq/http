@@ -3,10 +3,14 @@ import Foundation
 public struct Response: Encodable, Message {
     public var version: Version
     public var status: Status
-    public var headers: Headers { didSet { setCookies() } }
+    public var headers: Headers {
+        didSet { setCookies() }
+    }
     public var cookies: Set<Cookie> { mutableCookies }
     private var mutableCookies: Set<Cookie> = .init()
-    public var body: Body { didSet { setContentLengthHeader() } }
+    public var body: Body {
+        didSet { setContentLengthHeader() }
+    }
 
     public init(
         _ body: Body = .init(),
@@ -86,8 +90,7 @@ extension Response {
                         let nameValue = parameter.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
 
                         if let name = nameValue.first?.lowercased(),
-                           let optionName = Cookie.OptionName(rawValue: name)
-                        {
+                           let optionName = Cookie.OptionName(rawValue: name) {
                             let count = nameValue.count
 
                             switch optionName {
@@ -105,8 +108,7 @@ extension Response {
                                 cookie.isHTTPOnly = true
                             case .sameSite:
                                 if let value = nameValue.last?.lowercased(),
-                                   let optionValue = Cookie.SameSite(rawValue: value)
-                                {
+                                   let optionValue = Cookie.SameSite(rawValue: value) {
                                     cookie.sameSite = optionValue
                                 }
                             }

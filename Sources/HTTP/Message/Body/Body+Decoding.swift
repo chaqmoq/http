@@ -88,8 +88,7 @@ extension Body {
             }
 
             if headerStartIndex < headerEndIndex,
-               let headerLines = String(bytes: bytes[headerStartIndex ... headerEndIndex], encoding: .utf8)
-            {
+               let headerLines = String(bytes: bytes[headerStartIndex ... headerEndIndex], encoding: .utf8) {
                 if let name = HeaderUtil.getParameterValue(named: "name", in: headerLines) {
                     if let filename = HeaderUtil.getParameterValue(named: "filename", in: headerLines) {
                         files[name] = File(filename: filename, data: Data(bytes[valueStartIndex ... valueEndIndex]))

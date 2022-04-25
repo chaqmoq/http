@@ -53,7 +53,10 @@ extension URI {
     private func getQueryParameters() -> [String: AnyEncodable]? {
         if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
             var parameters = [String: AnyEncodable]()
-            for queryItem in queryItems { parameters[queryItem.name] = AnyEncodable(queryItem.value) }
+
+            for queryItem in queryItems {
+                parameters[queryItem.name] = AnyEncodable(queryItem.value)
+            }
 
             return parameters
         }
@@ -64,7 +67,9 @@ extension URI {
 
 extension URI: Equatable {
     /// See `Equatable`.
-    public static func == (lhs: URI, rhs: URI) -> Bool { lhs.urlComponents == rhs.urlComponents }
+    public static func == (lhs: URI, rhs: URI) -> Bool {
+        lhs.urlComponents == rhs.urlComponents
+    }
 }
 
 extension URI: CustomStringConvertible {
