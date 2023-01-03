@@ -9,7 +9,7 @@
         <a href="https://sonarcloud.io/project/overview?id=chaqmoq_http"><img src="https://sonarcloud.io/api/project_badges/measure?project=chaqmoq_http&metric=alert_status" /></a>
         <a href="https://chaqmoq.dev/http/"><img src="https://github.com/chaqmoq/http/raw/gh-pages/badge.svg" /></a>
         <a href="https://github.com/chaqmoq/http/blob/master/CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributing-guide-brightgreen.svg" /></a>
-        <a href="https://twitter.com/chaqmoqdev"><img src="https://img.shields.io/badge/twitter-chaqmoqdev-brightgreen.svg" /></a>
+        <a href="https://t.me/chaqmoqdev"><img src="https://img.shields.io/badge/telegram-chaqmoqdev-brightgreen.svg" /></a>
     </p>
     <p>A non-blocking, event-driven HTTP package written in <a href="https://swift.org">Swift</a> language and powered by <a href="https://github.com/apple/swift-nio">SwiftNIO</a>. This is one of the core packages of <a href="https://chaqmoq.dev">Chaqmoq</a>. Read the <a href="https://docs.chaqmoq.dev">documentation</a> for more info.</p>
 </div>
