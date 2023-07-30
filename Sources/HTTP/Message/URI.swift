@@ -47,7 +47,7 @@ public struct URI: Encodable {
 
 extension URI {
     public func getQueryParameter<T>(_ name: String) -> T? {
-        if type(of: T.self) == UUID.self {
+        if T.self == UUID.self {
             if let uuidString = query?[name]?.value as? String {
                 return UUID(uuidString: uuidString) as? T
             }
