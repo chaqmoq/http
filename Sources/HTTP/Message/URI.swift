@@ -25,7 +25,7 @@ public struct URI: Encodable {
     public var path: String? { urlComponents.path }
 
     /// Query parameters.
-    public var query: [String: AnyEncodable]? { getQueryParameters() }
+    public var query: [String: AnyEncodable] { getQueryItems() ?? .init() }
 
     /// Fragment.
     public var fragment: String? { urlComponents.fragment }
@@ -46,19 +46,23 @@ public struct URI: Encodable {
 }
 
 extension URI {
-    public func getQueryParameter<T>(_ name: String) -> T? {
-        if T.self == UUID.self {
-            if let uuidString = query?[name]?.value as? String {
-                return UUID(uuidString: uuidString) as? T
+    public func getQuery<T>(_ name: String) -> T? {
+        if let value = query[name]?.value {
+            if T.self == UUID.self {
+                if let uuidString = value as? String {
+                    return UUID(uuidString: uuidString) as? T
+                }
+
+                return nil
             }
 
-            return nil
+            return value as? T
         }
 
-        return query?[name]?.value as? T
+        return nil
     }
 
-    private func getQueryParameters() -> [String: AnyEncodable]? {
+    private func getQueryItems() -> [String: AnyEncodable]? {
         if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
             var parameters = [String: AnyEncodable]()
 
