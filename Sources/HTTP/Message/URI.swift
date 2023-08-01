@@ -25,7 +25,7 @@ public struct URI: Encodable {
     public var path: String? { urlComponents.path }
 
     /// Query parameters.
-    public var query: [String: AnyEncodable] { getQueryItems() }
+    public private(set) var query = [String: String]()
 
     /// Fragment.
     public var fragment: String? { urlComponents.fragment }
@@ -39,6 +39,7 @@ public struct URI: Encodable {
     public init?(string: String) {
         if let urlComponents = URLComponents(string: string) {
             self.urlComponents = urlComponents
+            query = getQueryItems()
         } else {
             return nil
         }
@@ -47,33 +48,59 @@ public struct URI: Encodable {
 
 extension URI {
     public func getQuery<T>(_ name: String) -> T? {
-        if let value = query[name]?.value {
-            if T.self == UUID.self {
-                if let uuidString = value as? String {
-                    return UUID(uuidString: uuidString) as? T
-                }
+        if let value = query[name] {
+            let type = T.self
 
-                return nil
+            if type == String.self {
+                return value as? T
+            } else if type == Character.self {
+                return Character(value) as? T
+            } else if type == Bool.self {
+                return Bool(value) as? T
+            } else if type == Int.self {
+                return Int(value) as? T
+            } else if type == Int8.self {
+                return Int8(value) as? T
+            } else if type == Int16.self {
+                return Int16(value) as? T
+            } else if type == Int32.self {
+                return Int32(value) as? T
+            } else if type == Int64.self {
+                return Int64(value) as? T
+            } else if type == UInt.self {
+                return UInt(value) as? T
+            } else if type == UInt8.self {
+                return UInt8(value) as? T
+            } else if type == UInt16.self {
+                return UInt16(value) as? T
+            } else if type == UInt32.self {
+                return UInt32(value) as? T
+            } else if type == UInt64.self {
+                return UInt64(value) as? T
+            } else if type == Float.self {
+                return Float(value) as? T
+            } else if type == Double.self {
+                return Double(value) as? T
+            } else if type == URL.self {
+                return URL(string: value) as? T
+            } else if type == UUID.self {
+                return UUID(uuidString: value) as? T
             }
-
-            return value as? T
         }
 
         return nil
     }
 
-    private func getQueryItems() -> [String: AnyEncodable] {
-        if let queryItems = urlComponents.queryItems, !queryItems.isEmpty {
-            var parameters = [String: AnyEncodable]()
+    private func getQueryItems() -> [String: String] {
+        var parameters = [String: String]()
 
+        if let queryItems = urlComponents.queryItems {
             for queryItem in queryItems {
-                parameters[queryItem.name] = AnyEncodable(queryItem.value)
+                parameters[queryItem.name] = queryItem.value
             }
-
-            return parameters
         }
 
-        return .init()
+        return parameters
     }
 }
 
