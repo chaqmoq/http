@@ -1,0 +1,2588 @@
+{
+  "warnings": [
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body+Decoding.swift",
+      "line": 5,
+      "symbol": "Body.json",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body+Decoding.swift",
+      "line": 9,
+      "symbol": "Body.urlEncoded",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body+Decoding.swift",
+      "line": 26,
+      "symbol": "Body.multipart(boundary:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 3,
+      "symbol": "Body",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 4,
+      "symbol": "Body",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 4,
+      "symbol": "Body.bytes",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 5,
+      "symbol": "Body.data",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 6,
+      "symbol": "Body.string",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 7,
+      "symbol": "Body.count",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 8,
+      "symbol": "Body.isEmpty",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 11,
+      "symbol": "Body.init(bytes:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 15,
+      "symbol": "Body.init(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 19,
+      "symbol": "Body.init(string:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 24,
+      "symbol": "Body",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 25,
+      "symbol": "Body.append(bytes:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 29,
+      "symbol": "Body.append(data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 33,
+      "symbol": "Body.append(string:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 38,
+      "symbol": "Body",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 44,
+      "symbol": "Body",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 48,
+      "symbol": "Body",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 49,
+      "symbol": "Body.File",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 50,
+      "symbol": "Body.File.filename",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 51,
+      "symbol": "Body.File.data",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Body/Body.swift",
+      "line": 53,
+      "symbol": "Body.File.init(filename:data:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 3,
+      "symbol": "Cookie",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 4,
+      "symbol": "Cookie.path",
+      "symbol_kind": "source.lang.swift.decl.var.static",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 6,
+      "symbol": "Cookie.name",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 7,
+      "symbol": "Cookie.value",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 8,
+      "symbol": "Cookie.expires",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 9,
+      "symbol": "Cookie.maxAge",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 10,
+      "symbol": "Cookie.domain",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 11,
+      "symbol": "Cookie.path",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 12,
+      "symbol": "Cookie.isSecure",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 13,
+      "symbol": "Cookie.isHTTPOnly",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 14,
+      "symbol": "Cookie.sameSite",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 16,
+      "symbol": "Cookie.init(name:value:expires:maxAge:domain:path:isSecure:isHTTPOnly:sameSite:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 51,
+      "symbol": "Cookie",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 52,
+      "symbol": "Cookie.OptionName",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 53,
+      "symbol": "Cookie.OptionName.expires",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 54,
+      "symbol": "Cookie.OptionName.maxAge",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 55,
+      "symbol": "Cookie.OptionName.domain",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 56,
+      "symbol": "Cookie.OptionName.path",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 57,
+      "symbol": "Cookie.OptionName.isSecure",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 58,
+      "symbol": "Cookie.OptionName.isHTTPOnly",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 59,
+      "symbol": "Cookie.OptionName.sameSite",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 63,
+      "symbol": "Cookie",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 64,
+      "symbol": "Cookie.SameSite",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 65,
+      "symbol": "Cookie.SameSite.strict",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 66,
+      "symbol": "Cookie.SameSite.lax",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 67,
+      "symbol": "Cookie.SameSite.none",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 71,
+      "symbol": "Cookie",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Cookie.swift",
+      "line": 81,
+      "symbol": "Cookie",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Header.swift",
+      "line": 1,
+      "symbol": "Header",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Header.swift",
+      "line": 2,
+      "symbol": "Header.name",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Header.swift",
+      "line": 3,
+      "symbol": "Header.value",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Header.swift",
+      "line": 5,
+      "symbol": "Header.init(name:value:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Header.swift",
+      "line": 10,
+      "symbol": "Header.init(name:value:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 1,
+      "symbol": "HeaderName",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 2,
+      "symbol": "HeaderName.accept",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 3,
+      "symbol": "HeaderName.acceptCH",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 4,
+      "symbol": "HeaderName.acceptCHLifetime",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 5,
+      "symbol": "HeaderName.acceptCharset",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 6,
+      "symbol": "HeaderName.acceptEncoding",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 7,
+      "symbol": "HeaderName.acceptLanguage",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 8,
+      "symbol": "HeaderName.acceptPatch",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 9,
+      "symbol": "HeaderName.acceptRanges",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 10,
+      "symbol": "HeaderName.accessControlAllowCredentials",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 11,
+      "symbol": "HeaderName.accessControlAllowHeaders",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 12,
+      "symbol": "HeaderName.accessControlAllowMethods",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 13,
+      "symbol": "HeaderName.accessControlAllowOrigin",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 14,
+      "symbol": "HeaderName.accessControlExposeHeaders",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 15,
+      "symbol": "HeaderName.accessControlMaxAge",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 16,
+      "symbol": "HeaderName.accessControlRequestHeaders",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 17,
+      "symbol": "HeaderName.accessControlRequestMethod",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 18,
+      "symbol": "HeaderName.age",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 19,
+      "symbol": "HeaderName.allow",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 20,
+      "symbol": "HeaderName.altSvc",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 21,
+      "symbol": "HeaderName.authorization",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 22,
+      "symbol": "HeaderName.cacheControl",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 23,
+      "symbol": "HeaderName.clearSiteData",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 24,
+      "symbol": "HeaderName.connection",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 25,
+      "symbol": "HeaderName.contentDisposition",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 26,
+      "symbol": "HeaderName.contentEncoding",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 27,
+      "symbol": "HeaderName.contentLanguage",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 28,
+      "symbol": "HeaderName.contentLength",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 29,
+      "symbol": "HeaderName.contentLocation",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 30,
+      "symbol": "HeaderName.contentRange",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 31,
+      "symbol": "HeaderName.contentSecurityPolicy",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 32,
+      "symbol": "HeaderName.contentSecurityPolicyReportOnly",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 33,
+      "symbol": "HeaderName.contentType",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 34,
+      "symbol": "HeaderName.cookie",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 35,
+      "symbol": "HeaderName.crossOriginResourcePolicy",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 36,
+      "symbol": "HeaderName.dnt",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 37,
+      "symbol": "HeaderName.dpr",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 38,
+      "symbol": "HeaderName.date",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 39,
+      "symbol": "HeaderName.deviceMemory",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 40,
+      "symbol": "HeaderName.digest",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 41,
+      "symbol": "HeaderName.eTag",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 42,
+      "symbol": "HeaderName.earlyData",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 43,
+      "symbol": "HeaderName.expect",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 44,
+      "symbol": "HeaderName.expectCT",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 45,
+      "symbol": "HeaderName.expires",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 46,
+      "symbol": "HeaderName.featurePolicy",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 47,
+      "symbol": "HeaderName.forwarded",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 48,
+      "symbol": "HeaderName.from",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 49,
+      "symbol": "HeaderName.host",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 50,
+      "symbol": "HeaderName.ifMatch",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 51,
+      "symbol": "HeaderName.ifModifiedSince",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 52,
+      "symbol": "HeaderName.ifNoneMatch",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 53,
+      "symbol": "HeaderName.ifRange",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 54,
+      "symbol": "HeaderName.ifUnmodifiedSince",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 55,
+      "symbol": "HeaderName.index",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 56,
+      "symbol": "HeaderName.keepAlive",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 57,
+      "symbol": "HeaderName.largeAllocation",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 58,
+      "symbol": "HeaderName.lastModified",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 59,
+      "symbol": "HeaderName.link",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 60,
+      "symbol": "HeaderName.location",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 61,
+      "symbol": "HeaderName.origin",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 62,
+      "symbol": "HeaderName.pragma",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 63,
+      "symbol": "HeaderName.proxyAuthenticate",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 64,
+      "symbol": "HeaderName.proxyAuthorization",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 65,
+      "symbol": "HeaderName.publicKeyPins",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 66,
+      "symbol": "HeaderName.publicKeyPinsReportOnly",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 67,
+      "symbol": "HeaderName.range",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 68,
+      "symbol": "HeaderName.referer",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 69,
+      "symbol": "HeaderName.refererPolicy",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 70,
+      "symbol": "HeaderName.retryAfter",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 71,
+      "symbol": "HeaderName.saveData",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 72,
+      "symbol": "HeaderName.secWebSocketAccept",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 73,
+      "symbol": "HeaderName.server",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 74,
+      "symbol": "HeaderName.serverTiming",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 75,
+      "symbol": "HeaderName.setCookie",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 76,
+      "symbol": "HeaderName.sourceMap",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 77,
+      "symbol": "HeaderName.strictTransportSecurity",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 78,
+      "symbol": "HeaderName.te",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 79,
+      "symbol": "HeaderName.timingAllowOrigin",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 80,
+      "symbol": "HeaderName.tk",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 81,
+      "symbol": "HeaderName.trailer",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 82,
+      "symbol": "HeaderName.transferEncoding",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 83,
+      "symbol": "HeaderName.upgradeInsecureRequests",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 84,
+      "symbol": "HeaderName.userAgent",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 85,
+      "symbol": "HeaderName.vary",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 86,
+      "symbol": "HeaderName.via",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 87,
+      "symbol": "HeaderName.wwwAuthenticate",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 88,
+      "symbol": "HeaderName.wantDigest",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 89,
+      "symbol": "HeaderName.warning",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 90,
+      "symbol": "HeaderName.xContentTypeOptions",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 91,
+      "symbol": "HeaderName.xDNSPrefetchControl",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 92,
+      "symbol": "HeaderName.xForwardedFor",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 93,
+      "symbol": "HeaderName.xForwardedHost",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 94,
+      "symbol": "HeaderName.xForwardedProto",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 95,
+      "symbol": "HeaderName.xFrameOptions",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 96,
+      "symbol": "HeaderName.xHTTPMethodOverride",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/HeaderName.swift",
+      "line": 97,
+      "symbol": "HeaderName.xXSSProtection",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 1,
+      "symbol": "Headers",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 2,
+      "symbol": "Headers.ArrayType",
+      "symbol_kind": "source.lang.swift.decl.typealias",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 5,
+      "symbol": "Headers.init()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 9,
+      "symbol": "Headers.init(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 13,
+      "symbol": "Headers.init(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 17,
+      "symbol": "Headers.init(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 21,
+      "symbol": "Headers.add(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 25,
+      "symbol": "Headers.set(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 37,
+      "symbol": "Headers.get(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 41,
+      "symbol": "Headers.get(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 45,
+      "symbol": "Headers.has(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 49,
+      "symbol": "Headers.has(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 53,
+      "symbol": "Headers.remove(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 61,
+      "symbol": "Headers.remove(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 65,
+      "symbol": "Headers.remove(at:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 86,
+      "symbol": "Headers",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Head/Headers.swift",
+      "line": 103,
+      "symbol": "Headers",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request+Description.swift",
+      "line": 2,
+      "symbol": "Request.description",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request+Method.swift",
+      "line": 2,
+      "symbol": "Request.Method",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request+Method.swift",
+      "line": 3,
+      "symbol": "Request.Method.DELETE",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request+Method.swift",
+      "line": 4,
+      "symbol": "Request.Method.GET",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request+Method.swift",
+      "line": 5,
+      "symbol": "Request.Method.HEAD",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request+Method.swift",
+      "line": 6,
+      "symbol": "Request.Method.OPTIONS",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request+Method.swift",
+      "line": 7,
+      "symbol": "Request.Method.PATCH",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request+Method.swift",
+      "line": 8,
+      "symbol": "Request.Method.POST",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request+Method.swift",
+      "line": 9,
+      "symbol": "Request.Method.PUT",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 1,
+      "symbol": "Request",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 1,
+      "symbol": "Request",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 4,
+      "symbol": "Request",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 5,
+      "symbol": "Request.eventLoop",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 6,
+      "symbol": "Request.method",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 7,
+      "symbol": "Request.uri",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 18,
+      "symbol": "Request.attributes",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 20,
+      "symbol": "Request.files",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 21,
+      "symbol": "Request.parameters",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 27,
+      "symbol": "Request.init(eventLoop:method:uri:version:headers:body:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 48,
+      "symbol": "Request",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 49,
+      "symbol": "Request.setAttribute(_:value:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 53,
+      "symbol": "Request.getAttribute(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 58,
+      "symbol": "Request",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 59,
+      "symbol": "Request.hasCookie(named:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 64,
+      "symbol": "Request.setCookie(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 85,
+      "symbol": "Request.clearCookie(named:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 96,
+      "symbol": "Request.clearCookies()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 101,
+      "symbol": "Request",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Request/Request.swift",
+      "line": 102,
+      "symbol": "Request.getParameter(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Description.swift",
+      "line": 2,
+      "symbol": "Response.description",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 2,
+      "symbol": "Response.Status",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 4,
+      "symbol": "Response.Status.continue",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 5,
+      "symbol": "Response.Status.switchProtocols",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 6,
+      "symbol": "Response.Status.processing",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 7,
+      "symbol": "Response.Status.earlyHints",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 10,
+      "symbol": "Response.Status.ok",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 11,
+      "symbol": "Response.Status.created",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 12,
+      "symbol": "Response.Status.accepted",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 13,
+      "symbol": "Response.Status.nonAuthoritativeInformation",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 14,
+      "symbol": "Response.Status.noContent",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 15,
+      "symbol": "Response.Status.resetContent",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 16,
+      "symbol": "Response.Status.partialContent",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 17,
+      "symbol": "Response.Status.multiStatus",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 18,
+      "symbol": "Response.Status.alreadyReported",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 19,
+      "symbol": "Response.Status.imUsed",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 22,
+      "symbol": "Response.Status.multipleChoices",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 23,
+      "symbol": "Response.Status.movedPermanently",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 24,
+      "symbol": "Response.Status.found",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 25,
+      "symbol": "Response.Status.seeOther",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 26,
+      "symbol": "Response.Status.notModified",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 27,
+      "symbol": "Response.Status.useProxy",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 28,
+      "symbol": "Response.Status.switchProxy",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 29,
+      "symbol": "Response.Status.temporaryRedirect",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 30,
+      "symbol": "Response.Status.permanentRedirect",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 33,
+      "symbol": "Response.Status.badRequest",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 34,
+      "symbol": "Response.Status.unauthorized",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 35,
+      "symbol": "Response.Status.paymentRequired",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 36,
+      "symbol": "Response.Status.forbidden",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 37,
+      "symbol": "Response.Status.notFound",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 38,
+      "symbol": "Response.Status.methodNotAllowed",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 39,
+      "symbol": "Response.Status.notAcceptable",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 40,
+      "symbol": "Response.Status.proxyAuthenticationRequired",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 41,
+      "symbol": "Response.Status.requestTimeout",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 42,
+      "symbol": "Response.Status.conflict",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 43,
+      "symbol": "Response.Status.gone",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 44,
+      "symbol": "Response.Status.lengthRequired",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 45,
+      "symbol": "Response.Status.preconditionFailed",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 46,
+      "symbol": "Response.Status.payloadTooLarge",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 47,
+      "symbol": "Response.Status.uriTooLong",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 48,
+      "symbol": "Response.Status.unsupportedMediaType",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 49,
+      "symbol": "Response.Status.rangeNotSatisfiable",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 50,
+      "symbol": "Response.Status.expectationFailed",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 51,
+      "symbol": "Response.Status.iAmATeapot",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 52,
+      "symbol": "Response.Status.misdirectedRequest",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 53,
+      "symbol": "Response.Status.unprocessableEntity",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 54,
+      "symbol": "Response.Status.locked",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 55,
+      "symbol": "Response.Status.failedDependency",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 56,
+      "symbol": "Response.Status.upgradeRequired",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 57,
+      "symbol": "Response.Status.preconditionRequired",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 58,
+      "symbol": "Response.Status.tooManyRequests",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 59,
+      "symbol": "Response.Status.requestHeaderFieldsTooLarge",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 60,
+      "symbol": "Response.Status.connectionClosedWithoutResponse",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 61,
+      "symbol": "Response.Status.unavailableForLegalReasons",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 62,
+      "symbol": "Response.Status.clientClosedRequest",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 65,
+      "symbol": "Response.Status.internalServerError",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 66,
+      "symbol": "Response.Status.notImplemented",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 67,
+      "symbol": "Response.Status.badGateway",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 68,
+      "symbol": "Response.Status.serviceUnavailable",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 69,
+      "symbol": "Response.Status.gatewayTimeout",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 70,
+      "symbol": "Response.Status.httpVersionNotSupported",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 71,
+      "symbol": "Response.Status.variantAlsoNegotiates",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 72,
+      "symbol": "Response.Status.insufficientStorage",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 73,
+      "symbol": "Response.Status.loopDetected",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 74,
+      "symbol": "Response.Status.notExtended",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 75,
+      "symbol": "Response.Status.networkAuthenticationRequired",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 76,
+      "symbol": "Response.Status.networkConnectTimeout",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 80,
+      "symbol": "Response.Status",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 81,
+      "symbol": "Response.Status.code",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 83,
+      "symbol": "Response.Status.reason",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response+Status.swift",
+      "line": 228,
+      "symbol": "Response.Status",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 1,
+      "symbol": "Response",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 1,
+      "symbol": "Response",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 3,
+      "symbol": "Response",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 5,
+      "symbol": "Response.status",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 15,
+      "symbol": "Response.init(_:status:headers:version:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 30,
+      "symbol": "Response.init(_:status:headers:version:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 39,
+      "symbol": "Response.init(_:status:headers:version:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 49,
+      "symbol": "Response",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 50,
+      "symbol": "Response.hasCookie(named:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 54,
+      "symbol": "Response.setCookie(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 136,
+      "symbol": "Response.clearCookie(named:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/Response/Response.swift",
+      "line": 147,
+      "symbol": "Response.clearCookies()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Message/URI.swift",
+      "line": 50,
+      "symbol": "URI.getQuery(_:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 3,
+      "symbol": "CORSMiddleware",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 4,
+      "symbol": "CORSMiddleware.options",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 6,
+      "symbol": "CORSMiddleware.init(options:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 10,
+      "symbol": "CORSMiddleware.handle(request:nextHandler:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 27,
+      "symbol": "CORSMiddleware",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 28,
+      "symbol": "CORSMiddleware.Options",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 29,
+      "symbol": "CORSMiddleware.Options.allowCredentials",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 30,
+      "symbol": "CORSMiddleware.Options.allowedHeaders",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 31,
+      "symbol": "CORSMiddleware.Options.allowedMethods",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 32,
+      "symbol": "CORSMiddleware.Options.allowedOrigin",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 33,
+      "symbol": "CORSMiddleware.Options.exposedHeaders",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 34,
+      "symbol": "CORSMiddleware.Options.maxAge",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 36,
+      "symbol": "CORSMiddleware.Options.init(allowCredentials:allowedHeaders:allowedMethods:allowedOrigin:exposedHeaders:maxAge:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 54,
+      "symbol": "CORSMiddleware.Options",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 55,
+      "symbol": "CORSMiddleware.Options.AllowedOrigin",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 56,
+      "symbol": "CORSMiddleware.Options.AllowedOrigin.all",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 57,
+      "symbol": "CORSMiddleware.Options.AllowedOrigin.none",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 58,
+      "symbol": "CORSMiddleware.Options.AllowedOrigin.origins(_:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 59,
+      "symbol": "CORSMiddleware.Options.AllowedOrigin.regex(_:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 60,
+      "symbol": "CORSMiddleware.Options.AllowedOrigin.sameAsOrigin",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/CORSMiddleware.swift",
+      "line": 62,
+      "symbol": "CORSMiddleware.Options.AllowedOrigin.value(from:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/HTTPMethodOverrideMiddleware.swift",
+      "line": 1,
+      "symbol": "HTTPMethodOverrideMiddleware",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/HTTPMethodOverrideMiddleware.swift",
+      "line": 2,
+      "symbol": "HTTPMethodOverrideMiddleware.init()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/HTTPMethodOverrideMiddleware.swift",
+      "line": 4,
+      "symbol": "HTTPMethodOverrideMiddleware.handle(request:nextHandler:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/Middleware.swift",
+      "line": 1,
+      "symbol": "Middleware",
+      "symbol_kind": "source.lang.swift.decl.protocol",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Middleware/Middleware.swift",
+      "line": 2,
+      "symbol": "Middleware.handle(request:nextHandler:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 4,
+      "symbol": "Server.Configuration",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 5,
+      "symbol": "Server.Configuration.identifier",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 6,
+      "symbol": "Server.Configuration.host",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 7,
+      "symbol": "Server.Configuration.port",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 8,
+      "symbol": "Server.Configuration.scheme",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 9,
+      "symbol": "Server.Configuration.socketAddress",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 10,
+      "symbol": "Server.Configuration.serverName",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 11,
+      "symbol": "Server.Configuration.tls",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 12,
+      "symbol": "Server.Configuration.supportsVersions",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 13,
+      "symbol": "Server.Configuration.supportsPipelining",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 14,
+      "symbol": "Server.Configuration.numberOfThreads",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 15,
+      "symbol": "Server.Configuration.backlog",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 16,
+      "symbol": "Server.Configuration.reuseAddress",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 17,
+      "symbol": "Server.Configuration.tcpNoDelay",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 18,
+      "symbol": "Server.Configuration.maxMessagesPerRead",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 19,
+      "symbol": "Server.Configuration.requestDecompression",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 20,
+      "symbol": "Server.Configuration.responseCompression",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 22,
+      "symbol": "Server.Configuration.init(identifier:host:port:serverName:tls:supportsVersions:supportsPipelining:numberOfThreads:backlog:reuseAddress:tcpNoDelay:maxMessagesPerRead:requestDecompression:responseCompression:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 56,
+      "symbol": "Server.Configuration",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 57,
+      "symbol": "Server.Configuration.Compression",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 58,
+      "symbol": "Server.Configuration.Compression.initialByteBufferCapacity",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 59,
+      "symbol": "Server.Configuration.Compression.isEnabled",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 61,
+      "symbol": "Server.Configuration.Compression.init(initialByteBufferCapacity:isEnabled:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 68,
+      "symbol": "Server.Configuration",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 69,
+      "symbol": "Server.Configuration.Decompression",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 70,
+      "symbol": "Server.Configuration.Decompression.Limit",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 71,
+      "symbol": "Server.Configuration.Decompression.Limit.none",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 72,
+      "symbol": "Server.Configuration.Decompression.Limit.size(_:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 73,
+      "symbol": "Server.Configuration.Decompression.Limit.ratio(_:)",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 76,
+      "symbol": "Server.Configuration.Decompression.limit",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 77,
+      "symbol": "Server.Configuration.Decompression.isEnabled",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server+Configuration.swift",
+      "line": 79,
+      "symbol": "Server.Configuration.Decompression.init(limit:isEnabled:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 3,
+      "symbol": "Server",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 8,
+      "symbol": "Server",
+      "symbol_kind": "source.lang.swift.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 9,
+      "symbol": "Server.configuration",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 10,
+      "symbol": "Server.logger",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 11,
+      "symbol": "Server.eventLoopGroup",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 13,
+      "symbol": "Server.onStart",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 14,
+      "symbol": "Server.onStop",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 15,
+      "symbol": "Server.onError",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 16,
+      "symbol": "Server.onReceive",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 17,
+      "symbol": "Server.middleware",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 19,
+      "symbol": "Server.init(configuration:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 25,
+      "symbol": "Server.start()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Server/Server.swift",
+      "line": 46,
+      "symbol": "Server.stop()",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 3,
+      "symbol": "TLS",
+      "symbol_kind": "source.lang.swift.decl.struct",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 4,
+      "symbol": "TLS.certificateFiles",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 5,
+      "symbol": "TLS.privateKeyFile",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 6,
+      "symbol": "TLS.encoding",
+      "symbol_kind": "source.lang.swift.decl.var.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 9,
+      "symbol": "TLS.init(certificateFiles:privateKeyFile:encoding:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.instance",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 41,
+      "symbol": "TLS",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 42,
+      "symbol": "TLS.Encoding",
+      "symbol_kind": "source.lang.swift.decl.enum",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 43,
+      "symbol": "TLS.Encoding.pem",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 44,
+      "symbol": "TLS.Encoding.der",
+      "symbol_kind": "source.lang.swift.decl.enumelement",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/TLS.swift",
+      "line": 48,
+      "symbol": "TLS",
+      "symbol_kind": "source.lang.swift.decl.extension",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Util/HeaderUtil.swift",
+      "line": 3,
+      "symbol": "HeaderUtil",
+      "symbol_kind": "source.lang.swift.decl.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Util/HeaderUtil.swift",
+      "line": 6,
+      "symbol": "HeaderUtil.getParameterValue(named:in:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Util/HeaderUtil.swift",
+      "line": 33,
+      "symbol": "HeaderUtil.setParameterValue(_:named:enclosingInQuotes:in:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.class",
+      "warning": "undocumented"
+    },
+    {
+      "file": "/Users/runner/work/http/http/Sources/HTTP/Util/HeaderUtil.swift",
+      "line": 85,
+      "symbol": "HeaderUtil.removeParameter(named:in:)",
+      "symbol_kind": "source.lang.swift.decl.function.method.class",
+      "warning": "undocumented"
+    }
+  ],
+  "source_directory": "/Users/runner/work/http/http"
+}
