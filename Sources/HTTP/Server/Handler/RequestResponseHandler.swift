@@ -81,10 +81,10 @@ final class RequestResponseHandler: ChannelInboundHandler {
 
             let response = try await middleware[index].handle(request: request) { request in
                 if index == lastIndex {
-                    return await handle(request: request, response: response)
+                    return await self.handle(request: request, response: response)
                 }
 
-                return try await handle(
+                return try await self.handle(
                     request: request,
                     response: response,
                     middleware: middleware,
