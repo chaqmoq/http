@@ -71,7 +71,8 @@ final class RequestResponseHandler: ChannelInboundHandler {
         nextIndex index: Int = 0
     ) -> EventLoopFuture<(Request, Response)> {
         let promise = request.eventLoop.makePromise(of: (Request, Response).self)
-        promise.completeWithTask { [self] in
+        promise.completeWithTask { [weak self] in
+            guard let self else { return (request, response) }
             let lastIndex = middleware.count - 1
 
             if index > lastIndex {
@@ -79,12 +80,14 @@ final class RequestResponseHandler: ChannelInboundHandler {
                 return (request, response)
             }
 
-            let response = try await middleware[index].handle(request: request) { request in
+            let response = try await middleware[index].handle(request: request) { [weak self] request in
+                guard let self else { return response }
+
                 if index == lastIndex {
-                    return await self.handle(request: request, response: response)
+                    return await handle(request: request, response: response)
                 }
 
-                return try await self.handle(
+                return try await handle(
                     request: request,
                     response: response,
                     middleware: middleware,
