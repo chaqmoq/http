@@ -16,12 +16,11 @@ class ClientServerTests: XCTestCase {
         server = Server(
             configuration: .init(
                 serverName: "Apache/2.4.1 (Unix)",
-                numberOfThreads: 1,
-                requestDecompression: .init(isEnabled: true),
-                responseCompression: .init(isEnabled: true)
+                numberOfThreads: 1
             )
         )
         server.middleware = [
+            CORSMiddleware(),
             HTTPMethodOverrideMiddleware()
         ]
     }
