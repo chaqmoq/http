@@ -23,7 +23,7 @@ final class URITests: XCTestCase {
         let string = "http://localhost:8080/posts?id=1#header"
 
         // Act
-        let uri = URI(string: string)!
+        let uri = URI(string)!
 
         // Assert
         XCTAssertEqual(uri.scheme, "http")
@@ -39,7 +39,7 @@ final class URITests: XCTestCase {
 
     func testInvalidInit() {
         // Act
-        let uri = URI(string: "\\:")
+        let uri = URI("\\:")
 
         // Assert
         XCTAssertNil(uri)
@@ -50,8 +50,8 @@ final class URITests: XCTestCase {
         let string = "http://localhost:8080"
 
         // Act
-        let uri1 = URI(string: string)
-        let uri2 = URI(string: string)
+        let uri1 = URI(string)
+        let uri2 = URI(string)
 
         // Assert
         XCTAssertEqual(uri1, uri2)

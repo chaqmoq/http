@@ -23,7 +23,7 @@ final class RequestTests: XCTestCase {
     func testCustomInit() {
         // Arrange
         let method: Request.Method = .POST
-        let uri = URI(string: "/posts")!
+        let uri = URI("/posts")!
         let version: Version = .init(major: 2, minor: 0)
         let headers: Headers = .init(
             (.contentType, "application/json"),
@@ -57,7 +57,7 @@ final class RequestTests: XCTestCase {
     func testUpdate() {
         // Arrange
         let method: Request.Method = .POST
-        let uri = URI(string: "/posts")!
+        let uri = URI("/posts")!
         let version: Version = .init(major: 2, minor: 0)
         let headers: Headers = .init([
             .contentType: "application/json",

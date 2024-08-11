@@ -4,7 +4,7 @@ import Foundation
 /// A convenience API to communicate with `URLComponents`.
 public struct URI: Encodable {
     /// A default URI `/`.
-    public static var `default`: Self { Self(string: "/")! }
+    public static var `default`: Self { Self("/")! }
 
     /// A `scheme` subcomponent of `URLComponents`.
     public var scheme: String? { urlComponents.scheme }
@@ -36,7 +36,7 @@ public struct URI: Encodable {
     ///
     /// - Warning: Returns `nil` if the string is not a valid URL string.
     /// - Parameter string: A URL string.
-    public init?(string: String) {
+    public init?(_ string: String) {
         if let urlComponents = URLComponents(string: string) {
             self.urlComponents = urlComponents
             query = getQueryItems()
