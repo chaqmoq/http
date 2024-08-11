@@ -7,7 +7,6 @@ import XCTest
 class ClientServerTests: XCTestCase {
     var client: HTTPClient!
     var server: Server!
-    var request: Request!
     let eventLoop = EmbeddedEventLoop()
 
     override func setUp() {
@@ -26,6 +25,25 @@ class ClientServerTests: XCTestCase {
             HTTPMethodOverrideMiddleware()
         ]
     }
+
+    func testRequestResponse() {
+        let request = Request(
+            eventLoop: eventLoop,
+            method: .POST,
+            uri: .init(server.configuration.socketAddress)!
+        )
+        let response = Response()
+        execute(request, expecting: response) { actualRequest in
+            XCTAssertEqual(request.method, actualRequest.method)
+        } responseHandler: { result in
+            switch result {
+            case .success(let actualResponse):
+                XCTAssertEqual(response.status, actualResponse.status)
+            case .failure(let error):
+                XCTAssertThrowsError(error)
+            }
+        }
+    }
 }
 
 extension ClientServerTests {
@@ -35,10 +53,11 @@ extension ClientServerTests {
         requestHandler: @escaping (Request) -> Void,
         responseHandler: @escaping (Result<Response, Error>) -> Void
     ) {
-        self.request = request
-        server.onStart = { [self] _ in
-            let url = self.request.uri.string!
-            let method = HTTPMethod(rawValue: self.request.method.rawValue)
+        server.onStart = { [weak self] _ in
+            guard let self else { return }
+
+            let url = request.uri.string!
+            let method = HTTPMethod(rawValue: request.method.rawValue)
             var headers = HTTPHeaders()
             for header in response.headers { headers.add(name: header.name, value: header.value) }
 
@@ -47,8 +66,8 @@ extension ClientServerTests {
             let body: HTTPClient.Body = .byteBuffer(buffer)
 
             var request = try! HTTPClient.Request(url: url, method: method, body: body)
-            for header in self.request.headers { request.headers.add(name: header.name, value: header.value) }
-            self.client.execute(request: request).whenComplete { result in
+            for header in request.headers { request.headers.add(name: header.name, value: header.value) }
+            client.execute(request: request).whenComplete { result in
                 switch result {
                 case let .failure(error):
                     responseHandler(.failure(error))
@@ -71,9 +90,9 @@ extension ClientServerTests {
                     responseHandler(.success(actualResponse))
                 }
 
-                DispatchQueue.global().asyncAfter(deadline: .now()) {
-                    try! self.client.syncShutdown()
-                    try! self.server.stop()
+                DispatchQueue.global().asyncAfter(deadline: .now()) { [weak self] in
+                    try! self?.client.syncShutdown()
+                    try! self?.server.stop()
                 }
             }
         }
