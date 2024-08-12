@@ -13,8 +13,9 @@ public final class Server {
     public var onStart: ((EventLoop) -> Void)?
     public var onStop: (() -> Void)?
     public var onError: ((Error, EventLoop) -> Void)?
-    public var onReceive: ((Request) async -> Encodable)?
+    public var onReceive: ((Request) async throws -> Encodable)?
     public var middleware: [Middleware] = .init()
+    public var errorMiddleware: [ErrorMiddleware] = .init()
 
     public init(configuration: Configuration = .init()) {
         self.configuration = configuration

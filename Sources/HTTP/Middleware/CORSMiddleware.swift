@@ -9,10 +9,10 @@ public struct CORSMiddleware: Middleware {
 
     public func handle(
         request: Request,
-        nextHandler: @escaping (Request) async -> Response
-    ) async -> Response {
-        guard request.headers.get(.origin) != nil else { return await nextHandler(request) }
-        var response = request.isPreflight ? Response(status: .noContent) : await nextHandler(request)
+        responder: @escaping Responder
+    ) async throws -> Response {
+        guard request.headers.get(.origin) != nil else { return try await responder(request) }
+        var response = request.isPreflight ? Response(status: .noContent) : try await responder(request)
         setAllowCredentialsHeader(response: &response)
         setAllowHeadersHeader(request: request, response: &response)
         setAllowMethodsHeader(response: &response)

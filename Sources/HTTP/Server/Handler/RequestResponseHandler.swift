@@ -38,21 +38,91 @@ final class RequestResponseHandler: ChannelInboundHandler {
             response.body = .init()
         }
 
-        prepareAndWrite(response: response, for: request, in: context)
+        prepareAndWrite(
+            response: response,
+            for: request,
+            in: context
+        )
     }
+}
 
-    private func prepareAndWrite(response: Response, for request: Request, in context: ChannelHandlerContext) {
-        let future = handle(request: request, response: response, middleware: server.middleware)
-        future.whenSuccess { [self] request, response in
-            write(response: response, for: request, in: context)
+extension RequestResponseHandler {
+    private func prepareAndWrite(
+        response: Response,
+        for request: Request,
+        in context: ChannelHandlerContext
+    ) {
+        let future = processMiddleware(
+            server.middleware,
+            request: request,
+            response: response
+        )
+        future.whenSuccess { [weak self] request, response in
+            self?.write(
+                response: response,
+                for: request,
+                in: context
+            )
+        }
+        future.whenFailure { [weak self] error in
+            guard let self else { return }
+            let future = processMiddleware(
+                server.errorMiddleware,
+                request: request,
+                response: response,
+                error: error
+            )
+            future.whenSuccess { [weak self] request, response in
+                self?.write(
+                    response: response,
+                    for: request,
+                    in: context
+                )
+            }
+            future.whenFailure { [weak self] error in
+                self?.server.logger.error("Server error: \(error)")
+                self?.write(
+                    response: .init(status: .internalServerError),
+                    for: request,
+                    in: context
+                )
+            }
         }
     }
 
-    private func handle(request: Request, response: Response) async -> Response {
+    private func write(
+        response: Response,
+        for request: Request,
+        in context: ChannelHandlerContext
+    ) {
+        if request.version.major >= Version.Major.two.rawValue {
+            context.write(
+                wrapOutboundOut(response),
+                promise: nil
+            )
+        } else {
+            let future = context.write(wrapOutboundOut(response))
+            future.whenComplete { _ in
+                if response.headers.has("close") {
+                    context.close(
+                        mode: .output,
+                        promise: nil
+                    )
+                }
+            }
+        }
+    }
+}
+
+extension RequestResponseHandler {
+    private func handle(
+        request: Request,
+        response: Response
+    ) async throws -> Response {
         var response = response
 
         if let onReceive = server.onReceive {
-            let result = await onReceive(request)
+            let result = try await onReceive(request)
 
             if let result = result as? Response {
                 response = result
@@ -64,10 +134,10 @@ final class RequestResponseHandler: ChannelInboundHandler {
         return response
     }
 
-    private func handle(
+    private func processMiddleware(
+        _ middleware: [Middleware],
         request: Request,
         response: Response,
-        middleware: [Middleware],
         nextIndex index: Int = 0
     ) -> EventLoopFuture<(Request, Response)> {
         let promise = request.eventLoop.makePromise(of: (Request, Response).self)
@@ -76,27 +146,29 @@ final class RequestResponseHandler: ChannelInboundHandler {
             let lastIndex = middleware.count - 1
 
             if index > lastIndex {
-                let response = await handle(request: request, response: response)
+                let response = try await handle(
+                    request: request,
+                    response: response
+                )
                 return (request, response)
             }
 
-            let response = await middleware[index].handle(request: request) { [weak self] request in
+            let response = try await middleware[index].handle(request: request) { [weak self] request in
                 guard let self else { return response }
 
                 if index == lastIndex {
-                    return await handle(request: request, response: response)
-                }
-
-                do {
                     return try await handle(
                         request: request,
-                        response: response,
-                        middleware: middleware,
-                        nextIndex: index + 1
-                    ).get().1
-                } catch {
-                    return response
+                        response: response
+                    )
                 }
+
+                return try await processMiddleware(
+                    middleware,
+                    request: request,
+                    response: response,
+                    nextIndex: index + 1
+                ).get().1
             }
 
             return (request, response)
@@ -105,17 +177,43 @@ final class RequestResponseHandler: ChannelInboundHandler {
         return promise.futureResult
     }
 
-    private func write(response: Response, for request: Request, in context: ChannelHandlerContext) {
-        if request.version.major >= Version.Major.two.rawValue {
-            context.write(wrapOutboundOut(response), promise: nil)
-        } else {
-            let future = context.write(wrapOutboundOut(response))
+    private func processMiddleware(
+        _ middleware: [ErrorMiddleware],
+        request: Request,
+        response: Response,
+        error: Error,
+        nextIndex index: Int = 0
+    ) -> EventLoopFuture<(Request, Response)> {
+        let promise = request.eventLoop.makePromise(of: (Request, Response).self)
+        promise.completeWithTask {
+            let lastIndex = middleware.count - 1
 
-            if response.headers.has("close") {
-                future.whenComplete { _ in
-                    context.close(mode: .output, promise: nil)
-                }
+            if index > lastIndex {
+                throw error
             }
+
+            let response = try await middleware[index].handle(
+                request: request,
+                error: error
+            ) { [weak self] request, error in
+                if index == lastIndex {
+                    throw error
+                }
+
+                guard let self else { return response }
+
+                return try await processMiddleware(
+                    middleware,
+                    request: request,
+                    response: response,
+                    error: error,
+                    nextIndex: index + 1
+                ).get().1
+            }
+
+            return (request, response)
         }
+
+        return promise.futureResult
     }
 }
