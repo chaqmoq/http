@@ -4,7 +4,7 @@ public struct HTTPMethodOverrideMiddleware: Middleware {
     public func handle(
         request: Request,
         responder: @escaping Responder
-    ) async throws -> Response {
+    ) async throws -> Encodable {
         var request = request
 
         if let methodName: String = request.getParameter("_method"),

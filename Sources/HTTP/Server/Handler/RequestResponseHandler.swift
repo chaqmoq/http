@@ -59,7 +59,7 @@ extension RequestResponseHandler {
         )
         future.whenSuccess { [weak self] request, response in
             self?.write(
-                response: response,
+                response: response as? Response ?? .init("\(response)"),
                 for: request,
                 in: context
             )
@@ -74,7 +74,7 @@ extension RequestResponseHandler {
             )
             future.whenSuccess { [weak self] request, response in
                 self?.write(
-                    response: response,
+                    response: response as? Response ?? .init("\(response)"),
                     for: request,
                     in: context
                 )
@@ -117,17 +117,18 @@ extension RequestResponseHandler {
 extension RequestResponseHandler {
     private func handle(
         request: Request,
-        response: Response
-    ) async throws -> Response {
-        var response = response
-
+        response: Encodable
+    ) async throws -> Encodable {
         if let onReceive = server.onReceive {
             let result = try await onReceive(request)
 
-            if let result = result as? Response {
-                response = result
+            if let response = result as? Response {
+                return response
             } else {
-                response.body = .init(string: "\(result)")
+                if var response = response as? Response {
+                    response.body = .init(string: "\(result)")
+                    return response
+                }
             }
         }
 
@@ -137,10 +138,10 @@ extension RequestResponseHandler {
     private func processMiddleware(
         _ middleware: [Middleware],
         request: Request,
-        response: Response,
+        response: Encodable,
         nextIndex index: Int = 0
-    ) -> EventLoopFuture<(Request, Response)> {
-        let promise = request.eventLoop.makePromise(of: (Request, Response).self)
+    ) -> EventLoopFuture<(Request, Encodable)> {
+        let promise = request.eventLoop.makePromise(of: (Request, Encodable).self)
         promise.completeWithTask { [weak self] in
             guard let self else { return (request, response) }
             let lastIndex = middleware.count - 1
@@ -180,11 +181,11 @@ extension RequestResponseHandler {
     private func processMiddleware(
         _ middleware: [ErrorMiddleware],
         request: Request,
-        response: Response,
+        response: Encodable,
         error: Error,
         nextIndex index: Int = 0
-    ) -> EventLoopFuture<(Request, Response)> {
-        let promise = request.eventLoop.makePromise(of: (Request, Response).self)
+    ) -> EventLoopFuture<(Request, Encodable)> {
+        let promise = request.eventLoop.makePromise(of: (Request, Encodable).self)
         promise.completeWithTask {
             let lastIndex = middleware.count - 1
 

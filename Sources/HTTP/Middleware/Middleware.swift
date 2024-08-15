@@ -1,18 +1,18 @@
-public typealias Responder = (Request) async throws -> Response
-public typealias ErrorResponder = (Request, Error) async throws -> Response
+public typealias Responder = (Request) async throws -> Encodable
+public typealias ErrorResponder = (Request, Error) async throws -> Encodable
 
 public protocol Middleware {
     func handle(
         request: Request,
         responder: @escaping Responder
-    ) async throws -> Response
+    ) async throws -> Encodable
 }
 
 public extension Middleware {
     func handle(
         request: Request,
         responder: @escaping Responder
-    ) async throws -> Response {
+    ) async throws -> Encodable {
         try await responder(request)
     }
 }
@@ -22,7 +22,7 @@ public protocol ErrorMiddleware {
         request: Request,
         error: Error,
         responder: @escaping ErrorResponder
-    ) async throws -> Response
+    ) async throws -> Encodable
 }
 
 public extension ErrorMiddleware {
@@ -30,7 +30,7 @@ public extension ErrorMiddleware {
         request: Request,
         error: Error,
         responder: @escaping ErrorResponder
-    ) async throws -> Response {
+    ) async throws -> Encodable {
         try await responder(request, error)
     }
 }
