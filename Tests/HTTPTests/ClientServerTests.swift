@@ -12,7 +12,7 @@ class ClientServerTests: XCTestCase {
     override func setUp() {
         super.setUp()
 
-        client = HTTPClient(eventLoopGroupProvider: .createNew)
+        client = HTTPClient(eventLoopGroupProvider: .singleton)
         server = Server(
             configuration: .init(
                 serverName: "Apache/2.4.1 (Unix)",
