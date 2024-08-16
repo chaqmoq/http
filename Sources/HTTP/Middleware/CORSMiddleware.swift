@@ -13,19 +13,16 @@ public struct CORSMiddleware: Middleware {
     ) async throws -> Encodable {
         guard request.headers.get(.origin) != nil else { return try await responder(request) }
         let encodable = request.isPreflight ? Response(status: .noContent) : try await responder(request)
+        var response = encodable as? Response ?? .init("\(encodable)")
 
-        if var response = encodable as? Response {
-            setAllowCredentialsHeader(response: &response)
-            setAllowHeadersHeader(request: request, response: &response)
-            setAllowMethodsHeader(response: &response)
-            setAllowOriginHeader(request: request, response: &response)
-            setExposeHeadersHeader(response: &response)
-            setMaxAgeHeader(response: &response)
+        setAllowCredentialsHeader(response: &response)
+        setAllowHeadersHeader(request: request, response: &response)
+        setAllowMethodsHeader(response: &response)
+        setAllowOriginHeader(request: request, response: &response)
+        setExposeHeadersHeader(response: &response)
+        setMaxAgeHeader(response: &response)
 
-            return response
-        }
-
-        return encodable
+        return response
     }
 }
 
