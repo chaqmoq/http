@@ -20,12 +20,23 @@ final class RequestDecoder: ChannelInboundHandler {
             case .idle:
                 let method = Request.Method(rawValue: head.method.rawValue) ?? .HEAD
                 let uri = URI(head.uri) ?? .default
-                let version = Version(major: head.version.major, minor: head.version.minor)
-                var request = Request(eventLoop: context.eventLoop, method: method, uri: uri, version: version)
+                let version = Version(
+                    major: head.version.major,
+                    minor: head.version.minor
+                )
+                var headers = Headers()
 
                 for header in head.headers {
-                    request.headers.set(.init(name: header.name, value: header.value))
+                    headers.set(.init(name: header.name, value: header.value))
                 }
+
+                var request = Request(
+                    eventLoop: context.eventLoop,
+                    method: method,
+                    uri: uri,
+                    version: version,
+                    headers: headers
+                )
 
                 state = .decoding(request)
             case .decoding: assertionFailure("\(type(of: self))'s state is invalid: \(state)")
