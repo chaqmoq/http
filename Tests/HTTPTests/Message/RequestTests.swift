@@ -18,6 +18,7 @@ final class RequestTests: XCTestCase {
         XCTAssertTrue(request.files.isEmpty)
         XCTAssertTrue(request.parameters.isEmpty)
         XCTAssertTrue(request.body.isEmpty)
+        XCTAssertEqual(request.locale, .current)
     }
 
     func testCustomInit() {
@@ -31,6 +32,7 @@ final class RequestTests: XCTestCase {
             (.cookie, "sessionId=efgh; userId=2; username")
         )
         let body: Body = .init(string: "{\"title\": \"New post\"}")
+        let locale = Locale(identifier: "uz")
 
         // Act
         let request = Request(
@@ -39,7 +41,8 @@ final class RequestTests: XCTestCase {
             uri: uri,
             version: version,
             headers: headers,
-            body: body
+            body: body,
+            locale: locale
         )
 
         // Assert
@@ -52,6 +55,7 @@ final class RequestTests: XCTestCase {
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId" && $0.value == "2" }))
         XCTAssertFalse(request.body.isEmpty)
+        XCTAssertEqual(request.locale, locale)
     }
 
     func testUpdate() {
@@ -64,6 +68,7 @@ final class RequestTests: XCTestCase {
             .cookie: "sessionId=efgh; userId2=2; username2"
         ])
         let body: Body = .init(string: "{\"title\": \"New post\"}")
+        let locale = Locale(identifier: "uz")
         var request = Request(
             eventLoop: eventLoop,
             headers: .init([.cookie: "sessionId=abcd; userId1=1; username1"])
@@ -75,6 +80,7 @@ final class RequestTests: XCTestCase {
         request.version = version
         request.headers = headers
         request.body = body
+        request.locale = locale
 
         // Assert
         XCTAssertEqual(request.method, method)
@@ -86,6 +92,7 @@ final class RequestTests: XCTestCase {
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "sessionId" && $0.value == "efgh" }))
         XCTAssertTrue(request.cookies.contains(where: { $0.name == "userId2" && $0.value == "2" }))
         XCTAssertFalse(request.body.isEmpty)
+        XCTAssertEqual(request.locale, locale)
     }
 
     func testMethods() {
@@ -94,20 +101,13 @@ final class RequestTests: XCTestCase {
             let rawValue = method.rawValue
 
             switch method {
-            case .DELETE:
-                XCTAssertEqual(rawValue, "DELETE")
-            case .GET:
-                XCTAssertEqual(rawValue, "GET")
-            case .HEAD:
-                XCTAssertEqual(rawValue, "HEAD")
-            case .OPTIONS:
-                XCTAssertEqual(rawValue, "OPTIONS")
-            case .PATCH:
-                XCTAssertEqual(rawValue, "PATCH")
-            case .POST:
-                XCTAssertEqual(rawValue, "POST")
-            case .PUT:
-                XCTAssertEqual(rawValue, "PUT")
+            case .DELETE: XCTAssertEqual(rawValue, "DELETE")
+            case .GET: XCTAssertEqual(rawValue, "GET")
+            case .HEAD: XCTAssertEqual(rawValue, "HEAD")
+            case .OPTIONS: XCTAssertEqual(rawValue, "OPTIONS")
+            case .PATCH: XCTAssertEqual(rawValue, "PATCH")
+            case .POST: XCTAssertEqual(rawValue, "POST")
+            case .PUT: XCTAssertEqual(rawValue, "PUT")
             }
         }
     }

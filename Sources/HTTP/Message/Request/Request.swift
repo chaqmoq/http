@@ -1,4 +1,5 @@
 import AnyCodable
+import Foundation
 import NIO
 
 public struct Request: Message {
@@ -15,6 +16,7 @@ public struct Request: Message {
             setParametersAndFiles()
         }
     }
+    public var locale: Locale
     public var attributes: [String: AnyEncodable] { mutableAttributes }
     public var cookies: Set<Cookie> { mutableCookies }
     public var files: [String: Body.File] { mutableFiles }
@@ -30,7 +32,8 @@ public struct Request: Message {
         uri: URI = .default,
         version: Version = .init(),
         headers: Headers = .init(),
-        body: Body = .init()
+        body: Body = .init(),
+        locale: Locale? = nil
     ) {
         self.eventLoop = eventLoop
         self.method = method
@@ -38,6 +41,14 @@ public struct Request: Message {
         self.version = version
         self.headers = headers
         self.body = body
+
+        if let locale {
+            self.locale = locale
+        } else if let identifier = headers.get(.acceptLanguage), !identifier.isEmpty {
+            self.locale = .init(identifier: identifier)
+        } else {
+            self.locale = .current
+        }
 
         setContentLengthHeader()
         setParametersAndFiles()
