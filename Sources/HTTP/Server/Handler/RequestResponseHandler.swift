@@ -57,36 +57,45 @@ extension RequestResponseHandler {
             request: request,
             response: response
         )
-        future.whenSuccess { [weak self] request, response in
-            self?.write(
-                response: response as? Response ?? .init("\(response)"),
-                for: request,
-                in: context
-            )
-        }
-        future.whenFailure { [weak self] error in
-            guard let self else { return }
-            let future = processMiddleware(
-                server.errorMiddleware,
-                request: request,
-                response: response,
-                error: error
-            )
-            future.whenSuccess { [weak self] request, response in
+        future.whenSuccess { [weak self] request, response, error in
+            if let error {
+                guard let self else { return }
+                let future = processMiddleware(
+                    server.errorMiddleware,
+                    request: request,
+                    response: response,
+                    error: error
+                )
+                future.whenSuccess { [weak self] request, response in
+                    self?.write(
+                        response: response as? Response ?? .init("\(response)"),
+                        for: request,
+                        in: context
+                    )
+                }
+                future.whenFailure { [weak self] error in
+                    self?.server.logger.error("Server error: \(error)")
+                    self?.write(
+                        response: .init(status: .internalServerError),
+                        for: request,
+                        in: context
+                    )
+                }
+            } else {
                 self?.write(
                     response: response as? Response ?? .init("\(response)"),
                     for: request,
                     in: context
                 )
             }
-            future.whenFailure { [weak self] error in
-                self?.server.logger.error("Server error: \(error)")
-                self?.write(
-                    response: .init(status: .internalServerError),
-                    for: request,
-                    in: context
-                )
-            }
+        }
+        future.whenFailure { [weak self] error in
+            self?.server.logger.error("Server error: \(error)")
+            self?.write(
+                response: .init(status: .internalServerError),
+                for: request,
+                in: context
+            )
         }
     }
 
@@ -140,39 +149,39 @@ extension RequestResponseHandler {
         request: Request,
         response: Encodable,
         nextIndex index: Int = 0
-    ) -> EventLoopFuture<(Request, Encodable)> {
-        let promise = request.eventLoop.makePromise(of: (Request, Encodable).self)
+    ) -> EventLoopFuture<(Request, Encodable, Error?)> {
+        let promise = request.eventLoop.makePromise(of: (Request, Encodable, Error?).self)
         promise.completeWithTask { [weak self] in
-            guard let self else { return (request, response) }
+            guard let self else { return (request, response, nil) }
             let lastIndex = middleware.count - 1
 
             if index > lastIndex {
-                let response = try await handle(
-                    request: request,
-                    response: response
-                )
-                return (request, response)
-            }
-
-            let response = try await middleware[index].handle(request: request) { [weak self] request in
-                guard let self else { return response }
-
-                if index == lastIndex {
-                    return try await handle(
+                do {
+                    let response = try await handle(
                         request: request,
                         response: response
                     )
+                    return (request, response, nil)
+                } catch {
+                    return (request, response, error)
                 }
-
-                return try await processMiddleware(
-                    middleware,
-                    request: request,
-                    response: response,
-                    nextIndex: index + 1
-                ).get().1
             }
 
-            return (request, response)
+            do {
+                let response = try await middleware[index].handle(request: request) { [weak self] request in
+                    guard let self else { return response }
+                    return try await processMiddleware(
+                        middleware,
+                        request: request,
+                        response: response,
+                        nextIndex: index + 1
+                    ).get().1
+                }
+
+                return (request, response, nil)
+            } catch {
+                return (request, response, error)
+            }
         }
 
         return promise.futureResult
