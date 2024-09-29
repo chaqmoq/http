@@ -57,45 +57,48 @@ extension RequestResponseHandler {
             request: request,
             response: response
         )
-        future.whenSuccess { [weak self] request, response, error in
-            if let error {
-                guard let self else { return }
-                let future = processMiddleware(
+        future.whenSuccess { [weak self] request, response in
+            self?.write(
+                response: response as? Response ?? .init("\(response)"),
+                for: request,
+                in: context
+            )
+        }
+        future.whenFailure { [weak self] error in
+            guard let self else { return }
+            let future: EventLoopFuture<(Request, Encodable)>
+
+            if let middlewareError = error as? MiddlewareError {
+                future = processMiddleware(
+                    server.errorMiddleware,
+                    request: middlewareError.request,
+                    response: middlewareError.response,
+                    error: middlewareError.error
+                )
+            } else {
+                future = processMiddleware(
                     server.errorMiddleware,
                     request: request,
                     response: response,
                     error: error
                 )
-                future.whenSuccess { [weak self] request, response in
-                    self?.write(
-                        response: response as? Response ?? .init("\(response)"),
-                        for: request,
-                        in: context
-                    )
-                }
-                future.whenFailure { [weak self] error in
-                    self?.server.logger.error("Server error: \(error)")
-                    self?.write(
-                        response: .init(status: .internalServerError),
-                        for: request,
-                        in: context
-                    )
-                }
-            } else {
+            }
+
+            future.whenSuccess { [weak self] request, response in
                 self?.write(
                     response: response as? Response ?? .init("\(response)"),
                     for: request,
                     in: context
                 )
             }
-        }
-        future.whenFailure { [weak self] error in
-            self?.server.logger.error("Server error: \(error)")
-            self?.write(
-                response: .init(status: .internalServerError),
-                for: request,
-                in: context
-            )
+            future.whenFailure { [weak self] error in
+                self?.server.logger.error("Server error: \(error)")
+                self?.write(
+                    response: .init(status: .internalServerError),
+                    for: request,
+                    in: context
+                )
+            }
         }
     }
 
@@ -149,10 +152,10 @@ extension RequestResponseHandler {
         request: Request,
         response: Encodable,
         nextIndex index: Int = 0
-    ) -> EventLoopFuture<(Request, Encodable, Error?)> {
-        let promise = request.eventLoop.makePromise(of: (Request, Encodable, Error?).self)
+    ) -> EventLoopFuture<(Request, Encodable)> {
+        let promise = request.eventLoop.makePromise(of: (Request, Encodable).self)
         promise.completeWithTask { [weak self] in
-            guard let self else { return (request, response, nil) }
+            guard let self else { return (request, response) }
             let lastIndex = middleware.count - 1
 
             if index > lastIndex {
@@ -161,9 +164,13 @@ extension RequestResponseHandler {
                         request: request,
                         response: response
                     )
-                    return (request, response, nil)
+                    return (request, response)
                 } catch {
-                    return (request, response, error)
+                    throw MiddlewareError(
+                        request: request,
+                        response: response,
+                        error: error
+                    )
                 }
             }
 
@@ -178,9 +185,13 @@ extension RequestResponseHandler {
                     ).get().1
                 }
 
-                return (request, response, nil)
+                return (request, response)
             } catch {
-                return (request, response, error)
+                throw MiddlewareError(
+                    request: request,
+                    response: response,
+                    error: error
+                )
             }
         }
 
@@ -206,12 +217,7 @@ extension RequestResponseHandler {
                 request: request,
                 error: error
             ) { [weak self] request, error in
-                if index == lastIndex {
-                    throw error
-                }
-
                 guard let self else { return response }
-
                 return try await processMiddleware(
                     middleware,
                     request: request,
@@ -226,4 +232,10 @@ extension RequestResponseHandler {
 
         return promise.futureResult
     }
+}
+
+struct MiddlewareError: Error {
+    let request: Request
+    let response: Encodable
+    let error: Error
 }
