@@ -166,11 +166,15 @@ extension RequestResponseHandler {
                     )
                     return (request, response)
                 } catch {
-                    throw MiddlewareError(
-                        request: request,
-                        response: response,
-                        error: error
-                    )
+                    if let middlewareError = error as? MiddlewareError {
+                        throw error
+                    } else {
+                        throw MiddlewareError(
+                            request: request,
+                            response: response,
+                            error: error
+                        )
+                    }
                 }
             }
 
@@ -187,11 +191,15 @@ extension RequestResponseHandler {
 
                 return (request, response)
             } catch {
-                throw MiddlewareError(
-                    request: request,
-                    response: response,
-                    error: error
-                )
+                if let middlewareError = error as? MiddlewareError {
+                    throw error
+                } else {
+                    throw MiddlewareError(
+                        request: request,
+                        response: response,
+                        error: error
+                    )
+                }
             }
         }
 
