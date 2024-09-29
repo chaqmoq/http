@@ -167,7 +167,7 @@ extension RequestResponseHandler {
                     return (request, response)
                 } catch {
                     if let middlewareError = error as? MiddlewareError {
-                        throw error
+                        throw middlewareError
                     } else {
                         throw MiddlewareError(
                             request: request,
@@ -192,7 +192,7 @@ extension RequestResponseHandler {
                 return (request, response)
             } catch {
                 if let middlewareError = error as? MiddlewareError {
-                    throw error
+                    throw middlewareError
                 } else {
                     throw MiddlewareError(
                         request: request,
