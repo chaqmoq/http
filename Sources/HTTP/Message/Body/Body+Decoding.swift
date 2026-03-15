@@ -2,10 +2,17 @@ import AnyCodable
 import Foundation
 
 extension Body {
-    public var json: [String: Any?] {
-        (try? JSONSerialization.jsonObject(with: data) as? [String: Any?]) ?? .init()
+    /// Attempts to decode the body as a JSON object.
+    ///
+    /// Returns an empty dictionary when the body is empty or does not contain valid JSON.
+    public var json: [String: Any] {
+        (try? JSONSerialization.jsonObject(with: data) as? [String: Any]) ?? .init()
     }
 
+    /// Decodes an `application/x-www-form-urlencoded` body into a parameter dictionary.
+    ///
+    /// `+` characters are interpreted as spaces and percent-encoded sequences are decoded
+    /// before parsing. Returns an empty dictionary when the body is empty.
     public var urlEncoded: [String: AnyEncodable] {
         var parameters: [String: AnyEncodable] = .init()
 
@@ -23,6 +30,17 @@ extension Body {
         return parameters
     }
 
+    /// Parses a `multipart/form-data` body using the given boundary string.
+    ///
+    /// Returns a tuple of:
+    /// - `parameters`: plain text fields keyed by their `name` attribute.
+    /// - `files`: uploaded files keyed by their `name` attribute, each carrying
+    ///   the original `filename` and raw `data`.
+    ///
+    /// Both collections are empty when the body is empty or the boundary is not found.
+    ///
+    /// - Parameter boundary: The boundary token from the `Content-Type` header
+    ///   (without the leading `--`).
     public func multipart(boundary: String) -> ([String: AnyEncodable], [String: File]) {
         var parameters: [String: AnyEncodable] = .init()
         var files: [String: File] = .init()
@@ -45,7 +63,9 @@ extension Body {
             if boundaryCounter == boundaryLength {
                 let offset: Int
 
-                if bytes[index + 1] == carriageReturn, bytes[index + 2] == newLine {
+                // Guard against reading past the end of the buffer before peeking ahead.
+                if index + 2 < bytes.count,
+                   bytes[index + 1] == carriageReturn, bytes[index + 2] == newLine {
                     offset = 2
                 } else {
                     offset = 1
@@ -70,16 +90,18 @@ extension Body {
             var valueStartIndex = valueEndIndex
 
             for index in headerStartIndex ... valueEndIndex {
-                if bytes[index] == carriageReturn &&
-                    bytes[index + 1] == newLine &&
-                    bytes[index + 2] == carriageReturn &&
-                    bytes[index + 3] == newLine
+                if index + 3 < bytes.count,
+                   bytes[index] == carriageReturn &&
+                   bytes[index + 1] == newLine &&
+                   bytes[index + 2] == carriageReturn &&
+                   bytes[index + 3] == newLine
                 {
                     headerEndIndex = index - 1
                     valueStartIndex = index + 4
                     break
-                } else if (bytes[index] == newLine && bytes[index + 1] == newLine) ||
-                    (bytes[index] == carriageReturn && bytes[index + 1] == carriageReturn)
+                } else if index + 1 < bytes.count,
+                          (bytes[index] == newLine && bytes[index + 1] == newLine) ||
+                          (bytes[index] == carriageReturn && bytes[index + 1] == carriageReturn)
                 {
                     headerEndIndex = index - 1
                     valueStartIndex = index + 2

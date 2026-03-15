@@ -1,4 +1,16 @@
-public enum HeaderName: String {
+/// A strongly-typed enumeration of well-known HTTP header field names.
+///
+/// Each case's `rawValue` is the lowercase canonical form of the header name as
+/// specified by the relevant RFC (e.g. `"content-type"`, `"x-forwarded-for"`).
+/// Use these cases with ``Headers`` to avoid hard-coding header name strings and
+/// to benefit from auto-complete.
+///
+/// ```swift
+/// var headers = Headers()
+/// headers.set(.init(name: .contentType, value: "application/json"))
+/// let ct = headers.get(.contentType) // "application/json"
+/// ```
+public enum HeaderName: String, Sendable {
     case accept
     case acceptCH = "accept-ch"
     case acceptCHLifetime = "accept-ch-lifetime"

@@ -1,8 +1,27 @@
 import Foundation
 
+/// Middleware that adds Cross-Origin Resource Sharing (CORS) headers to responses.
+///
+/// Attach `CORSMiddleware` to the server's middleware chain to allow web browsers from
+/// different origins to make requests to your API. By default all origins are permitted
+/// and the standard safe methods are allowed.
+///
+/// ```swift
+/// server.middleware = [
+///     CORSMiddleware(options: .init(
+///         allowedOrigin: .origins(["https://example.com"]),
+///         allowedMethods: [.GET, .POST],
+///         maxAge: 3600
+///     ))
+/// ]
+/// ```
 public struct CORSMiddleware: Middleware {
+    /// The CORS policy options applied to each request.
     public var options: Options
 
+    /// Initializes the middleware with the given CORS options.
+    ///
+    /// - Parameter options: The CORS policy. Defaults to permitting all origins.
     public init(options: Options = .init()) {
         self.options = options
     }
@@ -76,7 +95,7 @@ extension CORSMiddleware.Options {
             switch self {
             case .origins(let origins): return origins.contains(origin)
             case .regex(let regex):
-                return regex.firstMatch(in: origin, range: NSRange(location: 0, length: origin.count)) != nil
+                return regex.firstMatch(in: origin, range: NSRange(location: 0, length: origin.utf16.count)) != nil
             default: return false
             }
         }

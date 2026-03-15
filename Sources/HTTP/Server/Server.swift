@@ -5,24 +5,76 @@ import NIOHTTP2
 import NIOHTTPCompression
 import NIOSSL
 
+/// A non-blocking HTTP/1.1 and HTTP/2 server powered by SwiftNIO.
+///
+/// `Server` manages the full lifecycle of an HTTP server: binding to a socket, accepting
+/// connections, decoding requests, running middleware, dispatching to the application
+/// handler, encoding responses, and optionally terminating TLS.
+///
+/// ## Basic Usage
+///
+/// ```swift
+/// let server = Server()
+/// server.onReceive = { request in
+///     Response("Hello, World!")
+/// }
+/// try server.start() // Blocks until the server is stopped.
+/// ```
+///
+/// ## Middleware
+///
+/// Register middleware by appending to `middleware` or `errorMiddleware` before calling
+/// `start()`. Middleware is executed in array order for every request.
+///
+/// ```swift
+/// server.middleware = [CORSMiddleware(), HTTPMethodOverrideMiddleware()]
+/// ```
 public final class Server {
+    /// The server configuration snapshot provided at initialisation.
     public let configuration: Configuration
+
+    /// A structured logger scoped to this server instance.
     public let logger: Logger
+
+    /// The NIO event-loop group driving I/O for this server.
     public let eventLoopGroup: EventLoopGroup
 
+    /// Called on the first event loop when the server has successfully bound its socket.
     public var onStart: ((EventLoop) -> Void)?
+
+    /// Called after the event-loop group has been shut down gracefully.
     public var onStop: (() -> Void)?
+
+    /// Called when an unrecoverable channel-level error occurs.
     public var onError: ((Error, EventLoop) -> Void)?
+
+    /// The application handler invoked for every incoming request after all middleware runs.
+    ///
+    /// Return any `Encodable` value; if it is not a `Response` it will be wrapped in one
+    /// using its string description.
     public var onReceive: ((Request) async throws -> Encodable)?
+
+    /// Middleware executed in order for each request before ``onReceive`` is called.
     public var middleware: [Middleware] = .init()
+
+    /// Error middleware executed when a request handler or middleware throws.
     public var errorMiddleware: [ErrorMiddleware] = .init()
 
+    /// Initializes a new `Server` with the given configuration.
+    ///
+    /// - Parameter configuration: The server configuration. Defaults to ``Configuration/init()``.
     public init(configuration: Configuration = .init()) {
         self.configuration = configuration
         logger = Logger(label: configuration.identifier)
         eventLoopGroup = MultiThreadedEventLoopGroup(numberOfThreads: configuration.numberOfThreads)
     }
 
+    /// Binds the socket and starts accepting connections.
+    ///
+    /// This method **blocks the calling thread** until ``stop()`` is called or the
+    /// channel's close future completes. Run it on a dedicated thread or background queue.
+    ///
+    /// - Throws: An error if the socket cannot be bound.
     public func start() throws {
         let reuseAddressOption = ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR)
         let reuseAddressOptionValue = SocketOptionValue(configuration.reuseAddress ? 1 : 0)
@@ -44,6 +96,9 @@ public final class Server {
         try channel.closeFuture.wait()
     }
 
+    /// Shuts down the event-loop group gracefully and stops the server.
+    ///
+    /// - Throws: An error if the event-loop group cannot be shut down.
     public func stop() throws {
         try eventLoopGroup.syncShutdownGracefully()
         logger.info("Server has stopped")

@@ -1,5 +1,5 @@
 /// Represents an HTTP version.
-public struct Version: Encodable, Equatable {
+public struct Version: Encodable, Equatable, Sendable {
     /// A major HTTP version.
     public var major: Int
 
@@ -19,7 +19,7 @@ public struct Version: Encodable, Equatable {
 
 extension Version {
     /// Represents a major HTTP version.
-    public enum Major: Int {
+    public enum Major: Int, Sendable {
         /// The first major HTTP version.
         case one = 1
 
@@ -29,6 +29,8 @@ extension Version {
 }
 
 extension Version: CustomStringConvertible {
-    /// See `CustomStringConvertible`.
+    /// A human-readable HTTP version string, e.g. `"HTTP/1.1"` or `"HTTP/2.0"`.
+    ///
+    /// The format follows the standard HTTP version token used in request/status lines.
     public var description: String { "HTTP/\(major).\(minor)" }
 }

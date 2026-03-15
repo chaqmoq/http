@@ -115,7 +115,7 @@ extension RequestResponseHandler {
         } else {
             let future = context.write(wrapOutboundOut(response))
             future.whenComplete { _ in
-                if response.headers.has("close") {
+                if response.headers.get(.connection)?.lowercased() == "close" {
                     context.close(
                         mode: .output,
                         promise: nil

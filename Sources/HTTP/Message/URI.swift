@@ -2,7 +2,7 @@ import AnyCodable
 import Foundation
 
 /// A convenience API to communicate with `URLComponents`.
-public struct URI: Encodable {
+public struct URI: Encodable, Sendable {
     /// A default URI `/`.
     public static var `default`: Self { Self("/")! }
 
@@ -47,6 +47,20 @@ public struct URI: Encodable {
 }
 
 extension URI {
+    /// Returns a typed query parameter by name.
+    ///
+    /// The raw string value stored in ``query`` is converted to the inferred type `T`.
+    /// Supported types: `String`, `Character`, `Bool`, `Int`/`Int8`/`Int16`/`Int32`/`Int64`,
+    /// `UInt`/`UInt8`/`UInt16`/`UInt32`/`UInt64`, `Float`, `Double`, `URL`, and `UUID`.
+    ///
+    /// ```swift
+    /// let uri = URI("/search?page=2&active=true")!
+    /// let page: Int? = uri.getQuery("page")     // 2
+    /// let active: Bool? = uri.getQuery("active") // true
+    /// ```
+    ///
+    /// - Parameter name: The query parameter key.
+    /// - Returns: The parameter value converted to `T`, or `nil` if absent or conversion fails.
     public func getQuery<T>(_ name: String) -> T? {
         if let value = query[name] {
             let type = T.self
@@ -105,13 +119,24 @@ extension URI {
 }
 
 extension URI: Equatable {
-    /// See `Equatable`.
+    /// Returns `true` when both URIs represent the same URL components.
+    ///
+    /// Comparison delegates to `URLComponents` equality, which checks scheme, host, port,
+    /// path, query, and fragment.
+    ///
+    /// - Parameters:
+    ///   - lhs: A URI value.
+    ///   - rhs: Another URI value.
+    /// - Returns: `true` if both URIs have identical `URLComponents`.
     public static func == (lhs: URI, rhs: URI) -> Bool {
         lhs.urlComponents == rhs.urlComponents
     }
 }
 
 extension URI: CustomStringConvertible {
-    /// See `CustomStringConvertible`.
+    /// The URI as a percent-encoded URL string, e.g. `"/search?q=hello%20world"`.
+    ///
+    /// Returns an empty string when `URLComponents` cannot produce a valid string
+    /// representation (which should not occur for well-formed URIs).
     public var description: String { string ?? "" }
 }

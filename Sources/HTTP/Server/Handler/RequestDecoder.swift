@@ -18,7 +18,7 @@ final class RequestDecoder: ChannelInboundHandler {
         case let .head(head):
             switch state {
             case .idle:
-                let method = Request.Method(rawValue: head.method.rawValue) ?? .HEAD
+                let method = Request.Method(rawValue: head.method.rawValue) ?? .GET
                 let uri = URI(head.uri) ?? .default
                 let version = Version(
                     major: head.version.major,
@@ -30,7 +30,7 @@ final class RequestDecoder: ChannelInboundHandler {
                     headers.set(.init(name: header.name, value: header.value))
                 }
 
-                var request = Request(
+                let request = Request(
                     eventLoop: context.eventLoop,
                     method: method,
                     uri: uri,

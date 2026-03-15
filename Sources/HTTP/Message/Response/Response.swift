@@ -1,17 +1,50 @@
 import Foundation
 
-public struct Response: Encodable, Message {
+/// Represents an outbound HTTP response sent by the server.
+///
+/// `Response` is a value type that carries the complete state of an HTTP response,
+/// including its status, version, headers, cookies, and body. The `Content-Length`
+/// header is kept in sync automatically whenever the body is changed.
+///
+/// ```swift
+/// server.onReceive = { request in
+///     var response = Response("Hello!", status: .ok)
+///     response.setCookie(Cookie(name: "sessionId", value: "abc123"))
+///     return response
+/// }
+/// ```
+public struct Response: Encodable, Message, Sendable {
+    /// The HTTP version used for this response.
     public var version: Version
+
+    /// The HTTP status code and reason phrase.
     public var status: Status
+
+    /// The HTTP headers to include in the response.
+    ///
+    /// Setting this property automatically re-parses cookies from `Set-Cookie` headers.
     public var headers: Headers {
         didSet { setCookies() }
     }
+
+    /// Cookies derived from all `Set-Cookie` response headers.
     public var cookies: Set<Cookie> { mutableCookies }
     private var mutableCookies: Set<Cookie> = .init()
+
+    /// The response body.
+    ///
+    /// Setting this property automatically updates the `Content-Length` header.
     public var body: Body {
         didSet { setContentLengthHeader() }
     }
 
+    /// Creates a response with a ``Body`` payload.
+    ///
+    /// - Parameters:
+    ///   - body: The response body. Defaults to an empty body.
+    ///   - status: The HTTP status code. Defaults to `.ok`.
+    ///   - headers: The response headers. Defaults to empty.
+    ///   - version: The HTTP version. Defaults to HTTP/1.1.
     public init(
         _ body: Body = .init(),
         status: Status = .ok,
@@ -27,6 +60,13 @@ public struct Response: Encodable, Message {
         setCookies()
     }
 
+    /// Creates a response with a UTF-8 string body.
+    ///
+    /// - Parameters:
+    ///   - string: The plain-text response body.
+    ///   - status: The HTTP status code. Defaults to `.ok`.
+    ///   - headers: The response headers. Defaults to empty.
+    ///   - version: The HTTP version. Defaults to HTTP/1.1.
     public init(
         _ string: String,
         status: Status = .ok,
@@ -36,6 +76,13 @@ public struct Response: Encodable, Message {
         self.init(.init(string: string), status: status, headers: headers, version: version)
     }
 
+    /// Creates a response with a `Data` body.
+    ///
+    /// - Parameters:
+    ///   - data: The raw response body data.
+    ///   - status: The HTTP status code. Defaults to `.ok`.
+    ///   - headers: The response headers. Defaults to empty.
+    ///   - version: The HTTP version. Defaults to HTTP/1.1.
     public init(
         _ data: Data,
         status: Status = .ok,
@@ -47,10 +94,16 @@ public struct Response: Encodable, Message {
 }
 
 extension Response {
+    /// Returns `true` if a `Set-Cookie` header for a cookie with the given name exists.
+    ///
+    /// - Parameter name: The cookie name to look up (case-insensitive).
     public func hasCookie(named name: String) -> Bool {
         mutableCookies.contains(where: { $0.name.lowercased() == name.lowercased() })
     }
 
+    /// Adds a `Set-Cookie` header for `cookie`, replacing any existing header with the same name.
+    ///
+    /// - Parameter cookie: The cookie to set in the response.
     public mutating func setCookie(_ cookie: Cookie) {
         let headerName = HeaderName.setCookie.rawValue
         let name = cookie.name.lowercased()
@@ -133,6 +186,11 @@ extension Response {
         }
     }
 
+    /// Removes the `Set-Cookie` header for the cookie with the given name.
+    ///
+    /// Does nothing if no matching `Set-Cookie` header is found.
+    ///
+    /// - Parameter name: The name of the cookie whose `Set-Cookie` header should be removed.
     public mutating func clearCookie(named name: String) {
         let headerName = HeaderName.setCookie.rawValue
         let name = name.lowercased()
@@ -144,6 +202,7 @@ extension Response {
         }
     }
 
+    /// Removes all `Set-Cookie` headers from the response.
     public mutating func clearCookies() {
         headers.remove(.setCookie)
     }

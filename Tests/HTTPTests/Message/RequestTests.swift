@@ -101,6 +101,7 @@ final class RequestTests: XCTestCase {
             let rawValue = method.rawValue
 
             switch method {
+            case .CONNECT: XCTAssertEqual(rawValue, "CONNECT")
             case .DELETE: XCTAssertEqual(rawValue, "DELETE")
             case .GET: XCTAssertEqual(rawValue, "GET")
             case .HEAD: XCTAssertEqual(rawValue, "HEAD")
@@ -108,6 +109,7 @@ final class RequestTests: XCTestCase {
             case .PATCH: XCTAssertEqual(rawValue, "PATCH")
             case .POST: XCTAssertEqual(rawValue, "POST")
             case .PUT: XCTAssertEqual(rawValue, "PUT")
+            case .TRACE: XCTAssertEqual(rawValue, "TRACE")
             }
         }
     }

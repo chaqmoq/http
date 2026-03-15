@@ -1,5 +1,5 @@
 extension Response {
-    public enum Status: Int, CaseIterable, Encodable {
+    public enum Status: Int, CaseIterable, Encodable, Sendable {
         // 1xx Informational
         case `continue` = 100
         case switchProtocols = 101
@@ -78,8 +78,15 @@ extension Response {
 }
 
 extension Response.Status {
+    /// The numeric HTTP status code, e.g. `200`, `404`, `500`.
+    ///
+    /// This is the same value as `rawValue`; provided as a named property for
+    /// readability at the call site.
     public var code: Int { rawValue }
 
+    /// The standard reason phrase associated with the status code, e.g. `"OK"` or `"Not Found"`.
+    ///
+    /// Reason phrases follow the IANA HTTP Status Code Registry and RFC 7231.
     public var reason: String {
         switch self {
         // 1xx Informational
@@ -226,5 +233,7 @@ extension Response.Status {
 }
 
 extension Response.Status: CustomStringConvertible {
+    /// A human-readable status string combining the numeric code and reason phrase,
+    /// e.g. `"200 OK"` or `"404 Not Found"`.
     public var description: String { "\(code) \(reason)" }
 }
