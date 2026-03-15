@@ -1,9 +1,9 @@
 import Logging
-import NIO
-import NIOHTTP1
-import NIOHTTP2
-import NIOHTTPCompression
-import NIOSSL
+@preconcurrency import NIO
+@preconcurrency import NIOHTTP1
+@preconcurrency import NIOHTTP2
+@preconcurrency import NIOHTTPCompression
+@preconcurrency import NIOSSL
 
 /// A non-blocking HTTP/1.1 and HTTP/2 server powered by SwiftNIO.
 ///
@@ -29,7 +29,7 @@ import NIOSSL
 /// ```swift
 /// server.middleware = [CORSMiddleware(), HTTPMethodOverrideMiddleware()]
 /// ```
-public final class Server {
+public final class Server: @unchecked Sendable {
     /// The server configuration snapshot provided at initialisation.
     public let configuration: Configuration
 
@@ -55,10 +55,10 @@ public final class Server {
     public var onReceive: ((Request) async throws -> Encodable)?
 
     /// Middleware executed in order for each request before ``onReceive`` is called.
-    public var middleware: [Middleware] = .init()
+    public var middleware = [Middleware]()
 
     /// Error middleware executed when a request handler or middleware throws.
-    public var errorMiddleware: [ErrorMiddleware] = .init()
+    public var errorMiddleware = [ErrorMiddleware]()
 
     /// Initializes a new `Server` with the given configuration.
     ///
@@ -108,7 +108,10 @@ public final class Server {
 
 extension Server {
     private func initializeChild(channel: Channel) -> EventLoopFuture<Void> {
-        channel.pipeline.addHandler(BackPressureHandler()).flatMap { [weak self] in
+        // Cast to ChannelHandler to select the non-Sendable overload; BackPressureHandler is
+        // intentionally not Sendable (it is always used on its event loop).
+        let backPressureHandler: ChannelHandler = BackPressureHandler()
+        return channel.pipeline.addHandler(backPressureHandler).flatMap { [weak self] in
             guard let server = self else { return channel.close() }
 
             if let tls = server.configuration.tls {
@@ -147,25 +150,29 @@ extension Server {
             return channel.close()
         }
 
-        let sslHandler = NIOSSLServerHandler(context: sslContext)
+        // Cast to ChannelHandler to select the non-Sendable overload; NIOSSLServerHandler is
+        // intentionally not Sendable (it is always used on its event loop).
+        let sslHandler: ChannelHandler = NIOSSLServerHandler(context: sslContext)
 
         return channel.pipeline.addHandler(sslHandler)
     }
 
     private func addHandlers(to channel: Channel, isHTTP2: Bool = false) -> EventLoopFuture<Void> {
         if isHTTP2 {
-            return channel.pipeline.configureHTTPServerPipeline().flatMap { [weak self] in
-                guard let server = self else { return channel.close() }
-                let handlers: [ChannelHandler] = [
-                    HTTP2FramePayloadToHTTP1ServerCodec(),
-                    RequestDecoder(),
-                    ResponseEncoder(),
-                    RequestResponseHandler(server: server)
-                ]
+            // HTTP/2 stream channels deliver HTTP2Frame.FramePayload objects, not raw bytes.
+            // configureHTTPServerPipeline() is for HTTP/1 only and must NOT be called here;
+            // HTTP2FramePayloadToHTTP1ServerCodec bridges h2 frames to HTTP/1-style messages.
+            let handlers: [ChannelHandler] = [
+                HTTP2FramePayloadToHTTP1ServerCodec(),
+                RequestDecoder(),
+                ResponseEncoder(),
+                RequestResponseHandler(server: self)
+            ]
 
-                return channel.pipeline.addHandlers(handlers).flatMap {
-                    channel.pipeline.addHandler(ErrorHandler(server: server))
-                }
+            return channel.pipeline.addHandlers(handlers).flatMap { [weak self] in
+                guard let server = self else { return channel.close() }
+
+                return channel.pipeline.addHandler(ErrorHandler(server: server))
             }
         }
 

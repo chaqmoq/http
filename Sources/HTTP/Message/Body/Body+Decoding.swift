@@ -14,7 +14,7 @@ extension Body {
     /// `+` characters are interpreted as spaces and percent-encoded sequences are decoded
     /// before parsing. Returns an empty dictionary when the body is empty.
     public var urlEncoded: [String: AnyEncodable] {
-        var parameters: [String: AnyEncodable] = .init()
+        var parameters = [String: AnyEncodable]()
 
         if let string = string.removingPercentEncoding?.replacingOccurrences(of: "+", with: " ") {
             var urlComponents = URLComponents()
@@ -42,8 +42,8 @@ extension Body {
     /// - Parameter boundary: The boundary token from the `Content-Type` header
     ///   (without the leading `--`).
     public func multipart(boundary: String) -> ([String: AnyEncodable], [String: File]) {
-        var parameters: [String: AnyEncodable] = .init()
-        var files: [String: File] = .init()
+        var parameters = [String: AnyEncodable]()
+        var files = [String: File]()
         guard !isEmpty else { return (parameters, files) }
         let boundary = "--" + boundary
         let boundaryBytes = [UInt8](boundary.utf8)

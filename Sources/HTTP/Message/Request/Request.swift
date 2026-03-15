@@ -60,10 +60,10 @@ public struct Request: Message, @unchecked Sendable {
     /// Form parameters parsed from either `application/x-www-form-urlencoded` or
     /// `multipart/form-data` request bodies.
     public var parameters: [String: AnyEncodable] { mutableParameters }
-    private var mutableAttributes: [String: AnyEncodable] = .init()
-    private var mutableCookies: Set<Cookie> = .init()
-    private var mutableFiles: [String: Body.File] = .init()
-    private var mutableParameters: [String: AnyEncodable] = .init()
+    private var mutableAttributes = [String: AnyEncodable]()
+    private var mutableCookies = Set<Cookie>()
+    private var mutableFiles = [String: Body.File]()
+    private var mutableParameters = [String: AnyEncodable]()
 
     public init(
         eventLoop: EventLoop,

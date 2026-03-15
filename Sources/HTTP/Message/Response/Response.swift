@@ -29,7 +29,7 @@ public struct Response: Encodable, Message, Sendable {
 
     /// Cookies derived from all `Set-Cookie` response headers.
     public var cookies: Set<Cookie> { mutableCookies }
-    private var mutableCookies: Set<Cookie> = .init()
+    private var mutableCookies = Set<Cookie>()
 
     /// The response body.
     ///

@@ -1,3 +1,4 @@
+import Foundation
 import NIOSSL
 
 /// TLS configuration for an HTTPS server.
@@ -48,25 +49,31 @@ public struct TLS {
         var certificateChain: [NIOSSLCertificateSource] = []
 
         for certificateFile in certificateFiles {
-            let format: NIOSSLSerializationFormats
-
-            switch encoding {
-            case .pem:
-                format = .pem
-            case .der:
-                format = .der
-            }
-
-            if let certificate = try? NIOSSLCertificate(file: certificateFile, format: format) {
-                certificateChain.append(.certificate(certificate))
-            } else {
+            do {
+                switch encoding {
+                case .pem:
+                    // fromPEMFile returns all certificates in the chain at once.
+                    let certs = try NIOSSLCertificate.fromPEMFile(certificateFile)
+                    certificateChain.append(contentsOf: certs.map { .certificate($0) })
+                case .der:
+                    // DER files hold exactly one certificate.
+                    let derBytes = try Array(Data(contentsOf: URL(fileURLWithPath: certificateFile)))
+                    let cert = try NIOSSLCertificate(bytes: derBytes, format: .der)
+                    certificateChain.append(.certificate(cert))
+                }
+            } catch {
                 return nil
             }
         }
 
+        let privateKeyFormat: NIOSSLSerializationFormats = encoding == .pem ? .pem : .der
+        guard let privateKey = try? NIOSSLPrivateKey(file: privateKeyFile, format: privateKeyFormat) else {
+            return nil
+        }
+
         configuration = TLSConfiguration.makeServerConfiguration(
             certificateChain: certificateChain,
-            privateKey: .file(privateKeyFile)
+            privateKey: .privateKey(privateKey)
         )
     }
 }
