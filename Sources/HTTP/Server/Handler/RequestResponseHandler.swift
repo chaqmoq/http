@@ -7,9 +7,13 @@ final class RequestResponseHandler: ChannelInboundHandler {
     typealias OutboundOut = Response
 
     let server: Server
+    /// Non-nil on HTTP/2 connections only. Receives push promises before the
+    /// main response is written so they can be sent as PUSH_PROMISE frames.
+    let pushHandler: HTTP2PushHandler?
 
-    init(server: Server) {
+    init(server: Server, pushHandler: HTTP2PushHandler? = nil) {
         self.server = server
+        self.pushHandler = pushHandler
     }
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
@@ -109,6 +113,20 @@ extension RequestResponseHandler {
         // ResponseEncoder produces the correct status line (e.g. "HTTP/2.0 200 OK"
         // for an HTTP/2 connection rather than always emitting "HTTP/1.1").
         response.version = request.version
+
+        // Apply the configured Server header to every response. This is done here
+        // (rather than in channelRead) so it survives when onReceive returns a
+        // fresh Response that has no Server header of its own.
+        if let serverName = server.configuration.serverName {
+            response.headers.set(.init(name: .server, value: serverName))
+        }
+
+        // Notify the HTTP/2 push handler of any queued push promises. The handler
+        // sends PUSH_PROMISE frames before forwarding the first response frame,
+        // satisfying RFC 7540 §8.2's ordering requirement.
+        if !request.pushes.isEmpty {
+            pushHandler?.enqueue(request.pushes, authority: request.headers.get(.host) ?? "")
+        }
 
         if request.method == .HEAD {
             // RFC 9110 §9.3.2: HEAD must not send a body. Content-Length SHOULD reflect

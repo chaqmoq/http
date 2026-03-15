@@ -32,9 +32,10 @@ final class ResponseEncoder: ChannelOutboundHandler {
         context.write(wrapOutboundOut(.head(head)), promise: nil)
 
         if !response.body.isEmpty {
-            var buffer = context.channel.allocator.buffer(capacity: response.body.count)
-            buffer.writeBytes(response.body.bytes)
-            _ = context.write(wrapOutboundOut(.body(.byteBuffer(buffer))))
+            // Write the body's ByteBuffer directly — Body._buffer is already a pooled
+            // NIO buffer, so this avoids the [UInt8] → ByteBuffer copy that the old
+            // `buffer.writeBytes(response.body.bytes)` path required.
+            context.write(wrapOutboundOut(.body(.byteBuffer(response.body._buffer))), promise: nil)
         }
 
         context.writeAndFlush(wrapOutboundOut(.end(nil)), promise: promise)

@@ -32,6 +32,11 @@ extension Body {
 
     /// Parses a `multipart/form-data` body using the given boundary string.
     ///
+    /// Works directly against the internal `ByteBuffer` — no full-body copy to `[UInt8]`
+    /// is made. Header strings and field values are extracted as targeted sub-reads;
+    /// file data is sliced from the buffer and copied to `Data` only for the portion
+    /// that belongs to that file.
+    ///
     /// Returns a tuple of:
     /// - `parameters`: plain text fields keyed by their `name` attribute.
     /// - `files`: uploaded files keyed by their `name` attribute, each carrying
@@ -45,6 +50,7 @@ extension Body {
         var parameters = [String: AnyEncodable]()
         var files = [String: File]()
         guard !isEmpty else { return (parameters, files) }
+
         let boundary = "--" + boundary
         let boundaryBytes = [UInt8](boundary.utf8)
         let boundaryLength = boundaryBytes.count
@@ -53,7 +59,14 @@ extension Body {
         let newLine: UInt8 = 10
         var contentRanges = [Int]()
 
-        for (index, byte) in bytes.enumerated() {
+        // Work directly against the ByteBuffer using absolute indices.
+        // This avoids materialising the entire body as a [UInt8] array.
+        let base = _buffer.readerIndex
+        let length = _buffer.readableBytes
+
+        for i in 0..<length {
+            guard let byte = _buffer.getInteger(at: base + i, as: UInt8.self) else { break }
+
             if byte == boundaryBytes[boundaryCounter] {
                 boundaryCounter += 1
             } else {
@@ -61,21 +74,21 @@ extension Body {
             }
 
             if boundaryCounter == boundaryLength {
-                let offset: Int
+                let next1 = _buffer.getInteger(at: base + i + 1, as: UInt8.self)
+                let next2 = _buffer.getInteger(at: base + i + 2, as: UInt8.self)
 
-                // Guard against reading past the end of the buffer before peeking ahead.
-                if index + 2 < bytes.count,
-                   bytes[index + 1] == carriageReturn, bytes[index + 2] == newLine {
+                let offset: Int
+                if let n1 = next1, let n2 = next2, n1 == carriageReturn, n2 == newLine {
                     offset = 2
                 } else {
                     offset = 1
                 }
 
                 if !contentRanges.isEmpty {
-                    contentRanges.append(index - boundaryLength - offset)
+                    contentRanges.append(i - boundaryLength - offset)
                 }
 
-                contentRanges.append(index + 1 + offset)
+                contentRanges.append(i + 1 + offset)
                 boundaryCounter = 0
             }
         }
@@ -92,35 +105,47 @@ extension Body {
             let valueEndIndex = contentRanges[index]
             var valueStartIndex = valueEndIndex
 
-            for index in headerStartIndex ... valueEndIndex {
-                if index + 3 < bytes.count,
-                   bytes[index] == carriageReturn &&
-                   bytes[index + 1] == newLine &&
-                   bytes[index + 2] == carriageReturn &&
-                   bytes[index + 3] == newLine
+            for i in headerStartIndex...valueEndIndex {
+                let b0 = _buffer.getInteger(at: base + i,     as: UInt8.self)
+                let b1 = _buffer.getInteger(at: base + i + 1, as: UInt8.self)
+                let b2 = _buffer.getInteger(at: base + i + 2, as: UInt8.self)
+                let b3 = _buffer.getInteger(at: base + i + 3, as: UInt8.self)
+
+                if let b0, let b1, let b2, let b3,
+                   b0 == carriageReturn && b1 == newLine &&
+                   b2 == carriageReturn && b3 == newLine
                 {
-                    headerEndIndex = index - 1
-                    valueStartIndex = index + 4
+                    headerEndIndex = i - 1
+                    valueStartIndex = i + 4
                     break
-                } else if index + 1 < bytes.count,
-                          (bytes[index] == newLine && bytes[index + 1] == newLine) ||
-                          (bytes[index] == carriageReturn && bytes[index + 1] == carriageReturn)
+                } else if let b0, let b1,
+                          (b0 == newLine      && b1 == newLine) ||
+                          (b0 == carriageReturn && b1 == carriageReturn)
                 {
-                    headerEndIndex = index - 1
-                    valueStartIndex = index + 2
+                    headerEndIndex = i - 1
+                    valueStartIndex = i + 2
                     break
                 }
             }
 
-            if headerStartIndex < headerEndIndex,
-               let headerLines = String(bytes: bytes[headerStartIndex ... headerEndIndex], encoding: .utf8) {
-                if let name = HeaderUtil.getParameterValue(named: "name", in: headerLines) {
-                    if let filename = HeaderUtil.getParameterValue(named: "filename", in: headerLines) {
-                        files[name] = File(filename: filename, data: Data(bytes[valueStartIndex ... valueEndIndex]))
-                    } else {
-                        parameters[name] = AnyEncodable(
-                            String(bytes: bytes[valueStartIndex ... valueEndIndex], encoding: .utf8)
-                        )
+            if headerStartIndex < headerEndIndex {
+                // Targeted read of just the header block — no full-body materialisation.
+                let headerLength = headerEndIndex - headerStartIndex + 1
+                if let headerLines = _buffer.getString(at: base + headerStartIndex, length: headerLength) {
+                    if let name = HeaderUtil.getParameterValue(named: "name", in: headerLines) {
+                        let valueLength = max(0, valueEndIndex - valueStartIndex + 1)
+
+                        if let filename = HeaderUtil.getParameterValue(named: "filename", in: headerLines) {
+                            // Slice the buffer for the file's bytes — only this portion
+                            // is copied into Data, not the whole body.
+                            let fileData = _buffer
+                                .getSlice(at: base + valueStartIndex, length: valueLength)
+                                .map { Data($0.readableBytesView) } ?? Data()
+                            files[name] = File(filename: filename, data: fileData)
+                        } else {
+                            let value = _buffer.getString(at: base + valueStartIndex, length: valueLength)
+                            parameters[name] = AnyEncodable(value)
+                        }
                     }
                 }
             }

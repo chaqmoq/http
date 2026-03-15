@@ -66,6 +66,43 @@ final class ResponseEncoderTests: XCTestCase {
         }
     }
 
+    // MARK: - Content-Length safety net
+
+    func testContentLengthIsAddedAutomatically() {
+        // ResponseEncoder must add Content-Length for HTTP/1.x responses that have a body
+        // but no explicit Content-Length or Transfer-Encoding header.
+        let body = Body(string: "auto length")
+        execute(response: Response(body)) { result in
+            switch result {
+            case .success(let response):
+                XCTAssertEqual(response.headers.get(.contentLength), "11")
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    // MARK: - Content-Length safety net (ResponseEncoder fallback path)
+
+    /// When a handler returns a `Response` whose `Content-Length` header has been
+    /// explicitly removed but whose body is non-empty, `ResponseEncoder` must add
+    /// `Content-Length` itself as a safety net (otherwise the HTTP/1.1 client cannot
+    /// determine the body boundary).
+    func testContentLengthSafetyNetAddsHeaderWhenMissing() {
+        var response = Response(Body(string: "auto"))
+        // Explicitly remove the Content-Length that Response.init set via setContentLengthHeader().
+        response.headers.remove(.contentLength)
+
+        execute(response: response) { result in
+            switch result {
+            case .success(let response):
+                XCTAssertEqual(response.headers.get(.contentLength), "4")
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
     // MARK: - Response headers are forwarded
 
     func testCustomHeadersAreForwarded() {

@@ -267,15 +267,19 @@ Cookie prefixes `__Host-` and `__Secure-` are enforced automatically:
 
 ## Body
 
-`Body` stores content as a raw byte buffer with convenient typed accessors:
+`Body` stores content in a NIO `ByteBuffer` — a reference-counted, pooled byte store. No extra heap allocation occurs when NIO passes a request body straight through the pipeline.
 
 ```swift
 let body = Body(string: "Hello")
 body.string   // "Hello" (falls back to "" on invalid UTF-8)
 body.data     // Foundation.Data
 body.bytes    // [UInt8]
+body.buffer   // NIO ByteBuffer (zero-copy)
 body.count    // 5
 body.isEmpty  // false
+
+// Construct directly from a NIO ByteBuffer (no copy)
+let body = Body(byteBuffer)
 
 // Mutation
 var body = Body()
@@ -283,6 +287,43 @@ body.append(string: "chunk one ")
 body.append(data: moreData)
 body.append(bytes: [0x0A])
 ```
+
+### Typed JSON decoding
+
+Use `decode(_:using:)` to decode the body as a `Decodable` type without going through `body.json`:
+
+```swift
+struct LoginRequest: Decodable {
+    let username: String
+    let password: String
+}
+
+server.onReceive = { request in
+    let login = try request.body.decode(LoginRequest.self)
+    // ... authenticate ...
+    return Response("OK")
+}
+```
+
+## HTTP/2 Server Push
+
+On HTTP/2 connections you can proactively push resources to the client before it requests them. Call `request.push(_:for:)` inside `onReceive` (or any middleware) for each resource to push.
+
+```swift
+server.onReceive = { request in
+    // Push the stylesheet before sending the HTML response.
+    let css = Body(string: "body { font-family: sans-serif; }")
+    var cssResponse = Response(css)
+    cssResponse.headers.set(.init(name: .contentType, value: "text/css"))
+    request.push(cssResponse, for: URI("/app.css")!)
+
+    return Response("<html>…</html>")
+}
+```
+
+Calls to `push(_:for:)` on HTTP/1.x connections are silently ignored — you can use the same handler code for both protocol versions without any branching.
+
+The `PUSH_PROMISE` frame is always sent to the client **before** the main `HEADERS` frame, as required by RFC 7540 §8.2.
 
 ## Middleware
 
@@ -372,7 +413,7 @@ server.middleware = [
 | `.none` | Empty origin value (blocks all cross-origin requests) |
 | `.sameAsOrigin` | Echoes the request `Origin` header back |
 | `.origins(["https://example.com"])` | Allows exactly the listed origins |
-| `.regex(pattern)` | Allows origins matching an `NSRegularExpression` |
+| `.regex(pattern)` | Allows origins matching the given regex pattern string |
 
 ### HTTPMethodOverrideMiddleware
 

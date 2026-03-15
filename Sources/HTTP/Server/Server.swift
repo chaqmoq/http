@@ -211,11 +211,18 @@ extension Server {
             // HTTP/2 stream channels deliver HTTP2Frame.FramePayload objects, not raw bytes.
             // configureHTTPServerPipeline() is for HTTP/1 only and must NOT be called here;
             // HTTP2FramePayloadToHTTP1ServerCodec bridges h2 frames to HTTP/1-style messages.
+            //
+            // HTTP2PushHandler sits at the network-facing end (position 1) so that it
+            // receives HTTP2Frame.FramePayload outbound (after the codec converts the response)
+            // and can inject PUSH_PROMISE frames directly into the stream channel's write
+            // mechanism without going back through the codec.
+            let pushHandler = HTTP2PushHandler()
             let handlers: [ChannelHandler] = [
+                pushHandler,
                 HTTP2FramePayloadToHTTP1ServerCodec(),
                 RequestDecoder(maxBodySize: configuration.maxBodySize),
                 ResponseEncoder(),
-                RequestResponseHandler(server: self)
+                RequestResponseHandler(server: self, pushHandler: pushHandler)
             ]
 
             return channel.pipeline.addHandlers(handlers).flatMap { [weak self] in

@@ -120,6 +120,33 @@ final class BodyDecodingTests: XCTestCase {
         XCTAssertTrue(files.isEmpty)
     }
 
+    func testMultipartDecodingMixedFieldsAndFiles() {
+        // A single multipart body that contains both a plain text field AND a file
+        // upload. Exercises the branch where the parameter map and file map are
+        // both populated in the same parse run.
+        let boundary = "MixedBoundary"
+        let multipartBody =
+            "--\(boundary)\r\n" +
+            "Content-Disposition: form-data; name=\"username\"\r\n" +
+            "\r\n" +
+            "alice\r\n" +
+            "--\(boundary)\r\n" +
+            "Content-Disposition: form-data; name=\"avatar\"; filename=\"photo.jpg\"\r\n" +
+            "Content-Type: image/jpeg\r\n" +
+            "\r\n" +
+            "JPEGDATA\r\n" +
+            "--\(boundary)--\r\n"
+        let body = Body(string: multipartBody)
+
+        // Act
+        let (params, files) = body.multipart(boundary: boundary)
+
+        // Assert
+        XCTAssertFalse(params.isEmpty, "Expected 'username' in parameters")
+        XCTAssertFalse(files.isEmpty,  "Expected 'avatar' in files")
+        XCTAssertEqual(files["avatar"]?.filename, "photo.jpg")
+    }
+
     func testMultipartDecodingWithFileUpload() {
         // Arrange
         let boundary = "TestBoundary"

@@ -55,6 +55,13 @@ public struct Request: Message, @unchecked Sendable {
     /// The locale derived from the `Accept-Language` header, or the system locale if absent.
     public var locale: Locale
 
+    /// Resources queued for proactive HTTP/2 server push.
+    ///
+    /// Populate this via ``push(_:for:)`` inside a handler or middleware. Each entry
+    /// is sent to the client as a `PUSH_PROMISE` + push-stream response before the
+    /// main response is written. Entries are silently discarded on HTTP/1.x connections.
+    public var pushes: [(uri: URI, response: Response)] = []
+
     /// Arbitrary key/value attributes attached to the request by middleware.
     public var attributes: [String: AnyEncodable] { mutableAttributes }
 
@@ -99,6 +106,30 @@ public struct Request: Message, @unchecked Sendable {
         setContentLengthHeader()
         setParametersAndFiles()
         setCookies()
+    }
+}
+
+extension Request {
+    /// Queues a resource to be proactively sent to the client over HTTP/2 before
+    /// the main response.
+    ///
+    /// ```swift
+    /// server.onReceive = { request in
+    ///     request.push(Response(cssBytes, headers: [.init(name: .contentType, value: "text/css")]),
+    ///                  for: URI("/style.css")!)
+    ///     return Response(htmlBody)
+    /// }
+    /// ```
+    ///
+    /// Calling this on an HTTP/1.x connection is a no-op — the push is discarded
+    /// when the server writes the response.
+    ///
+    /// - Parameters:
+    ///   - response: The response to push to the client.
+    ///   - uri: The URI the client would use to request this resource (used in the
+    ///     `PUSH_PROMISE` `:path` pseudo-header).
+    public mutating func push(_ response: Response, for uri: URI) {
+        pushes.append((uri: uri, response: response))
     }
 }
 

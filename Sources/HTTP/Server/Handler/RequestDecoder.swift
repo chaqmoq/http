@@ -40,7 +40,9 @@ final class RequestDecoder: ChannelInboundHandler {
                     headers: headers
                 )
 
-                state = .decoding(request, buffer: [])
+                // Allocate from the channel's pool so the accumulation buffer
+                // participates in NIO's recycling system instead of the system allocator.
+                state = .decoding(request, buffer: context.channel.allocator.buffer(capacity: 0))
             case .decoding:
                 // Receiving a second .head without a preceding .end is a protocol violation.
                 context.fireErrorCaught(ChannelError.inappropriateOperationForState)
@@ -52,22 +54,20 @@ final class RequestDecoder: ChannelInboundHandler {
                 // Receiving .body before .head is a protocol violation.
                 context.fireErrorCaught(ChannelError.inappropriateOperationForState)
                 context.close(mode: .all, promise: nil)
-            case let .decoding(request, buffer: buffer):
-                guard let bytes = chunk.getBytes(at: 0, length: chunk.readableBytes) else {
-                    break
-                }
-
+            case .decoding(let request, var buffer):
                 // Enforce the optional body size limit before accumulating the chunk.
-                // The check uses the raw buffer count, before Body is constructed, so
-                // setParametersAndFiles() is never called on partial data.
-                if let maxBodySize, buffer.count + bytes.count > maxBodySize {
+                if let maxBodySize, buffer.readableBytes + chunk.readableBytes > maxBodySize {
                     context.fireErrorCaught(ServerError.bodyTooLarge)
                     context.close(mode: .all, promise: nil)
                     state = .idle
                     return
                 }
 
-                state = .decoding(request, buffer: buffer + bytes)
+                // writeImmutableBuffer appends chunk's readable bytes into buffer
+                // without mutating chunk — zero-copy when the backing storage is
+                // already contiguous (which NIO guarantees for channel reads).
+                buffer.writeImmutableBuffer(chunk)
+                state = .decoding(request, buffer: buffer)
             }
         case .end:
             switch state {
@@ -79,8 +79,9 @@ final class RequestDecoder: ChannelInboundHandler {
             case .decoding(var request, let buffer):
                 // Assign body once here so that setParametersAndFiles() runs exactly
                 // once on the complete body rather than O(n) times on partial chunks.
-                if !buffer.isEmpty {
-                    request.body = Body(bytes: buffer)
+                // Body(_:) adopts the ByteBuffer directly — no [UInt8] copy.
+                if buffer.readableBytes > 0 {
+                    request.body = Body(buffer)
                 }
 
                 context.fireChannelRead(wrapInboundOut(request))
@@ -94,9 +95,10 @@ final class RequestDecoder: ChannelInboundHandler {
 extension RequestDecoder {
     enum State {
         case idle
-        /// The request head has been received. Raw body bytes are accumulated in
-        /// `buffer` and assigned to `request.body` in a single operation on `.end`,
-        /// avoiding O(n²) re-parsing of multipart/form-data bodies.
-        case decoding(Request, buffer: [UInt8])
+        /// The request head has been received. Incoming body chunks are accumulated
+        /// into `buffer` using `writeImmutableBuffer` (no per-chunk heap copy).
+        /// `Body(buffer)` is assigned exactly once at `.end`, which triggers
+        /// `setParametersAndFiles()` a single time on the complete body.
+        case decoding(Request, buffer: ByteBuffer)
     }
 }

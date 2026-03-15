@@ -238,6 +238,45 @@ final class RequestTests: XCTestCase {
         XCTAssertTrue(request.cookies.isEmpty)
     }
 
+    // MARK: - HTTP/2 server push
+
+    func testPushesStartEmpty() {
+        // A fresh request must have no queued server pushes.
+        let request = Request(eventLoop: eventLoop)
+        XCTAssertTrue(request.pushes.isEmpty)
+    }
+
+    func testPushAddsEntry() {
+        // Arrange
+        var request = Request(eventLoop: eventLoop)
+        let uri = URI("/style.css")!
+        let response = Response(Body(string: "body { color: red; }"))
+
+        // Act
+        request.push(response, for: uri)
+
+        // Assert
+        XCTAssertEqual(request.pushes.count, 1)
+        XCTAssertEqual(request.pushes[0].uri, uri)
+        XCTAssertEqual(request.pushes[0].response.body.string, "body { color: red; }")
+    }
+
+    func testMultiplePushesAreOrdered() {
+        // Arrange
+        var request = Request(eventLoop: eventLoop)
+        let css = URI("/app.css")!
+        let js  = URI("/app.js")!
+
+        // Act
+        request.push(Response("/* css */"), for: css)
+        request.push(Response("/* js */"),  for: js)
+
+        // Assert — order must be preserved (RFC 7540 §8.2)
+        XCTAssertEqual(request.pushes.count, 2)
+        XCTAssertEqual(request.pushes[0].uri, css)
+        XCTAssertEqual(request.pushes[1].uri, js)
+    }
+
     func testClearCookies() {
         // Arrange
         let headers: Headers = .init([.cookie: "sessionId=abcd; userId=1"])
