@@ -105,6 +105,11 @@ extension RequestResponseHandler {
     ) {
         var response = response
 
+        // Mirror the negotiated HTTP version into the response so that the
+        // ResponseEncoder produces the correct status line (e.g. "HTTP/2.0 200 OK"
+        // for an HTTP/2 connection rather than always emitting "HTTP/1.1").
+        response.version = request.version
+
         if request.method == .HEAD {
             // RFC 9110 §9.3.2: HEAD must not send a body. Content-Length SHOULD reflect
             // the byte size that a GET would return, so we preserve the header value that

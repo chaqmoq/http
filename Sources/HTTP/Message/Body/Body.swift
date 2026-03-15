@@ -80,6 +80,33 @@ extension Body: Equatable {
     }
 }
 
+extension Body {
+    /// Decodes the body as a JSON-encoded value of type `T`.
+    ///
+    /// This is the primary way to read a typed request body:
+    ///
+    /// ```swift
+    /// struct LoginRequest: Decodable {
+    ///     let email: String
+    ///     let password: String
+    /// }
+    ///
+    /// server.onReceive = { request in
+    ///     let login = try request.body.decode(LoginRequest.self)
+    ///     // ...
+    /// }
+    /// ```
+    ///
+    /// - Parameters:
+    ///   - type: The `Decodable` type to decode into. Can be inferred from context.
+    ///   - decoder: The JSON decoder to use. Defaults to a standard `JSONDecoder`.
+    /// - Throws: `DecodingError` if the body is not valid JSON or does not match `T`.
+    /// - Returns: An instance of `T` decoded from the body's JSON content.
+    public func decode<T: Decodable>(_ type: T.Type = T.self, using decoder: JSONDecoder = .init()) throws -> T {
+        try decoder.decode(type, from: data)
+    }
+}
+
 extension Body: CustomStringConvertible {
     /// A UTF-8 string representation of the body content, suitable for debugging.
     ///

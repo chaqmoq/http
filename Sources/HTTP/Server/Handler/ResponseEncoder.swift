@@ -15,6 +15,19 @@ final class ResponseEncoder: ChannelOutboundHandler {
             headers.add(name: header.name, value: header.value)
         }
 
+        // Safety net for HTTP/1.1: a client cannot determine the body boundary
+        // without either Content-Length or Transfer-Encoding: chunked. If a handler
+        // removed (or never set) Content-Length and there is a body to send, add it
+        // here so the wire format is always self-delimiting. We do not override a
+        // value that is already present (e.g. HEAD responses carry a hypothetical
+        // Content-Length that intentionally differs from the actual empty body).
+        if version.major == 1,
+           !headers.contains(name: "content-length"),
+           !headers.contains(name: "transfer-encoding"),
+           !response.body.isEmpty {
+            headers.add(name: "content-length", value: String(response.body.count))
+        }
+
         let head = HTTPResponseHead(version: version, status: status, headers: headers)
         context.write(wrapOutboundOut(.head(head)), promise: nil)
 
