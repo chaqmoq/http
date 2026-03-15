@@ -22,9 +22,16 @@ public struct Response: Encodable, Message, Sendable {
 
     /// The HTTP headers to include in the response.
     ///
-    /// Setting this property automatically re-parses cookies from `Set-Cookie` headers.
+    /// Setting this property automatically re-parses cookies when a `Set-Cookie` header changes.
     public var headers: Headers {
-        didSet { setCookies() }
+        didSet {
+            // Only re-parse cookies when a Set-Cookie header value actually changed.
+            // Other header mutations (e.g. Content-Length, Content-Type) previously
+            // triggered a full cookie re-parse unnecessarily.
+            if headers.values(for: .setCookie) != oldValue.values(for: .setCookie) {
+                setCookies()
+            }
+        }
     }
 
     /// Cookies derived from all `Set-Cookie` response headers.
@@ -98,7 +105,8 @@ extension Response {
     ///
     /// - Parameter name: The cookie name to look up (case-insensitive).
     public func hasCookie(named name: String) -> Bool {
-        mutableCookies.contains(where: { $0.name.lowercased() == name.lowercased() })
+        let lowercased = name.lowercased()
+        return mutableCookies.contains(where: { $0.name.lowercased() == lowercased })
     }
 
     /// Adds a `Set-Cookie` header for `cookie`, replacing any existing header with the same name.
@@ -106,11 +114,13 @@ extension Response {
     /// - Parameter cookie: The cookie to set in the response.
     public mutating func setCookie(_ cookie: Cookie) {
         let headerName = HeaderName.setCookie.rawValue
-        let name = cookie.name.lowercased()
+        // Append "=" so that a cookie named "session" does not accidentally match
+        // a cookie named "sessionId" whose Set-Cookie value starts with "sessionid=".
+        let prefix = cookie.name.lowercased() + "="
 
         if let index = headers.firstIndex(where: {
             $0.name == headerName &&
-            $0.value.lowercased().hasPrefix(name)
+            $0.value.lowercased().hasPrefix(prefix)
         }) {
             headers[index] = Header(name: headerName, value: "\(cookie)")
         } else {
@@ -193,10 +203,10 @@ extension Response {
     /// - Parameter name: The name of the cookie whose `Set-Cookie` header should be removed.
     public mutating func clearCookie(named name: String) {
         let headerName = HeaderName.setCookie.rawValue
-        let name = name.lowercased()
+        let prefix = name.lowercased() + "="
 
         if let index = headers.firstIndex(where: {
-            $0.name == headerName && $0.value.lowercased().hasPrefix(name)
+            $0.name == headerName && $0.value.lowercased().hasPrefix(prefix)
         }) {
             headers.remove(at: index)
         }

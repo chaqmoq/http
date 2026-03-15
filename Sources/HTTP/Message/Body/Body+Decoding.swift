@@ -80,6 +80,9 @@ extension Body {
             }
         }
 
+        // Guard before removeLast(): a body with no boundary string at all leaves
+        // contentRanges empty, and calling removeLast() on an empty array is a fatalError.
+        guard !contentRanges.isEmpty else { return (parameters, files) }
         contentRanges.removeLast()
         guard !contentRanges.isEmpty else { return (parameters, files) }
 

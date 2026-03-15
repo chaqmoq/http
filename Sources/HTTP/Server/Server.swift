@@ -89,6 +89,14 @@ public final class Server: @unchecked Sendable {
         set { lock.withLock { _errorMiddleware = newValue } }
     }
 
+    // Built once in start() from the TLS configuration and reused for every accepted
+    // connection. NIOSSLContext wraps an SSL_CTX and is safe to share across threads.
+    private var _sslContext: NIOSSLContext?
+    private var sslContext: NIOSSLContext? {
+        get { lock.withLock { _sslContext } }
+        set { lock.withLock { _sslContext = newValue } }
+    }
+
     /// Initializes a new `Server` with the given configuration.
     ///
     /// - Parameter configuration: The server configuration. Defaults to ``Configuration/init()``.
@@ -105,6 +113,28 @@ public final class Server: @unchecked Sendable {
     ///
     /// - Throws: An error if the socket cannot be bound.
     public func start() throws {
+        // Build the NIOSSLContext once so it is shared across all accepted connections.
+        // Creating it per-connection would re-allocate an SSL_CTX on every accept, which
+        // is expensive. NIOSSLContext is thread-safe and designed for shared use.
+        if let tls = configuration.tls {
+            var tlsConfiguration = tls.configuration
+
+            if configuration.supportsVersions.contains(.two) {
+                tlsConfiguration.applicationProtocols.append("h2")
+            }
+
+            if configuration.supportsVersions.contains(.one) {
+                tlsConfiguration.applicationProtocols.append("http/1.1")
+            }
+
+            do {
+                sslContext = try NIOSSLContext(configuration: tlsConfiguration)
+            } catch {
+                logger.error("Failed to configure TLS: \(error)")
+                throw error
+            }
+        }
+
         let reuseAddressOption = ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR)
         let reuseAddressOptionValue = SocketOptionValue(configuration.reuseAddress ? 1 : 0)
         let tcpNoDelayOptionValue = SocketOptionValue(configuration.tcpNoDelay ? 1 : 0)
@@ -147,8 +177,8 @@ extension Server {
         return channel.pipeline.addHandler(backPressureHandler).flatMap { [weak self] in
             guard let server = self else { return channel.close() }
 
-            if let tls = server.configuration.tls {
-                return server.configure(tls: tls, for: channel).flatMap { _ in
+            if server.configuration.tls != nil {
+                return server.configureSSL(for: channel).flatMap { _ in
                     channel.configureHTTP2SecureUpgrade(h2ChannelConfigurator: { channel in
                         channel.configureHTTP2Pipeline(mode: .server) { channel in
                             server.addHandlers(to: channel, isHTTP2: true)
@@ -163,23 +193,9 @@ extension Server {
         }
     }
 
-    private func configure(tls: TLS, for channel: Channel) -> EventLoopFuture<Void> {
-        var tlsConfiguration = tls.configuration
-
-        if configuration.supportsVersions.contains(.two) {
-            tlsConfiguration.applicationProtocols.append("h2")
-        }
-
-        if configuration.supportsVersions.contains(.one) {
-            tlsConfiguration.applicationProtocols.append("http/1.1")
-        }
-
-        let sslContext: NIOSSLContext
-
-        do {
-            sslContext = try NIOSSLContext(configuration: tlsConfiguration)
-        } catch {
-            logger.error("Failed to configure TLS: \(error)")
+    private func configureSSL(for channel: Channel) -> EventLoopFuture<Void> {
+        guard let sslContext else {
+            logger.error("SSL context not initialised — configureSSL called before start()")
             return channel.close()
         }
 

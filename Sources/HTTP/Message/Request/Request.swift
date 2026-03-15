@@ -29,9 +29,16 @@ public struct Request: Message, @unchecked Sendable {
 
     /// The HTTP headers carried by the request.
     ///
-    /// Setting this property automatically re-parses cookies from the `Cookie` header.
+    /// Setting this property automatically re-parses cookies when the `Cookie` header changes.
     public var headers: Headers {
-        didSet { setCookies() }
+        didSet {
+            // Only re-parse cookies when the Cookie header value actually changed.
+            // Other header mutations (e.g. Content-Length, X-Request-ID) previously
+            // triggered a full cookie re-parse unnecessarily.
+            if headers.get(.cookie) != oldValue.get(.cookie) {
+                setCookies()
+            }
+        }
     }
 
     /// The request body.
