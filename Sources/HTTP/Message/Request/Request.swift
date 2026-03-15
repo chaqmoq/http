@@ -150,12 +150,14 @@ extension Request {
         let parameters = value.components(separatedBy: ";").filter { $0 != "" }
 
         for parameter in parameters {
-            let nameValue = parameter.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
-
-            if let name = nameValue.first, let value = nameValue.last, nameValue.count == 2 {
-                let cookie = Cookie(name: name, value: value)
-                mutableCookies.insert(cookie)
-            }
+            let trimmed = parameter.trimmingCharacters(in: .whitespaces)
+            // Split only on the first '=' so that cookie values containing '='
+            // (e.g. base64-encoded JWT tokens, session IDs) are preserved intact.
+            guard let equalsIndex = trimmed.firstIndex(of: "=") else { continue }
+            let name = String(trimmed[..<equalsIndex])
+            let value = String(trimmed[trimmed.index(after: equalsIndex)...])
+            guard !name.isEmpty else { continue }
+            mutableCookies.insert(Cookie(name: name, value: value))
         }
     }
 

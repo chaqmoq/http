@@ -48,6 +48,16 @@ extension Server {
         /// The maximum number of messages read per event-loop cycle. Defaults to `16`.
         public var maxMessagesPerRead: UInt
 
+        /// Maximum allowed size of a request body in bytes. `nil` means no limit.
+        ///
+        /// When set, any request whose accumulated body exceeds this value is rejected
+        /// with a `RequestDecoder.Error.bodyTooLarge` channel error and the connection
+        /// is closed. Applies to the decompressed body size.
+        ///
+        /// Defaults to `nil` (unlimited). Consider setting a sensible limit for
+        /// production deployments to guard against memory exhaustion.
+        public var maxBodySize: Int?
+
         /// Request body decompression settings.
         public var requestDecompression: Decompression
 
@@ -67,6 +77,7 @@ extension Server {
             reuseAddress: Bool = true,
             tcpNoDelay: Bool = true,
             maxMessagesPerRead: UInt = 16,
+            maxBodySize: Int? = nil,
             requestDecompression: Decompression = .init(),
             responseCompression: Compression = .init()
         ) {
@@ -82,6 +93,7 @@ extension Server {
             self.reuseAddress = reuseAddress
             self.tcpNoDelay = tcpNoDelay
             self.maxMessagesPerRead = maxMessagesPerRead
+            self.maxBodySize = maxBodySize
             self.requestDecompression = requestDecompression
             self.responseCompression = responseCompression
         }

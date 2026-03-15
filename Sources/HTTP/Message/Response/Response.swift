@@ -138,58 +138,63 @@ extension Response {
 
             if let firstParameter = parameters.first {
                 parameters.removeFirst()
-                let nameValue = firstParameter.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
+                let trimmed = firstParameter.trimmingCharacters(in: .whitespaces)
+                // Split only on the first '=' so that cookie values containing '='
+                // (e.g. base64-encoded tokens) are preserved intact.
+                if let equalsIndex = trimmed.firstIndex(of: "=") {
+                    let name = String(trimmed[..<equalsIndex])
+                    let value = String(trimmed[trimmed.index(after: equalsIndex)...])
+                    if !name.isEmpty {
+                        var cookie = Cookie(name: name, value: value)
+                        var cookieExists = false
 
-                if let name = nameValue.first, let value = nameValue.last, nameValue.count == 2 {
-                    var cookie = Cookie(name: name, value: value)
-                    var cookieExists = false
+                        if let index = mutableCookies.firstIndex(of: cookie) {
+                            cookie = mutableCookies[index]
+                            cookieExists = true
+                        }
 
-                    if let index = mutableCookies.firstIndex(of: cookie) {
-                        cookie = mutableCookies[index]
-                        cookieExists = true
-                    }
+                        for parameter in parameters {
+                            let nameValue = parameter.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
 
-                    for parameter in parameters {
-                        let nameValue = parameter.trimmingCharacters(in: .whitespaces).components(separatedBy: "=")
+                            if let name = nameValue.first?.lowercased(),
+                               let optionName = Cookie.OptionName(rawValue: name) {
+                                let count = nameValue.count
 
-                        if let name = nameValue.first?.lowercased(),
-                           let optionName = Cookie.OptionName(rawValue: name) {
-                            let count = nameValue.count
-
-                            switch optionName {
-                            case .expires:
-                                if let value = nameValue.last, count == 2 {
-                                    cookie.expires = Date(rfc1123: value)
-                                }
-                            case .maxAge:
-                                if let value = nameValue.last, count == 2 {
-                                    cookie.maxAge = Int(value)
-                                }
-                            case .domain:
-                                if let value = nameValue.last, count == 2 {
-                                    cookie.domain = value
-                                }
-                            case .path:
-                                if let value = nameValue.last, count == 2 {
-                                    cookie.path = value
-                                }
-                            case .isSecure:
-                                cookie.isSecure = true
-                            case .isHTTPOnly:
-                                cookie.isHTTPOnly = true
-                            case .sameSite:
-                                if let value = nameValue.last?.lowercased(),
-                                   let optionValue = Cookie.SameSite(rawValue: value) {
-                                    cookie.sameSite = optionValue
+                                switch optionName {
+                                case .expires:
+                                    if let value = nameValue.last, count == 2 {
+                                        cookie.expires = Date(rfc1123: value)
+                                    }
+                                case .maxAge:
+                                    if let value = nameValue.last, count == 2 {
+                                        cookie.maxAge = Int(value)
+                                    }
+                                case .domain:
+                                    if let value = nameValue.last, count == 2 {
+                                        cookie.domain = value
+                                    }
+                                case .path:
+                                    if let value = nameValue.last, count == 2 {
+                                        cookie.path = value
+                                    }
+                                case .isSecure:
+                                    cookie.isSecure = true
+                                case .isHTTPOnly:
+                                    cookie.isHTTPOnly = true
+                                case .sameSite:
+                                    if let value = nameValue.last?.lowercased(),
+                                       let optionValue = Cookie.SameSite(rawValue: value) {
+                                        cookie.sameSite = optionValue
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    if cookieExists {
-                        mutableCookies.update(with: cookie)
-                    } else {
-                        mutableCookies.insert(cookie)
+                        if cookieExists {
+                            mutableCookies.update(with: cookie)
+                        } else {
+                            mutableCookies.insert(cookie)
+                        }
                     }
                 }
             }

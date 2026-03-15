@@ -3,7 +3,8 @@ import Foundation
 /// A convenience API to communicate with `URLComponents`.
 public struct URI: Encodable, Sendable {
     /// A default URI `/`.
-    public static var `default`: Self { Self("/")! }
+    // `static let` ensures the URLComponents parse happens once, not on every access.
+    public static let `default`: Self = Self("/")!
 
     /// A `scheme` subcomponent of `URLComponents`.
     public var scheme: String? { urlComponents.scheme }

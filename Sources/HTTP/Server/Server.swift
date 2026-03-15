@@ -213,7 +213,7 @@ extension Server {
             // HTTP2FramePayloadToHTTP1ServerCodec bridges h2 frames to HTTP/1-style messages.
             let handlers: [ChannelHandler] = [
                 HTTP2FramePayloadToHTTP1ServerCodec(),
-                RequestDecoder(),
+                RequestDecoder(maxBodySize: configuration.maxBodySize),
                 ResponseEncoder(),
                 RequestResponseHandler(server: self)
             ]
@@ -255,7 +255,7 @@ extension Server {
             }
 
             let otherHandlers: [ChannelHandler] = [
-                RequestDecoder(),
+                RequestDecoder(maxBodySize: server.configuration.maxBodySize),
                 ResponseEncoder(),
                 RequestResponseHandler(server: server),
             ]

@@ -5,9 +5,17 @@ final class RequestDecoder: ChannelInboundHandler {
     typealias InboundIn = HTTPServerRequestPart
     typealias InboundOut = Request
 
-    private(set) var state: State
+    /// Errors that `RequestDecoder` can raise as channel errors.
+    enum Error: Swift.Error {
+        /// The request body exceeded the configured `maxBodySize` limit.
+        case bodyTooLarge
+    }
 
-    init() {
+    private(set) var state: State
+    private let maxBodySize: Int?
+
+    init(maxBodySize: Int? = nil) {
+        self.maxBodySize = maxBodySize
         state = .idle
     }
 
@@ -52,6 +60,14 @@ final class RequestDecoder: ChannelInboundHandler {
                 context.close(mode: .all, promise: nil)
             case var .decoding(request):
                 if let bytes = chunk.getBytes(at: 0, length: chunk.readableBytes) {
+                    // Enforce the optional body size limit before accumulating the chunk.
+                    if let maxBodySize, request.body.count + bytes.count > maxBodySize {
+                        context.fireErrorCaught(Error.bodyTooLarge)
+                        context.close(mode: .all, promise: nil)
+                        state = .idle
+                        return
+                    }
+
                     request.body.append(bytes: bytes)
                 }
 

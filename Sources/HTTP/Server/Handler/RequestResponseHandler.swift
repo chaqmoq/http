@@ -34,10 +34,6 @@ final class RequestResponseHandler: ChannelInboundHandler {
             }
         }
 
-        if request.method == .HEAD || response.status == .noContent {
-            response.body = .init()
-        }
-
         prepareAndWrite(
             response: response,
             for: request,
@@ -107,6 +103,26 @@ extension RequestResponseHandler {
         for request: Request,
         in context: ChannelHandlerContext
     ) {
+        var response = response
+
+        if request.method == .HEAD {
+            // RFC 9110 §9.3.2: HEAD must not send a body. Content-Length SHOULD reflect
+            // the byte size that a GET would return, so we preserve the header value that
+            // the handler set, then clear the body without letting body.didSet overwrite it.
+            let contentLength = response.headers.get(.contentLength)
+            response.body = Body()   // didSet sets Content-Length to "0"
+
+            if let contentLength {
+                response.headers.set(.init(name: .contentLength, value: contentLength))
+            } else {
+                response.headers.remove(.contentLength)
+            }
+        } else if response.status == .noContent {
+            // RFC 9110 §15.3.5: 204 No Content must not include a body or Content-Length.
+            response.body = Body()
+            response.headers.remove(.contentLength)
+        }
+
         if request.version.major >= Version.Major.two.rawValue {
             context.write(
                 wrapOutboundOut(response),

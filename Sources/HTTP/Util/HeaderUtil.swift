@@ -28,7 +28,6 @@ public final class HeaderUtil {
     }
 
     public class func getParameterValue(named name: String, in headerLine: String) -> String? {
-        let delimiter = "="
         let regex = getParameterRegex
         let range = NSRange(location: 0, length: headerLine.utf8.count)
         let matches = regex.matches(in: headerLine, range: range)
@@ -36,12 +35,19 @@ public final class HeaderUtil {
 
         for match in matches {
             if let range = Range(match.range, in: headerLine) {
-                let parameter = headerLine[range].dropFirst().trimmingCharacters(in: .whitespacesAndNewlines)
-                let components = parameter.components(separatedBy: delimiter)
-                let parameterName = components.first?.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+                // Drop the leading ';' and trim surrounding whitespace.
+                let parameter = String(headerLine[range].dropFirst())
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+
+                // Split only on the first '=' so that parameter values containing '='
+                // (e.g. base64-encoded filenames) are returned intact.
+                guard let equalsIndex = parameter.firstIndex(of: "=") else { continue }
+                let parameterName = String(parameter[..<equalsIndex])
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                    .lowercased()
 
                 if parameterName == name {
-                    return components.last?
+                    return String(parameter[parameter.index(after: equalsIndex)...])
                         .replacingOccurrences(of: "\"", with: "")
                         .trimmingCharacters(in: .whitespacesAndNewlines)
                 }
