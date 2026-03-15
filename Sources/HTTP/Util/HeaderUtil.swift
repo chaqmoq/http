@@ -1,6 +1,6 @@
 import Foundation
 
-public final class HeaderUtil {
+public enum HeaderUtil {
     static let parameterValuePattern = "(?:\"([^\"]+)\"|([^;]+))"
 
     // The pattern for getParameterValue is always the same string, so compile it once.
@@ -16,7 +16,7 @@ public final class HeaderUtil {
     // NSCache is thread-safe and evicts under memory pressure automatically.
     private static let regexCache = NSCache<NSString, NSRegularExpression>()
 
-    private static func cachedRegex(for pattern: String) -> NSRegularExpression? {
+    static func cachedRegex(for pattern: String) -> NSRegularExpression? {
         if let cached = regexCache.object(forKey: pattern as NSString) {
             return cached
         }
@@ -27,7 +27,7 @@ public final class HeaderUtil {
         return compiled
     }
 
-    public class func getParameterValue(named name: String, in headerLine: String) -> String? {
+    public static func getParameterValue(named name: String, in headerLine: String) -> String? {
         let regex = getParameterRegex
         let range = NSRange(location: 0, length: headerLine.utf8.count)
         let matches = regex.matches(in: headerLine, range: range)
@@ -57,7 +57,7 @@ public final class HeaderUtil {
         return nil
     }
 
-    public class func setParameterValue(
+    public static func setParameterValue(
         _ value: String,
         named name: String,
         enclosingInQuotes: Bool = false,
@@ -109,7 +109,7 @@ public final class HeaderUtil {
         }
     }
 
-    public class func removeParameter(named name: String, in headerLine: inout String) {
+    public static func removeParameter(named name: String, in headerLine: inout String) {
         let delimiter: Character = "="
         let terminator: Character = ";"
         guard !name.isEmpty, !name.contains(delimiter) else { return }

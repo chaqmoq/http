@@ -77,7 +77,10 @@ extension CORSMiddleware.Options {
         case all
         case none
         case origins(Set<String>)
-        case regex(NSRegularExpression)
+        /// Matches the request `Origin` header against a regular expression pattern.
+        ///
+        /// The pattern is compiled once and cached; an invalid pattern never matches.
+        case regex(String)
         case sameAsOrigin
 
         public func value(from request: Request) -> String {
@@ -94,7 +97,8 @@ extension CORSMiddleware.Options {
         private func isAllowed(_ origin: String) -> Bool {
             switch self {
             case .origins(let origins): return origins.contains(origin)
-            case .regex(let regex):
+            case .regex(let pattern):
+                guard let regex = HeaderUtil.cachedRegex(for: pattern) else { return false }
                 return regex.firstMatch(in: origin, range: NSRange(location: 0, length: origin.utf16.count)) != nil
             default: return false
             }

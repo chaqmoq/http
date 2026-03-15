@@ -242,8 +242,7 @@ final class CORSMiddlewareTests: XCTestCase {
 
     func testRegexAllowedOrigin() async throws {
         // Arrange
-        let regex = try NSRegularExpression(pattern: "https://.*\\.example\\.com")
-        let middleware = CORSMiddleware(options: .init(allowedOrigin: .regex(regex)))
+        let middleware = CORSMiddleware(options: .init(allowedOrigin: .regex("https://.*\\.example\\.com")))
 
         var matchingRequest = Request(eventLoop: eventLoop)
         matchingRequest.headers.set(.init(name: .origin, value: "https://sub.example.com"))

@@ -5,12 +5,6 @@ final class RequestDecoder: ChannelInboundHandler {
     typealias InboundIn = HTTPServerRequestPart
     typealias InboundOut = Request
 
-    /// Errors that `RequestDecoder` can raise as channel errors.
-    enum Error: Swift.Error {
-        /// The request body exceeded the configured `maxBodySize` limit.
-        case bodyTooLarge
-    }
-
     private(set) var state: State
     private let maxBodySize: Int?
 
@@ -46,7 +40,7 @@ final class RequestDecoder: ChannelInboundHandler {
                     headers: headers
                 )
 
-                state = .decoding(request)
+                state = .decoding(request, buffer: [])
             case .decoding:
                 // Receiving a second .head without a preceding .end is a protocol violation.
                 context.fireErrorCaught(ChannelError.inappropriateOperationForState)
@@ -58,20 +52,22 @@ final class RequestDecoder: ChannelInboundHandler {
                 // Receiving .body before .head is a protocol violation.
                 context.fireErrorCaught(ChannelError.inappropriateOperationForState)
                 context.close(mode: .all, promise: nil)
-            case var .decoding(request):
-                if let bytes = chunk.getBytes(at: 0, length: chunk.readableBytes) {
-                    // Enforce the optional body size limit before accumulating the chunk.
-                    if let maxBodySize, request.body.count + bytes.count > maxBodySize {
-                        context.fireErrorCaught(Error.bodyTooLarge)
-                        context.close(mode: .all, promise: nil)
-                        state = .idle
-                        return
-                    }
-
-                    request.body.append(bytes: bytes)
+            case let .decoding(request, buffer: buffer):
+                guard let bytes = chunk.getBytes(at: 0, length: chunk.readableBytes) else {
+                    break
                 }
 
-                state = .decoding(request)
+                // Enforce the optional body size limit before accumulating the chunk.
+                // The check uses the raw buffer count, before Body is constructed, so
+                // setParametersAndFiles() is never called on partial data.
+                if let maxBodySize, buffer.count + bytes.count > maxBodySize {
+                    context.fireErrorCaught(ServerError.bodyTooLarge)
+                    context.close(mode: .all, promise: nil)
+                    state = .idle
+                    return
+                }
+
+                state = .decoding(request, buffer: buffer + bytes)
             }
         case .end:
             switch state {
@@ -80,7 +76,13 @@ final class RequestDecoder: ChannelInboundHandler {
                 context.fireErrorCaught(ChannelError.inappropriateOperationForState)
                 context.close(mode: .all, promise: nil)
                 return
-            case let .decoding(request):
+            case .decoding(var request, let buffer):
+                // Assign body once here so that setParametersAndFiles() runs exactly
+                // once on the complete body rather than O(n) times on partial chunks.
+                if !buffer.isEmpty {
+                    request.body = Body(bytes: buffer)
+                }
+
                 context.fireChannelRead(wrapInboundOut(request))
             }
 
@@ -92,6 +94,9 @@ final class RequestDecoder: ChannelInboundHandler {
 extension RequestDecoder {
     enum State {
         case idle
-        case decoding(Request)
+        /// The request head has been received. Raw body bytes are accumulated in
+        /// `buffer` and assigned to `request.body` in a single operation on `.end`,
+        /// avoiding O(n²) re-parsing of multipart/form-data bodies.
+        case decoding(Request, buffer: [UInt8])
     }
 }

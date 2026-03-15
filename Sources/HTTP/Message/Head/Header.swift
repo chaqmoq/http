@@ -1,7 +1,10 @@
 /// Represents a single HTTP header field consisting of a name and a value.
 public struct Header: Encodable, Sendable {
-    /// The header field name (e.g. `"content-type"`).
-    public var name: String
+    /// The header field name, stored in lowercase (e.g. `"content-type"`).
+    ///
+    /// Immutable after creation — the lowercase normalisation applied at init
+    /// is an invariant that ``Headers`` lookup relies on.
+    public let name: String
 
     /// The header field value (e.g. `"application/json"`).
     public var value: String
