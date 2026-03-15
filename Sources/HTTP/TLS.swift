@@ -46,7 +46,7 @@ public struct TLS {
         self.privateKeyFile = privateKeyFile
         self.encoding = encoding
 
-        var certificateChain: [NIOSSLCertificateSource] = []
+        var certificateChain = [NIOSSLCertificateSource]()
 
         for certificateFile in certificateFiles {
             do {

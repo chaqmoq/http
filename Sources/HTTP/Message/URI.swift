@@ -1,4 +1,3 @@
-import AnyCodable
 import Foundation
 
 /// A convenience API to communicate with `URLComponents`.

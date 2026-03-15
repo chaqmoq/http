@@ -92,9 +92,10 @@ final class ClientServerAdvancedTests: XCTestCase {
             }
         }
 
-        server.errorMiddleware = [CapturingErrorMiddleware(onError: { errorMiddlewareCalled = true })]
-
-        execute(throwingHandler: { throw TestError() }) { result in
+        execute(
+            throwingHandler: { throw TestError() },
+            errorMiddleware: [CapturingErrorMiddleware(onError: { errorMiddlewareCalled = true })]
+        ) { result in
             switch result {
             case .success(let response):
                 XCTAssertTrue(errorMiddlewareCalled)
@@ -120,6 +121,84 @@ final class ClientServerAdvancedTests: XCTestCase {
         XCTAssertTrue(errorReceived is SyntheticError)
     }
 
+    // MARK: - Middleware returning non-Response Encodable is stringified
+    //
+    // When a Middleware.handle implementation returns a non-Response Encodable,
+    // processMiddleware forwards it to prepareAndWrite's whenSuccess closure.
+    // There `response as? Response` fails, exercising the
+    // `?? .init("\(response)")` fallback (implicit closure #1 in closure #1 in prepareAndWrite).
+
+    func testMiddlewareReturningNonResponseIsStringified() {
+        struct StringMiddleware: Middleware {
+            func handle(request: Request, responder: @escaping Responder) async throws -> Encodable {
+                return "from-middleware"
+            }
+        }
+
+        execute(middleware: [StringMiddleware()]) { result in
+            switch result {
+            case .success(let response):
+                XCTAssertEqual(response.body.string, "from-middleware")
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    // MARK: - Error middleware returning non-Response Encodable is stringified
+    //
+    // When an ErrorMiddleware.handle returns a non-Response Encodable,
+    // processMiddleware(errorMiddleware:…)'s whenSuccess closure receives it.
+    // `response as? Response` fails, exercising the
+    // `?? .init("\(response)")` fallback (implicit closure #1 in closure #1 in closure #2 in prepareAndWrite).
+
+    func testErrorMiddlewareReturningNonResponseIsStringified() {
+        struct ThrowingHandler: Error {}
+
+        struct StringErrorMiddleware: ErrorMiddleware {
+            func handle(
+                request: Request,
+                error: Error,
+                responder: @escaping ErrorResponder
+            ) async throws -> Encodable {
+                return "from-error-middleware"
+            }
+        }
+
+        execute(
+            throwingHandler: { throw ThrowingHandler() },
+            errorMiddleware: [StringErrorMiddleware()]
+        ) { result in
+            switch result {
+            case .success(let response):
+                XCTAssertEqual(response.body.string, "from-error-middleware")
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    // MARK: - Response with Connection: close triggers output half-close
+    //
+    // When write(response:for:in:) sees Connection: close on the response it calls
+    // context.close(mode: .output). Exercises the otherwise-uncovered branch inside
+    // the whenComplete closure in write(response:for:in:).
+
+    func testConnectionCloseHeaderTriggersHalfClose() {
+        var closeResponse = Response("body")
+        closeResponse.headers.set(.init(name: .connection, value: "close"))
+
+        execute(encodableResponse: closeResponse) { result in
+            switch result {
+            case .success(let response):
+                XCTAssertEqual(response.body.string, "body")
+                XCTAssertEqual(response.status, .ok)
+            case .failure(let error):
+                XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
 }
 
 // MARK: - Helpers
@@ -132,8 +211,13 @@ extension ClientServerAdvancedTests {
         responseBody: Body = Body(),
         encodableResponse: (any Encodable)? = nil,
         throwingHandler: (() throws -> Void)? = nil,
+        middleware: [Middleware] = [],
+        errorMiddleware: [ErrorMiddleware] = [],
         responseHandler: @escaping (Result<Response, Error>) -> Void
     ) {
+        server.middleware = middleware
+        server.errorMiddleware = errorMiddleware
+
         let uri = URI(server.configuration.socketAddress)!
 
         server.onStart = { [weak self] _ in

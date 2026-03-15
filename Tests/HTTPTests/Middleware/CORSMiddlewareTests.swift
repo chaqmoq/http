@@ -261,4 +261,24 @@ final class CORSMiddlewareTests: XCTestCase {
             "false"
         )
     }
+
+    // MARK: - Non-Response Encodable from responder is wrapped in a Response
+
+    /// When the downstream responder returns a non-`Response` `Encodable` the CORS
+    /// handler must still apply its headers. Exercises the
+    /// `encodable as? Response ?? .init("\(encodable)")` branch in `handle`.
+    func testHandleWrapsNonResponseEncodableFromResponder() async throws {
+        let middleware = CORSMiddleware(options: .init(allowedOrigin: .all))
+        var request = Request(eventLoop: eventLoop)
+        request.headers.set(.init(name: .origin, value: "https://example.com"))
+
+        // Return a plain String (not a Response) from the responder
+        let result = try await middleware.handle(request: request) { _ in
+            "plain string body" as Encodable
+        }
+
+        let response = try XCTUnwrap(result as? Response)
+        XCTAssertEqual(response.body.string, "plain string body")
+        XCTAssertEqual(response.headers.get(.accessControlAllowOrigin), "*")
+    }
 }

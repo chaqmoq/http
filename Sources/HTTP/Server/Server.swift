@@ -178,7 +178,7 @@ extension Server {
 
         return channel.pipeline.configureHTTPServerPipeline().flatMap { [weak self] in
             guard let server = self else { return channel.close() }
-            var handlers: [ChannelHandler] = []
+            var handlers = [ChannelHandler]()
 
             if server.configuration.supportsPipelining {
                 handlers.append(HTTPServerPipelineHandler())

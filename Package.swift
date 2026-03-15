@@ -34,7 +34,8 @@ let package = Package(
         ]),
         .testTarget(name: "HTTPTests", dependencies: [
             .target(name: "HTTP"),
-            .product(name: "AsyncHTTPClient", package: "async-http-client")
+            .product(name: "AsyncHTTPClient", package: "async-http-client"),
+            .product(name: "NIOSSL", package: "swift-nio-ssl")
         ])
     ],
     swiftLanguageVersions: [.v5]

@@ -159,6 +159,14 @@ final class BodyTests: XCTestCase {
         XCTAssertEqual("\(body)", string)
     }
 
+    /// Exercises the `?? ""` fallback in `Body.string` by storing bytes that are
+    /// not valid UTF-8, making `String(bytes:encoding:)` return `nil`.
+    func testStringReturnsFallbackForInvalidUTF8() {
+        // 0xFF 0xFE are not valid UTF-8 sequences
+        let body = Body(bytes: [0xFF, 0xFE, 0xFD])
+        XCTAssertEqual(body.string, "")
+    }
+
     func testJSON() {
         // Arrange
         let jsonString = "{\"title\": \"New post\", \"likesCount\": 100}"

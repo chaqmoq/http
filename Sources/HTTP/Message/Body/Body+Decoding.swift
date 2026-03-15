@@ -51,7 +51,7 @@ extension Body {
         var boundaryCounter = 0
         let carriageReturn: UInt8 = 13
         let newLine: UInt8 = 10
-        var contentRanges: [Int] = []
+        var contentRanges = [Int]()
 
         for (index, byte) in bytes.enumerated() {
             if byte == boundaryBytes[boundaryCounter] {
