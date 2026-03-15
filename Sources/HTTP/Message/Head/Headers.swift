@@ -91,7 +91,8 @@ public struct Headers: Encodable, Sendable {
     ///
     /// - Parameter name: The header field name to check (case-insensitive).
     public func has(_ name: String) -> Bool {
-        headers.contains(where: { $0.name.lowercased() == name.lowercased() })
+        let lowercased = name.lowercased()
+        return headers.contains(where: { $0.name == lowercased })
     }
 
     /// Returns `true` when at least one field with the given ``HeaderName`` exists.
@@ -127,7 +128,8 @@ public struct Headers: Encodable, Sendable {
     }
 
     func values(for name: String) -> [String] {
-        headers.filter { $0.name.lowercased() == name.lowercased() }.map { $0.value }
+        let lowercased = name.lowercased()
+        return headers.filter { $0.name == lowercased }.map { $0.value }
     }
 
     func values(for name: HeaderName) -> [String] {
@@ -135,7 +137,8 @@ public struct Headers: Encodable, Sendable {
     }
 
     func indices(for name: String) -> [Int] {
-        headers.enumerated().filter { $0.element.name.lowercased() == name.lowercased() }.map { $0.offset }
+        let lowercased = name.lowercased()
+        return headers.enumerated().filter { $0.element.name == lowercased }.map { $0.offset }
     }
 
     func indices(for name: HeaderName) -> [Int] {

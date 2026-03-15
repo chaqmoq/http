@@ -126,6 +126,8 @@ extension RequestResponseHandler {
     }
 }
 
+// MARK: - Middleware processing
+
 extension RequestResponseHandler {
     private func handle(
         request: Request,
@@ -147,98 +149,91 @@ extension RequestResponseHandler {
         return response
     }
 
+    /// Runs the regular middleware chain.
+    ///
+    /// Creates a single `EventLoopPromise` + Swift `Task` for the entire chain.
+    /// Individual middleware layers recurse through `runMiddleware` as ordinary
+    /// async calls — no extra promise or task is allocated per layer.
     private func processMiddleware(
         _ middleware: [Middleware],
         request: Request,
-        response: Encodable,
-        nextIndex index: Int = 0
+        response: Encodable
     ) -> EventLoopFuture<(Request, Encodable)> {
         let promise = request.eventLoop.makePromise(of: (Request, Encodable).self)
         promise.completeWithTask { [weak self] in
-            guard let self else { return (request, response) }
-            let lastIndex = middleware.count - 1
+            guard let self else { throw CancellationError() }
+            return try await self.runMiddleware(middleware, index: 0, request: request, response: response)
+        }
+        return promise.futureResult
+    }
 
-            if index > lastIndex {
-                do {
-                    let response = try await handle(
-                        request: request,
-                        response: response
-                    )
-                    return (request, response)
-                } catch {
-                    if let middlewareError = error as? MiddlewareError {
-                        throw middlewareError
-                    } else {
-                        throw MiddlewareError(
-                            request: request,
-                            response: response,
-                            error: error
-                        )
-                    }
-                }
-            }
-
+    private func runMiddleware(
+        _ middleware: [Middleware],
+        index: Int,
+        request: Request,
+        response: Encodable
+    ) async throws -> (Request, Encodable) {
+        guard index < middleware.count else {
             do {
-                let response = try await middleware[index].handle(request: request) { [weak self] request in
-                    guard let self else { return response }
-                    return try await processMiddleware(
-                        middleware,
-                        request: request,
-                        response: response,
-                        nextIndex: index + 1
-                    ).get().1
-                }
-
+                let response = try await handle(request: request, response: response)
                 return (request, response)
             } catch {
                 if let middlewareError = error as? MiddlewareError {
                     throw middlewareError
                 } else {
-                    throw MiddlewareError(
-                        request: request,
-                        response: response,
-                        error: error
-                    )
+                    throw MiddlewareError(request: request, response: response, error: error)
                 }
             }
         }
 
-        return promise.futureResult
+        do {
+            let result = try await middleware[index].handle(request: request) { [weak self] req in
+                guard let self else { throw CancellationError() }
+                return try await self.runMiddleware(middleware, index: index + 1, request: req, response: response).1
+            }
+            return (request, result)
+        } catch {
+            if let middlewareError = error as? MiddlewareError {
+                throw middlewareError
+            } else {
+                throw MiddlewareError(request: request, response: response, error: error)
+            }
+        }
     }
 
+    /// Runs the error middleware chain.
+    ///
+    /// Same single-task design as `processMiddleware(_:request:response:)`.
     private func processMiddleware(
         _ middleware: [ErrorMiddleware],
         request: Request,
         response: Encodable,
-        error: Error,
-        nextIndex index: Int = 0
+        error: Error
     ) -> EventLoopFuture<(Request, Encodable)> {
         let promise = request.eventLoop.makePromise(of: (Request, Encodable).self)
-        promise.completeWithTask {
-            let lastIndex = middleware.count - 1
+        promise.completeWithTask { [weak self] in
+            guard let self else { throw CancellationError() }
+            return try await self.runErrorMiddleware(middleware, index: 0, request: request, response: response, error: error)
+        }
+        return promise.futureResult
+    }
 
-            if index > lastIndex {
-                throw error
-            }
-
-            let response = try await middleware[index].handle(
-                request: request,
-                error: error
-            ) { [weak self] request, error in
-                guard let self else { return response }
-                return try await processMiddleware(
-                    middleware,
-                    request: request,
-                    response: response,
-                    error: error,
-                    nextIndex: index + 1
-                ).get().1
-            }
-
-            return (request, response)
+    private func runErrorMiddleware(
+        _ middleware: [ErrorMiddleware],
+        index: Int,
+        request: Request,
+        response: Encodable,
+        error: Error
+    ) async throws -> (Request, Encodable) {
+        guard index < middleware.count else {
+            throw error
         }
 
-        return promise.futureResult
+        let result = try await middleware[index].handle(request: request, error: error) { [weak self] req, err in
+            guard let self else { throw CancellationError() }
+            return try await self.runErrorMiddleware(middleware, index: index + 1, request: req, response: response, error: err).1
+        }
+        return (request, result)
     }
 }
 

@@ -39,11 +39,17 @@ final class RequestDecoder: ChannelInboundHandler {
                 )
 
                 state = .decoding(request)
-            case .decoding: assertionFailure("\(type(of: self))'s state is invalid: \(state)")
+            case .decoding:
+                // Receiving a second .head without a preceding .end is a protocol violation.
+                context.fireErrorCaught(ChannelError.inappropriateOperationForState)
+                context.close(mode: .all, promise: nil)
             }
         case let .body(chunk):
             switch state {
-            case .idle: assertionFailure("\(type(of: self))'s state is invalid: \(state)")
+            case .idle:
+                // Receiving .body before .head is a protocol violation.
+                context.fireErrorCaught(ChannelError.inappropriateOperationForState)
+                context.close(mode: .all, promise: nil)
             case var .decoding(request):
                 if let bytes = chunk.getBytes(at: 0, length: chunk.readableBytes) {
                     request.body.append(bytes: bytes)
@@ -53,8 +59,13 @@ final class RequestDecoder: ChannelInboundHandler {
             }
         case .end:
             switch state {
-            case .idle: assertionFailure("\(type(of: self))'s state is invalid: \(state)")
-            case let .decoding(request): context.fireChannelRead(wrapInboundOut(request))
+            case .idle:
+                // Receiving .end before .head is a protocol violation.
+                context.fireErrorCaught(ChannelError.inappropriateOperationForState)
+                context.close(mode: .all, promise: nil)
+                return
+            case let .decoding(request):
+                context.fireChannelRead(wrapInboundOut(request))
             }
 
             state = .idle

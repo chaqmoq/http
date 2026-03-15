@@ -12,7 +12,7 @@ public struct Header: Encodable, Sendable {
     ///   - name: The header field name.
     ///   - value: The header field value.
     public init(name: String, value: String) {
-        self.name = name
+        self.name = name.lowercased()
         self.value = value
     }
 

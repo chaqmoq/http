@@ -1,9 +1,10 @@
 import Logging
-@preconcurrency import NIO
-@preconcurrency import NIOHTTP1
-@preconcurrency import NIOHTTP2
-@preconcurrency import NIOHTTPCompression
-@preconcurrency import NIOSSL
+import NIO
+import NIOConcurrencyHelpers
+import NIOHTTP1
+import NIOHTTP2
+import NIOHTTPCompression
+import NIOSSL
 
 /// A non-blocking HTTP/1.1 and HTTP/2 server powered by SwiftNIO.
 ///
@@ -39,26 +40,54 @@ public final class Server: @unchecked Sendable {
     /// The NIO event-loop group driving I/O for this server.
     public let eventLoopGroup: EventLoopGroup
 
+    // All mutable properties are guarded by this lock so that reads from NIO
+    // event-loop threads and writes from any other thread are race-free.
+    private let lock = NIOLock()
+
+    private var _onStart: ((EventLoop) -> Void)?
     /// Called on the first event loop when the server has successfully bound its socket.
-    public var onStart: ((EventLoop) -> Void)?
+    public var onStart: ((EventLoop) -> Void)? {
+        get { lock.withLock { _onStart } }
+        set { lock.withLock { _onStart = newValue } }
+    }
 
+    private var _onStop: (() -> Void)?
     /// Called after the event-loop group has been shut down gracefully.
-    public var onStop: (() -> Void)?
+    public var onStop: (() -> Void)? {
+        get { lock.withLock { _onStop } }
+        set { lock.withLock { _onStop = newValue } }
+    }
 
+    private var _onError: ((Error, EventLoop) -> Void)?
     /// Called when an unrecoverable channel-level error occurs.
-    public var onError: ((Error, EventLoop) -> Void)?
+    public var onError: ((Error, EventLoop) -> Void)? {
+        get { lock.withLock { _onError } }
+        set { lock.withLock { _onError = newValue } }
+    }
 
+    private var _onReceive: ((Request) async throws -> Encodable)?
     /// The application handler invoked for every incoming request after all middleware runs.
     ///
     /// Return any `Encodable` value; if it is not a `Response` it will be wrapped in one
     /// using its string description.
-    public var onReceive: ((Request) async throws -> Encodable)?
+    public var onReceive: ((Request) async throws -> Encodable)? {
+        get { lock.withLock { _onReceive } }
+        set { lock.withLock { _onReceive = newValue } }
+    }
 
+    private var _middleware = [Middleware]()
     /// Middleware executed in order for each request before ``onReceive`` is called.
-    public var middleware = [Middleware]()
+    public var middleware: [Middleware] {
+        get { lock.withLock { _middleware } }
+        set { lock.withLock { _middleware = newValue } }
+    }
 
+    private var _errorMiddleware = [ErrorMiddleware]()
     /// Error middleware executed when a request handler or middleware throws.
-    public var errorMiddleware = [ErrorMiddleware]()
+    public var errorMiddleware: [ErrorMiddleware] {
+        get { lock.withLock { _errorMiddleware } }
+        set { lock.withLock { _errorMiddleware = newValue } }
+    }
 
     /// Initializes a new `Server` with the given configuration.
     ///
@@ -92,6 +121,8 @@ public final class Server: @unchecked Sendable {
 
         let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
         logger.info("Server has started on: \(configuration.socketAddress)")
+        // Snapshot the closure outside the lock before invoking it.
+        let onStart = self.onStart
         onStart?(channel.eventLoop)
         try channel.closeFuture.wait()
     }
@@ -102,6 +133,8 @@ public final class Server: @unchecked Sendable {
     public func stop() throws {
         try eventLoopGroup.syncShutdownGracefully()
         logger.info("Server has stopped")
+        // Snapshot the closure outside the lock before invoking it.
+        let onStop = self.onStop
         onStop?()
     }
 }
