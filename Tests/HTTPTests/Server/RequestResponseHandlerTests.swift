@@ -1,4 +1,5 @@
 import AsyncHTTPClient
+import Foundation
 @testable import HTTP
 import NIO
 import NIOHTTP1
@@ -189,6 +190,96 @@ final class RequestResponseHandlerTests: XCTestCase {
         }
     }
 
+    // MARK: - Nil onReceive
+
+    /// When `server.onReceive` is `nil`, `handle()` takes the fall-through branch and
+    /// returns the base response unchanged (line: `return response`). The client should
+    /// still receive a well-formed 200 OK.
+    func testNilOnReceiveReturns200WithDefaultResponse() {
+        // Intentionally do NOT set server.onReceive.
+        let uri = URI(server.configuration.socketAddress)!
+
+        server.onStart = { [weak self] _ in
+            guard let self else { return }
+
+            let request = try! HTTPClient.Request(url: uri.string!, method: .GET)
+            client.execute(request: request).whenComplete { [weak self] result in
+                switch result {
+                case .success(let response):
+                    XCTAssertEqual(response.status.code, 200)
+                case .failure(let error):
+                    XCTFail("Unexpected error: \(error)")
+                }
+
+                DispatchQueue.global().asyncAfter(deadline: .now()) { [weak self] in
+                    try! self?.client.syncShutdown()
+                    try! self?.server.stop()
+                }
+            }
+        }
+
+        // server.onReceive is nil — start the server and block until stop() is called above.
+        try! server.start()
+    }
+
+    // MARK: - HTTP/1.0 Connection: close
+
+    /// An HTTP/1.0 request without an explicit `Connection` header must elicit a response
+    /// with `Connection: close` — the `else` branch of the version check in `channelRead`.
+    ///
+    /// `AsyncHTTPClient` only speaks HTTP/1.1, so this test uses NIO's `ClientBootstrap`
+    /// to open a raw TCP connection and write a genuine HTTP/1.0 request.
+    ///
+    /// When `onReceive` returns a non-`Response` `Encodable` (a `String` here), `handle()`
+    /// wraps the result into the *base* response, preserving the `Connection: close` header
+    /// that `channelRead` set on it — making the header observable in the wire response.
+    func testHTTP10WithoutConnectionHeaderSetsConnectionClose() {
+        var connectionHeader: String?
+
+        // Return a String (not a Response) so handle() embeds it in the base response.
+        // The base response already has Connection: close set by channelRead for HTTP/1.0
+        // requests without an explicit Connection header.
+        server.onReceive = { _ in "ok" }
+
+        server.onStart = { [weak self] _ in
+            guard let self else { return }
+
+            DispatchQueue.global().async {
+                let capture = RawResponseCapture()
+                let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+                defer { try? group.syncShutdownGracefully() }
+
+                let connectFuture = ClientBootstrap(group: group)
+                    .channelInitializer { $0.pipeline.addHandler(capture) }
+                    .connect(host: "127.0.0.1", port: 8089)
+                guard let ch = try? connectFuture.wait() else {
+                    try! self.server.stop()
+                    return
+                }
+
+                // Send a minimal HTTP/1.0 GET with no Connection header.
+                var buf = ch.allocator.buffer(capacity: 64)
+                buf.writeString("GET / HTTP/1.0\r\nHost: 127.0.0.1\r\n\r\n")
+                try? ch.writeAndFlush(buf).wait()
+
+                // The server sends Connection: close and closes its output half, which
+                // triggers channelInactive on the client side — wait for that signal.
+                capture.waitForClose()
+
+                connectionHeader = capture.connectionHeaderValue
+                try! self.server.stop()
+            }
+        }
+
+        try! server.start()
+
+        XCTAssertEqual(
+            connectionHeader,
+            "close",
+            "HTTP/1.0 without Connection header should result in Connection: close"
+        )
+    }
+
     // MARK: - version is propagated into the response
 
     func testResponseVersionMatchesRequestVersion() {
@@ -292,5 +383,47 @@ extension RequestResponseHandlerTests {
         }
 
         try! server.start()
+    }
+}
+
+// MARK: - Raw TCP helper for HTTP/1.0 tests
+
+/// Accumulates raw bytes from a TCP channel and signals when the connection closes.
+///
+/// Used by `testHTTP10WithoutConnectionHeaderSetsConnectionClose` to read the
+/// full HTTP/1.0 response without a fixed sleep delay: the server sends
+/// `Connection: close` and performs a half-close after writing, which triggers
+/// `channelInactive` on the client side — that's the reliable completion signal.
+private final class RawResponseCapture: ChannelInboundHandler, @unchecked Sendable {
+    typealias InboundIn = ByteBuffer
+
+    private let semaphore = DispatchSemaphore(value: 0)
+    private var accumulated = ""
+
+    /// The lowercased value of the `Connection` response header, if present.
+    private(set) var connectionHeaderValue: String?
+
+    func channelRead(context: ChannelHandlerContext, data: NIOAny) {
+        var buf = unwrapInboundIn(data)
+        if let chunk = buf.readString(length: buf.readableBytes) {
+            accumulated += chunk
+        }
+    }
+
+    func channelInactive(context: ChannelHandlerContext) {
+        // Parse the accumulated response for the Connection header value.
+        for line in accumulated.components(separatedBy: "\r\n") {
+            if line.lowercased().hasPrefix("connection:") {
+                connectionHeaderValue = String(line.dropFirst("connection:".count))
+                    .trimmingCharacters(in: .whitespaces)
+                    .lowercased()
+            }
+        }
+        semaphore.signal()
+    }
+
+    /// Blocks the calling thread until `channelInactive` fires or a 2-second timeout elapses.
+    func waitForClose() {
+        _ = semaphore.wait(timeout: .now() + 2)
     }
 }

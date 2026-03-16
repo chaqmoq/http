@@ -140,12 +140,12 @@ final class RequestDecoderTests: XCTestCase {
         }
     }
 
-    func testStateIsDecodingAfterHead() throws {
+    func testStateIsCollectingAfterHead() throws {
         let head = HTTPRequestHead(version: .http1_1, method: .GET, uri: "/")
         try channel.writeInbound(HTTPServerRequestPart.head(head))
 
-        guard case .decoding = decoder.state else {
-            return XCTFail("Expected .decoding after .head, got \(decoder.state)")
+        guard case .collecting = decoder.state else {
+            return XCTFail("Expected .collecting after .head, got \(decoder.state)")
         }
     }
 
@@ -269,6 +269,109 @@ final class RequestDecoderTests: XCTestCase {
             errorCapture.errors.isEmpty,
             "Expected a protocol-violation error for a second .head"
         )
+    }
+
+    // MARK: - errorCaught paths
+
+    /// When the decoder is in `.idle` state and an upstream error arrives,
+    /// `errorCaught` should forward the error without modifying state.
+    func testErrorCaughtInIdleStateForwardsError() {
+        struct TestError: Error {}
+        channel.pipeline.fireErrorCaught(TestError())
+
+        XCTAssertFalse(errorCapture.errors.isEmpty, "Error should be forwarded in .idle state")
+        guard case .idle = decoder.state else {
+            return XCTFail("State should remain .idle after errorCaught in .idle")
+        }
+    }
+
+    /// When the decoder is in `.collecting` state and an upstream error arrives,
+    /// `errorCaught` should forward the error without resetting state.
+    func testErrorCaughtInCollectingStateForwardsError() throws {
+        struct TestError: Error {}
+        let head = HTTPRequestHead(version: .http1_1, method: .GET, uri: "/")
+        try channel.writeInbound(HTTPServerRequestPart.head(head))
+
+        guard case .collecting = decoder.state else {
+            return XCTFail("Expected .collecting state before firing error")
+        }
+
+        channel.pipeline.fireErrorCaught(TestError())
+
+        XCTAssertFalse(errorCapture.errors.isEmpty, "Error should be forwarded in .collecting state")
+        guard case .collecting = decoder.state else {
+            return XCTFail("State should remain .collecting after errorCaught (no stream to clear)")
+        }
+    }
+
+    /// When the decoder is in `.streaming` state, `errorCaught` must finish the stream
+    /// with the error (unblocking any awaiting consumer) and reset the state to `.idle`.
+    func testErrorCaughtInStreamingStateFinishesStreamAndResetsToIdle() async throws {
+        struct TestError: Error, Equatable {}
+
+        let streamingDecoder = RequestDecoder(streamingBodyThreshold: 0)
+        let streamingCapture = DecoderErrorCapture()
+        let streamingChannel = EmbeddedChannel()
+        try streamingChannel.pipeline.addHandlers([streamingDecoder, streamingCapture]).wait()
+        defer { _ = try? streamingChannel.finish() }
+
+        // Transition to .streaming by writing a .head with threshold == 0.
+        let head = HTTPRequestHead(version: .http1_1, method: .POST, uri: "/")
+        try streamingChannel.writeInbound(HTTPServerRequestPart.head(head))
+
+        let req = try XCTUnwrap(streamingChannel.readInbound(as: Request.self))
+        let stream = try XCTUnwrap(req.bodyStream)
+
+        guard case .streaming = streamingDecoder.state else {
+            return XCTFail("Expected .streaming state after .head")
+        }
+
+        // Fire an upstream error — the decoder must finish the stream so the consumer unblocks.
+        streamingChannel.pipeline.fireErrorCaught(TestError())
+
+        // Collecting the now-finished stream must throw TestError, not hang.
+        do {
+            _ = try await stream.collect()
+            XCTFail("Expected TestError to be thrown from the stream")
+        } catch is TestError {
+            // expected
+        }
+
+        guard case .idle = streamingDecoder.state else {
+            return XCTFail("State should be .idle after errorCaught resets .streaming")
+        }
+    }
+
+    // MARK: - channelInactive paths
+
+    /// When the decoder is in `.streaming` state and the channel goes inactive,
+    /// `channelInactive` must finish the stream with `ioOnClosedChannel` and
+    /// reset the state to `.idle`.
+    func testChannelInactiveInStreamingStateFinishesStream() async throws {
+        let streamingDecoder = RequestDecoder(streamingBodyThreshold: 0)
+        let streamingChannel = EmbeddedChannel()
+        try streamingChannel.pipeline.addHandler(streamingDecoder).wait()
+        defer { _ = try? streamingChannel.finish() }
+
+        let head = HTTPRequestHead(version: .http1_1, method: .POST, uri: "/")
+        try streamingChannel.writeInbound(HTTPServerRequestPart.head(head))
+
+        let req = try XCTUnwrap(streamingChannel.readInbound(as: Request.self))
+        let stream = try XCTUnwrap(req.bodyStream)
+
+        // Simulate connection drop — decoder should propagate ioOnClosedChannel to the stream.
+        streamingChannel.pipeline.fireChannelInactive()
+
+        do {
+            _ = try await stream.collect()
+            XCTFail("Expected ChannelError.ioOnClosedChannel to be thrown")
+        } catch ChannelError.ioOnClosedChannel {
+            // expected
+        }
+
+        guard case .idle = streamingDecoder.state else {
+            return XCTFail("State should be .idle after channelInactive resets .streaming")
+        }
     }
 }
 

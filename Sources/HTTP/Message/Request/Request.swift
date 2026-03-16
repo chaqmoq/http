@@ -62,6 +62,18 @@ public struct Request: Message, @unchecked Sendable {
     /// main response is written. Entries are silently discarded on HTTP/1.x connections.
     public var pushes: [(uri: URI, response: Response)] = []
 
+    /// A stream of incoming body chunks. Non-`nil` only when the server is configured
+    /// with a ``Server/Configuration/streamingBodyThreshold`` and the request body meets
+    /// the streaming criteria (body size exceeds the threshold, or body length is unknown).
+    ///
+    /// When non-`nil`, ``body`` is initially empty. Prefer calling ``collectBody(maxSize:)``
+    /// to accumulate the stream into ``body``, or iterate this property directly for
+    /// zero-copy, chunk-by-chunk processing.
+    ///
+    /// In the common case where no threshold is configured (the default), this is always
+    /// `nil` and ``body`` contains the complete buffered request body.
+    public internal(set) var bodyStream: BodyStream? = nil
+
     /// Arbitrary key/value attributes attached to the request by middleware.
     public var attributes: [String: AnyEncodable] { mutableAttributes }
 
@@ -130,6 +142,50 @@ extension Request {
     ///     `PUSH_PROMISE` `:path` pseudo-header).
     public mutating func push(_ response: Response, for uri: URI) {
         pushes.append((uri: uri, response: response))
+    }
+}
+
+extension Request {
+    /// Returns the complete request body, collecting the stream when necessary.
+    ///
+    /// This is the idiomatic way to access the full body regardless of whether the server
+    /// is running in buffered or streaming mode:
+    ///
+    /// ```swift
+    /// server.onReceive = { request in
+    ///     var req = request
+    ///     let body = try await req.collectBody()
+    ///     let payload = try body.decode(MyPayload.self)
+    ///     return Response("received \(payload.name)")
+    /// }
+    /// ```
+    ///
+    /// **Buffered mode** (`bodyStream == nil`): returns ``body`` immediately without
+    /// any async work or allocation.
+    ///
+    /// **Streaming mode** (`bodyStream != nil`): drives the ``BodyStream`` to completion,
+    /// assembles the chunks into a single `ByteBuffer`, stores the result in ``body``,
+    /// and clears ``bodyStream`` so subsequent calls are free (same as buffered mode).
+    /// Form parameters and uploaded files are re-parsed from the collected body.
+    ///
+    /// - Parameter maxSize: Optional upper bound in bytes. When set, throws
+    ///   ``BodyStreamError/tooLarge`` if the accumulated stream exceeds this value.
+    ///   Ignored in buffered mode. Defaults to `nil` (no limit).
+    /// - Returns: The complete ``Body``.
+    /// - Throws: ``BodyStreamError/tooLarge``, or any error propagated by the stream
+    ///   (e.g. ``ChannelError/ioOnClosedChannel`` when the client disconnects early).
+    public mutating func collectBody(maxSize: Int? = nil) async throws -> Body {
+        if let stream = bodyStream {
+            let collected = try await stream.collect(maxSize: maxSize)
+            // Setting `body` via its didSet triggers setContentLengthHeader() and
+            // setParametersAndFiles(), so form/multipart parsing runs exactly once
+            // on the complete body — mirroring the buffered-mode behaviour.
+            body = collected
+            bodyStream = nil
+            return collected
+        }
+
+        return body
     }
 }
 

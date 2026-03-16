@@ -220,7 +220,7 @@ extension Server {
             let handlers: [ChannelHandler] = [
                 pushHandler,
                 HTTP2FramePayloadToHTTP1ServerCodec(),
-                RequestDecoder(maxBodySize: configuration.maxBodySize),
+                RequestDecoder(maxBodySize: configuration.maxBodySize, streamingBodyThreshold: configuration.streamingBodyThreshold),
                 ResponseEncoder(),
                 RequestResponseHandler(server: self, pushHandler: pushHandler)
             ]
@@ -262,7 +262,7 @@ extension Server {
             }
 
             let otherHandlers: [ChannelHandler] = [
-                RequestDecoder(maxBodySize: server.configuration.maxBodySize),
+                RequestDecoder(maxBodySize: server.configuration.maxBodySize, streamingBodyThreshold: server.configuration.streamingBodyThreshold),
                 ResponseEncoder(),
                 RequestResponseHandler(server: server),
             ]

@@ -58,6 +58,37 @@ extension Server {
         /// production deployments to guard against memory exhaustion.
         public var maxBodySize: Int?
 
+        /// Body size threshold (in bytes) that switches ``RequestDecoder`` into
+        /// streaming mode for large request bodies.
+        ///
+        /// When non-`nil`:
+        /// - Bodies with a known `Content-Length` **greater than** this value are
+        ///   delivered as a ``BodyStream`` on ``Request/bodyStream``. The handler
+        ///   receives the request immediately and consumes the body lazily via
+        ///   ``Request/collectBody(maxSize:)`` or direct async iteration.
+        /// - Bodies with an **unknown** length (chunked transfer encoding or no
+        ///   `Content-Length` header) are also streamed.
+        /// - Bodies at or below the threshold continue to be fully buffered, so
+        ///   ``Request/body`` is populated as normal.
+        ///
+        /// When `nil` (the default), all bodies are fully buffered before the handler
+        /// is invoked — preserving backward compatibility.
+        ///
+        /// ## Example
+        /// ```swift
+        /// // Buffer bodies up to 1 MB; stream everything larger.
+        /// var config = Server.Configuration()
+        /// config.streamingBodyThreshold = 1_048_576
+        /// let server = Server(configuration: config)
+        ///
+        /// server.onReceive = { request in
+        ///     var req = request
+        ///     let body = try await req.collectBody(maxSize: 10_485_760) // 10 MB hard cap
+        ///     return Response("received \(body.count) bytes")
+        /// }
+        /// ```
+        public var streamingBodyThreshold: Int?
+
         /// Request body decompression settings.
         public var requestDecompression: Decompression
 
@@ -78,6 +109,7 @@ extension Server {
             tcpNoDelay: Bool = true,
             maxMessagesPerRead: UInt = 16,
             maxBodySize: Int? = nil,
+            streamingBodyThreshold: Int? = nil,
             requestDecompression: Decompression = .init(),
             responseCompression: Compression = .init()
         ) {
@@ -94,6 +126,7 @@ extension Server {
             self.tcpNoDelay = tcpNoDelay
             self.maxMessagesPerRead = maxMessagesPerRead
             self.maxBodySize = maxBodySize
+            self.streamingBodyThreshold = streamingBodyThreshold
             self.requestDecompression = requestDecompression
             self.responseCompression = responseCompression
         }

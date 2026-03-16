@@ -8,8 +8,15 @@ final class RequestDecoder: ChannelInboundHandler {
     private(set) var state: State
     private let maxBodySize: Int?
 
-    init(maxBodySize: Int? = nil) {
+    /// When non-`nil`, bodies with a `Content-Length` exceeding this value (or bodies
+    /// with an unknown length, such as chunked transfers) are delivered as a ``BodyStream``
+    /// rather than being fully accumulated before the request is forwarded downstream.
+    /// `nil` (the default) preserves the original fully-buffered behaviour.
+    private let streamingBodyThreshold: Int?
+
+    init(maxBodySize: Int? = nil, streamingBodyThreshold: Int? = nil) {
         self.maxBodySize = maxBodySize
+        self.streamingBodyThreshold = streamingBodyThreshold
         state = .idle
     }
 
@@ -40,21 +47,42 @@ final class RequestDecoder: ChannelInboundHandler {
                     headers: headers
                 )
 
-                // Allocate from the channel's pool so the accumulation buffer
-                // participates in NIO's recycling system instead of the system allocator.
-                state = .decoding(request, buffer: context.channel.allocator.buffer(capacity: 0))
-            case .decoding:
+                // Decide whether to buffer or stream this request's body.
+                if let threshold = streamingBodyThreshold {
+                    let contentLength = head.headers["content-length"].first.flatMap(Int.init)
+                    // Stream when the declared body size exceeds the threshold, or when
+                    // the length is unknown (chunked transfer encoding or no header).
+                    let shouldStream = contentLength.map { $0 > threshold } ?? true
+
+                    if shouldStream {
+                        let stream = BodyStream()
+                        var streamingRequest = request
+                        streamingRequest.bodyStream = stream
+                        // Fire the request downstream immediately — the handler receives
+                        // it before the body arrives and consumes the stream lazily.
+                        context.fireChannelRead(wrapInboundOut(streamingRequest))
+                        state = .streaming(stream, bytesReceived: 0)
+                        return
+                    }
+                }
+
+                // Buffered mode: accumulate from the channel's pool allocator.
+                state = .collecting(request, buffer: context.channel.allocator.buffer(capacity: 0))
+
+            case .collecting, .streaming:
                 // Receiving a second .head without a preceding .end is a protocol violation.
                 context.fireErrorCaught(ChannelError.inappropriateOperationForState)
                 context.close(mode: .all, promise: nil)
             }
+
         case let .body(chunk):
             switch state {
             case .idle:
                 // Receiving .body before .head is a protocol violation.
                 context.fireErrorCaught(ChannelError.inappropriateOperationForState)
                 context.close(mode: .all, promise: nil)
-            case .decoding(let request, var buffer):
+
+            case .collecting(let request, var buffer):
                 // Enforce the optional body size limit before accumulating the chunk.
                 if let maxBodySize, buffer.readableBytes + chunk.readableBytes > maxBodySize {
                     context.fireErrorCaught(ServerError.bodyTooLarge)
@@ -67,8 +95,23 @@ final class RequestDecoder: ChannelInboundHandler {
                 // without mutating chunk — zero-copy when the backing storage is
                 // already contiguous (which NIO guarantees for channel reads).
                 buffer.writeImmutableBuffer(chunk)
-                state = .decoding(request, buffer: buffer)
+                state = .collecting(request, buffer: buffer)
+
+            case .streaming(let stream, let bytesReceived):
+                let newTotal = bytesReceived + chunk.readableBytes
+                // Enforce the optional body size limit in streaming mode.
+                // Finish the stream with an error so the awaiting handler is unblocked.
+                if let maxBodySize, newTotal > maxBodySize {
+                    stream.finish(throwing: ServerError.bodyTooLarge)
+                    context.close(mode: .all, promise: nil)
+                    state = .idle
+                    return
+                }
+
+                stream.yield(chunk)
+                state = .streaming(stream, bytesReceived: newTotal)
             }
+
         case .end:
             switch state {
             case .idle:
@@ -76,7 +119,8 @@ final class RequestDecoder: ChannelInboundHandler {
                 context.fireErrorCaught(ChannelError.inappropriateOperationForState)
                 context.close(mode: .all, promise: nil)
                 return
-            case .decoding(var request, let buffer):
+
+            case .collecting(var request, let buffer):
                 // Assign body once here so that setParametersAndFiles() runs exactly
                 // once on the complete body rather than O(n) times on partial chunks.
                 // Body(_:) adopts the ByteBuffer directly — no [UInt8] copy.
@@ -85,20 +129,50 @@ final class RequestDecoder: ChannelInboundHandler {
                 }
 
                 context.fireChannelRead(wrapInboundOut(request))
+
+            case .streaming(let stream, _):
+                // Signal end-of-stream to any consumer awaiting the next chunk.
+                stream.finish()
             }
 
             state = .idle
         }
+    }
+
+    /// Propagates upstream errors to any active stream consumer so the `for try await`
+    /// loop throws rather than hanging indefinitely.
+    func errorCaught(context: ChannelHandlerContext, error: Error) {
+        if case .streaming(let stream, _) = state {
+            stream.finish(throwing: error)
+            state = .idle
+        }
+
+        context.fireErrorCaught(error)
+    }
+
+    /// Unblocks any active stream consumer when the TCP connection closes unexpectedly.
+    func channelInactive(context: ChannelHandlerContext) {
+        if case .streaming(let stream, _) = state {
+            stream.finish(throwing: ChannelError.ioOnClosedChannel)
+            state = .idle
+        }
+
+        context.fireChannelInactive()
     }
 }
 
 extension RequestDecoder {
     enum State {
         case idle
+
         /// The request head has been received. Incoming body chunks are accumulated
         /// into `buffer` using `writeImmutableBuffer` (no per-chunk heap copy).
         /// `Body(buffer)` is assigned exactly once at `.end`, which triggers
         /// `setParametersAndFiles()` a single time on the complete body.
-        case decoding(Request, buffer: ByteBuffer)
+        case collecting(Request, buffer: ByteBuffer)
+
+        /// The request has already been forwarded downstream. Body chunks are yielded
+        /// to `stream` as they arrive; `stream.finish()` is called at `.end`.
+        case streaming(BodyStream, bytesReceived: Int)
     }
 }

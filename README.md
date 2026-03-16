@@ -77,6 +77,8 @@ let config = Server.Configuration(
     reuseAddress: true,
     tcpNoDelay: true,
     maxMessagesPerRead: 16,
+    maxBodySize: 10_485_760,           // reject bodies larger than 10 MB
+    streamingBodyThreshold: 1_048_576, // stream bodies larger than 1 MB
     requestDecompression: .init(limit: .ratio(10), isEnabled: true),
     responseCompression: .init(isEnabled: true)
 )
@@ -89,6 +91,21 @@ Two computed properties derive the full address from the configuration:
 ```swift
 config.scheme        // "http" (or "https" when TLS is configured)
 config.socketAddress // "http://127.0.0.1:8080"
+```
+
+### Body size limits
+
+`maxBodySize` rejects any request whose body exceeds the given byte count. `streamingBodyThreshold` controls when large bodies are streamed instead of buffered — see [Body Streaming](#body-streaming) for details.
+
+```swift
+// Hard reject anything above 10 MB
+Server.Configuration(maxBodySize: 10_485_760)
+
+// Buffer bodies ≤ 1 MB; stream everything larger
+Server.Configuration(streamingBodyThreshold: 1_048_576)
+
+// Combine both: stream large bodies, reject extreme ones
+Server.Configuration(maxBodySize: 50_000_000, streamingBodyThreshold: 1_048_576)
 ```
 
 ### Compression and decompression
@@ -305,6 +322,69 @@ server.onReceive = { request in
 }
 ```
 
+## Body Streaming
+
+By default every request body is fully buffered in memory before `onReceive` is called, so `request.body` is always ready to use. For large uploads (files, binary blobs, server-sent payloads) you can instead receive the body as an `AsyncSequence` of `ByteBuffer` chunks, processing or forwarding each piece as it arrives without holding the entire content in memory at once.
+
+### Enabling streaming
+
+Set `streamingBodyThreshold` on the server configuration. Bodies whose `Content-Length` exceeds the threshold — or whose length is unknown (chunked transfer encoding) — are streamed. Bodies at or below the threshold continue to be fully buffered.
+
+```swift
+var config = Server.Configuration()
+config.streamingBodyThreshold = 1_048_576  // stream bodies > 1 MB
+
+let server = Server(configuration: config)
+```
+
+### Collecting the full body
+
+`Request.collectBody(maxSize:)` is the idiomatic way to consume a streaming body when you need the complete content. It works in both buffered and streaming mode, so you can write a single handler that handles both:
+
+```swift
+server.onReceive = { request in
+    var req = request
+    // Collects the stream (or returns the buffered body immediately)
+    let body = try await req.collectBody(maxSize: 10_485_760)  // optional 10 MB cap
+    let upload = try body.decode(UploadRequest.self)
+    return Response("received \(body.count) bytes")
+}
+```
+
+After `collectBody()` returns, `request.body` is populated exactly as it would be in buffered mode — form parameters and uploaded files are parsed automatically.
+
+### Iterating chunks directly
+
+When you want zero-copy processing (hashing, forwarding, writing to disk) iterate `request.bodyStream` directly:
+
+```swift
+server.onReceive = { request in
+    guard let stream = request.bodyStream else {
+        // body was small enough to be buffered; access request.body directly
+        return Response(request.body.string)
+    }
+
+    var totalBytes = 0
+    for try await chunk in stream {
+        totalBytes += chunk.readableBytes
+        // process or forward chunk here without buffering it all
+    }
+    return Response("received \(totalBytes) bytes")
+}
+```
+
+### Error handling
+
+`BodyStreamError.tooLarge` is thrown when the `maxSize` limit passed to `collectBody(maxSize:)` or `BodyStream.collect(maxSize:)` is exceeded. If the TCP connection drops mid-stream the sequence throws `ChannelError.ioOnClosedChannel` so a waiting `for try await` loop always terminates.
+
+```swift
+do {
+    let body = try await req.collectBody(maxSize: 5_242_880)  // 5 MB
+} catch BodyStreamError.tooLarge {
+    return Response("Payload too large", status: .payloadTooLarge)
+}
+```
+
 ## HTTP/2 Server Push
 
 On HTTP/2 connections you can proactively push resources to the client before it requests them. Call `request.push(_:for:)` inside `onReceive` (or any middleware) for each resource to push.
@@ -478,7 +558,10 @@ struct AppErrorMiddleware: ErrorMiddleware {
     }
 }
 
-let server = Server(configuration: .init(host: "0.0.0.0", port: 8080, serverName: "MyAPI/1.0"))
+var config = Server.Configuration(host: "0.0.0.0", port: 8080, serverName: "MyAPI/1.0")
+config.streamingBodyThreshold = 1_048_576  // stream request bodies larger than 1 MB
+
+let server = Server(configuration: config)
 
 server.middleware = [TimingMiddleware(), CORSMiddleware(), HTTPMethodOverrideMiddleware()]
 server.errorMiddleware = [AppErrorMiddleware()]
@@ -491,7 +574,14 @@ server.onReceive = { request in
     case (.GET, "/"):
         return Response("Welcome!")
     case (.POST, "/echo"):
-        return Response(request.body.string)
+        // collectBody() works in both buffered and streaming mode
+        var req = request
+        let body = try await req.collectBody()
+        return Response(body.string)
+    case (.POST, "/upload"):
+        var req = request
+        let body = try await req.collectBody(maxSize: 10_485_760)
+        return Response("received \(body.count) bytes")
     case (.GET, "/greet"):
         let name: String = request.uri.getQueryParameter("name") ?? "World"
         return Response("Hello, \(name)!")
