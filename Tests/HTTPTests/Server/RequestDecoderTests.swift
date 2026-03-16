@@ -1,4 +1,4 @@
-@testable import HTTP
+@preconcurrency @testable import HTTP
 import NIO
 import NIOHTTP1
 import XCTest
@@ -312,7 +312,7 @@ final class RequestDecoderTests: XCTestCase {
         let streamingDecoder = RequestDecoder(streamingBodyThreshold: 0)
         let streamingCapture = DecoderErrorCapture()
         let streamingChannel = EmbeddedChannel()
-        try streamingChannel.pipeline.addHandlers([streamingDecoder, streamingCapture]).wait()
+        try await streamingChannel.pipeline.addHandlers([streamingDecoder, streamingCapture]).get()
         defer { _ = try? streamingChannel.finish() }
 
         // Transition to .streaming by writing a .head with threshold == 0.
@@ -350,7 +350,7 @@ final class RequestDecoderTests: XCTestCase {
     func testChannelInactiveInStreamingStateFinishesStream() async throws {
         let streamingDecoder = RequestDecoder(streamingBodyThreshold: 0)
         let streamingChannel = EmbeddedChannel()
-        try streamingChannel.pipeline.addHandler(streamingDecoder).wait()
+        try await streamingChannel.pipeline.addHandler(streamingDecoder).get()
         defer { _ = try? streamingChannel.finish() }
 
         let head = HTTPRequestHead(version: .http1_1, method: .POST, uri: "/")
@@ -379,7 +379,7 @@ final class RequestDecoderTests: XCTestCase {
 
 /// Sits after `RequestDecoder` and collects any errors fired into the pipeline,
 /// forwarding all other inbound events unchanged so `channel.readInbound` still works.
-private final class DecoderErrorCapture: ChannelInboundHandler {
+private final class DecoderErrorCapture: ChannelInboundHandler, @unchecked Sendable {
     typealias InboundIn = NIOAny
 
     var errors: [Error] = []

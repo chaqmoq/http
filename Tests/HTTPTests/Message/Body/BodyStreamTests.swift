@@ -1,4 +1,4 @@
-@testable import HTTP
+@preconcurrency @testable import HTTP
 import NIO
 import NIOHTTP1
 import XCTest
@@ -186,11 +186,11 @@ final class RequestDecoderStreamingTests: XCTestCase {
 
     // MARK: - Streaming threshold
 
-    func testBelowThresholdUsesBufferedMode() throws {
+    func testBelowThresholdUsesBufferedMode() async throws {
         // Content-Length 5, threshold 10 → buffered
         let decoder = RequestDecoder(streamingBodyThreshold: 10)
         let channel = EmbeddedChannel()
-        try channel.pipeline.addHandler(decoder).wait()
+        try await channel.pipeline.addHandler(decoder).get()
         defer { _ = try? channel.finish() }
 
         let head = HTTPRequestHead(
@@ -213,11 +213,11 @@ final class RequestDecoderStreamingTests: XCTestCase {
         XCTAssertEqual(req.body.string, "hello")
     }
 
-    func testAboveThresholdUsesStreamingMode() throws {
+    func testAboveThresholdUsesStreamingMode() async throws {
         // Content-Length 11, threshold 5 → streaming
         let decoder = RequestDecoder(streamingBodyThreshold: 5)
         let channel = EmbeddedChannel()
-        try channel.pipeline.addHandler(decoder).wait()
+        try await channel.pipeline.addHandler(decoder).get()
         defer { _ = try? channel.finish() }
 
         let head = HTTPRequestHead(
@@ -235,11 +235,11 @@ final class RequestDecoderStreamingTests: XCTestCase {
         XCTAssertTrue(req.body.isEmpty, "body should be empty before streaming starts")
     }
 
-    func testUnknownContentLengthAlwaysStreamsWhenThresholdSet() throws {
+    func testUnknownContentLengthAlwaysStreamsWhenThresholdSet() async throws {
         // No Content-Length header → unknown length → always stream when threshold is set
         let decoder = RequestDecoder(streamingBodyThreshold: 0)
         let channel = EmbeddedChannel()
-        try channel.pipeline.addHandler(decoder).wait()
+        try await channel.pipeline.addHandler(decoder).get()
         defer { _ = try? channel.finish() }
 
         let head = HTTPRequestHead(version: .http1_1, method: .POST, uri: "/")
@@ -250,11 +250,11 @@ final class RequestDecoderStreamingTests: XCTestCase {
         XCTAssertNotNil(req.bodyStream)
     }
 
-    func testNoThresholdAlwaysBuffers() throws {
+    func testNoThresholdAlwaysBuffers() async throws {
         // streamingBodyThreshold == nil → always buffer regardless of size
         let decoder = RequestDecoder(streamingBodyThreshold: nil)
         let channel = EmbeddedChannel()
-        try channel.pipeline.addHandler(decoder).wait()
+        try await channel.pipeline.addHandler(decoder).get()
         defer { _ = try? channel.finish() }
 
         let head = HTTPRequestHead(
@@ -276,7 +276,7 @@ final class RequestDecoderStreamingTests: XCTestCase {
     func testStreamReceivesAllChunksInOrder() async throws {
         let decoder = RequestDecoder(streamingBodyThreshold: 0)
         let channel = EmbeddedChannel()
-        try channel.pipeline.addHandler(decoder).wait()
+        try await channel.pipeline.addHandler(decoder).get()
         defer { _ = try? channel.finish() }
 
         let head = HTTPRequestHead(version: .http1_1, method: .POST, uri: "/")
@@ -299,7 +299,7 @@ final class RequestDecoderStreamingTests: XCTestCase {
     func testStreamIsFinishedOnEnd() async throws {
         let decoder = RequestDecoder(streamingBodyThreshold: 0)
         let channel = EmbeddedChannel()
-        try channel.pipeline.addHandler(decoder).wait()
+        try await channel.pipeline.addHandler(decoder).get()
         defer { _ = try? channel.finish() }
 
         let head = HTTPRequestHead(version: .http1_1, method: .POST, uri: "/")
@@ -320,7 +320,7 @@ final class RequestDecoderStreamingTests: XCTestCase {
         let decoder = RequestDecoder(maxBodySize: 4, streamingBodyThreshold: 0)
         let capture = DecoderErrorCaptureStreaming()
         let channel = EmbeddedChannel()
-        try channel.pipeline.addHandlers([decoder, capture]).wait()
+        try await channel.pipeline.addHandlers([decoder, capture]).get()
         defer { _ = try? channel.finish() }
 
         let head = HTTPRequestHead(version: .http1_1, method: .POST, uri: "/")
@@ -343,10 +343,10 @@ final class RequestDecoderStreamingTests: XCTestCase {
 
     // MARK: - State machine in streaming mode
 
-    func testStateIsStreamingAfterHeadWithThreshold() throws {
+    func testStateIsStreamingAfterHeadWithThreshold() async throws {
         let decoder = RequestDecoder(streamingBodyThreshold: 0)
         let channel = EmbeddedChannel()
-        try channel.pipeline.addHandler(decoder).wait()
+        try await channel.pipeline.addHandler(decoder).get()
         defer { _ = try? channel.finish() }
 
         let head = HTTPRequestHead(version: .http1_1, method: .POST, uri: "/")
@@ -357,10 +357,10 @@ final class RequestDecoderStreamingTests: XCTestCase {
         }
     }
 
-    func testStateIsIdleAfterStreamingEnd() throws {
+    func testStateIsIdleAfterStreamingEnd() async throws {
         let decoder = RequestDecoder(streamingBodyThreshold: 0)
         let channel = EmbeddedChannel()
-        try channel.pipeline.addHandler(decoder).wait()
+        try await channel.pipeline.addHandler(decoder).get()
         defer { _ = try? channel.finish() }
 
         let head = HTTPRequestHead(version: .http1_1, method: .POST, uri: "/")
@@ -376,7 +376,7 @@ final class RequestDecoderStreamingTests: XCTestCase {
 
 // MARK: - Error capture helper (used by streaming decoder tests)
 
-private final class DecoderErrorCaptureStreaming: ChannelInboundHandler {
+private final class DecoderErrorCaptureStreaming: ChannelInboundHandler, @unchecked Sendable {
     typealias InboundIn = NIOAny
 
     var errors: [Error] = []

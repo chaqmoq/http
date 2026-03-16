@@ -1,6 +1,6 @@
-@testable import HTTP
+@preconcurrency @testable import HTTP
 import NIO
-import NIOHTTP2
+@preconcurrency import NIOHTTP2
 import XCTest
 
 /// Unit tests for `HTTP2PushHandler` using a synchronous `EmbeddedChannel`.
@@ -140,7 +140,14 @@ final class HTTP2PushHandlerTests: XCTestCase {
     ///   - `closure #1 in sendOnePush` — the `createStreamChannel` initializer
     ///   - `closure #2 in sendOnePush` — `channelPromise.futureResult.flatMap`
     ///   - `closure #1 in closure #2 in sendOnePush` — the `getOption.flatMap`
-    ///   - `closure #2 in sendPushes` — `.recover` (via any inner push error)
+    ///   - `closure #2 in sendPushes` — `.recover` fires because the inner
+    ///     `createStreamChannel` for the push stream (or the subsequent `getOption`)
+    ///     fails against an embedded non-real-HTTP/2 connection; `andAllSucceed`
+    ///     propagates that failure and `.recover` swallows it.
+    ///
+    /// Note: `HTTP2StreamMultiplexer` is not `RemovableChannelHandler` and NIO
+    /// throws "Unremovable handler" if removal is attempted, so the `.recover`
+    /// coverage is achieved via the natural inner-push failure path instead.
     func testSendPushesWithMultiplexerCoversInnerClosures() throws {
         // 1. Create the parent (connection) channel and add a multiplexer.
         let parentChannel = EmbeddedChannel()
@@ -152,7 +159,8 @@ final class HTTP2PushHandlerTests: XCTestCase {
             channel: parentChannel,
             inboundStreamInitializer: nil
         )
-        try parentChannel.pipeline.addHandler(multiplexer).wait()
+        let channelHandler: ChannelHandler = multiplexer
+        try parentChannel.pipeline.addHandler(channelHandler).wait()
 
         // 2. Create a child stream channel; its `parent` points to parentChannel.
         //    Adding HTTP2PushHandler here means sendPushes will find the multiplexer
@@ -188,55 +196,6 @@ final class HTTP2PushHandlerTests: XCTestCase {
 
         // The test passes if the push machinery executes without crashing.
         // Coverage of sendPushes closures and sendOnePush is the primary goal.
-    }
-
-    /// Verifies the `.recover { _ in () }` closure in `sendPushes` is executed when
-    /// the parent pipeline has NO `HTTP2StreamMultiplexer` — `handler(type:)` fails and
-    /// `.recover` swallows the error so the main response is still forwarded.
-    func testSendPushesRecoverFiredWhenNoMultiplexerInParent() throws {
-        // 1. Create parent + multiplexer to obtain a proper child channel (parent is set),
-        //    then remove the multiplexer so the handler(type:) lookup fails at write time.
-        let parentChannel = EmbeddedChannel()
-        let loop = parentChannel.embeddedEventLoop
-        defer { _ = try? parentChannel.finish() }
-
-        let multiplexer = HTTP2StreamMultiplexer(
-            mode: .server,
-            channel: parentChannel,
-            inboundStreamInitializer: nil
-        )
-        try parentChannel.pipeline.addHandler(multiplexer).wait()
-
-        let streamChannelPromise = loop.makePromise(of: Channel.self)
-        let pushHandler = HTTP2PushHandler()
-
-        multiplexer.createStreamChannel(promise: streamChannelPromise) { streamChannel in
-            streamChannel.pipeline.addHandler(pushHandler)
-        }
-        loop.run()
-
-        guard let streamChannel = try? streamChannelPromise.futureResult.wait() else {
-            return XCTFail("Failed to create HTTP/2 stream channel via multiplexer")
-        }
-
-        // 2. Remove the multiplexer so parentPipeline.handler(type:) fails
-        //    and the .recover { _ in () } closure fires.
-        try parentChannel.pipeline.removeHandler(multiplexer).wait()
-
-        // 3. Enqueue and write — .recover absorbs the lookup failure.
-        pushHandler.enqueue(
-            [(uri: URI("/push.css")!, response: Response(Body(string: "body{}")))],
-            authority: "example.com"
-        )
-
-        loop.execute {
-            streamChannel.write(self.makeDataPayload(endStream: true), promise: nil)
-            streamChannel.flush()
-        }
-        loop.run()
-        loop.run()
-
-        // Test passes if .recover silently swallowed the error and no crash occurred.
     }
 
     // MARK: - No pushes: write does not go through deferred path
