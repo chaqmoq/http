@@ -510,6 +510,47 @@ server.middleware = [HTTPMethodOverrideMiddleware()]
 </form>
 ```
 
+## WebSocket
+
+Assign a closure to `onUpgrade` to handle WebSocket connections. Setting this property enables WebSocket upgrade support — HTTP/1.1 requests carrying `Upgrade: websocket` are intercepted before reaching `onReceive` and handed off to your closure.
+
+```swift
+server.onUpgrade = { request, ws in
+    // ws.messages is an AsyncSequence of incoming frames.
+    for try await message in ws.messages {
+        switch message {
+        case .text(let text):
+            try await ws.send("echo: \(text)")
+        case .binary(let data):
+            try await ws.send(data)
+        }
+    }
+}
+```
+
+The `WebSocket` actor exposes three write methods:
+
+```swift
+try await ws.send("hello")              // UTF-8 text frame
+try await ws.send(byteBuffer)           // binary frame
+try await ws.close(code: .normalClosure) // send a close frame (default code)
+```
+
+The connection is closed automatically when the handler returns or throws. Ping frames are answered with pong frames automatically; you do not need to handle them yourself.
+
+`onUpgrade` has no effect on HTTP/2 connections — the WebSocket-over-HTTP/2 upgrade (RFC 8441) is not currently supported.
+
+## Unix Domain Sockets
+
+Set `unixSocketPath` on the configuration to bind to a Unix domain socket instead of a TCP host and port. This is useful for local inter-process communication and for containers where a socket file is shared via a volume.
+
+```swift
+let config = Server.Configuration(unixSocketPath: "/tmp/myapp.sock")
+let server = Server(configuration: config)
+```
+
+Any stale socket file left by a previous run is removed automatically before binding. When `unixSocketPath` is set the `host`, `port`, and `tcpNoDelay` options are ignored — TCP-only socket options do not apply to Unix domain sockets.
+
 ## HTTPS / TLS
 
 Create a `TLS` value from a certificate chain and a private key, then pass it in the server configuration. ALPN negotiation (`h2` and `http/1.1`) is handled automatically.

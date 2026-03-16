@@ -27,6 +27,20 @@ extension Server {
         /// Optional TLS configuration. When non-`nil` the server will handle HTTPS.
         public var tls: TLS?
 
+        /// File-system path for a Unix domain socket to bind instead of a TCP host/port.
+        ///
+        /// When non-`nil` the server binds to this path and ignores ``host`` and ``port``.
+        /// Any stale socket file at the path is removed before binding.
+        ///
+        /// Unix domain sockets are useful for local inter-process communication — for example
+        /// when the server runs behind a reverse proxy (nginx, Caddy) on the same machine.
+        ///
+        /// ```swift
+        /// var config = Server.Configuration()
+        /// config.unixSocketPath = "/tmp/myapp.sock"
+        /// ```
+        public var unixSocketPath: String?
+
         /// The set of HTTP major versions the server accepts. Defaults to `[.one, .two]`.
         public var supportsVersions: Set<Version.Major>
 
@@ -101,6 +115,7 @@ extension Server {
             port: Int = 8080,
             serverName: String? = nil,
             tls: TLS? = nil,
+            unixSocketPath: String? = nil,
             supportsVersions: Set<Version.Major> = [.one, .two],
             supportsPipelining: Bool = false,
             numberOfThreads: Int = System.coreCount,
@@ -118,6 +133,7 @@ extension Server {
             self.port = port
             self.serverName = serverName
             self.tls = tls
+            self.unixSocketPath = unixSocketPath
             self.supportsVersions = supportsVersions
             self.supportsPipelining = supportsPipelining
             self.numberOfThreads = numberOfThreads

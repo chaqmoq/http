@@ -20,6 +20,7 @@ final class ServerTests: XCTestCase {
         XCTAssertNil(server.onStop)
         XCTAssertNil(server.onError)
         XCTAssertNil(server.onReceive)
+        XCTAssertNil(server.onUpgrade)
     }
 
     func testUpdate() {
@@ -28,6 +29,7 @@ final class ServerTests: XCTestCase {
         server.onStop = {}
         server.onError = { _, _ in }
         server.onReceive = { _ in Response() }
+        server.onUpgrade = { _, _ in }
 
         // Assert
         XCTAssertNotNil(server.configuration)
@@ -37,5 +39,16 @@ final class ServerTests: XCTestCase {
         XCTAssertNotNil(server.onStop)
         XCTAssertNotNil(server.onError)
         XCTAssertNotNil(server.onReceive)
+        XCTAssertNotNil(server.onUpgrade)
+    }
+
+    func testOnUpgradeCanBeCleared() {
+        // Act
+        server.onUpgrade = { _, _ in }
+        XCTAssertNotNil(server.onUpgrade)
+        server.onUpgrade = nil
+
+        // Assert
+        XCTAssertNil(server.onUpgrade)
     }
 }

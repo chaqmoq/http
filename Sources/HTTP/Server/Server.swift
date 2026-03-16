@@ -5,6 +5,7 @@ import NIOHTTP1
 import NIOHTTP2
 import NIOHTTPCompression
 import NIOSSL
+import NIOWebSocket
 
 /// A non-blocking HTTP/1.1 and HTTP/2 server powered by SwiftNIO.
 ///
@@ -75,6 +76,32 @@ public final class Server: @unchecked Sendable {
         set { lock.withLock { _onReceive = newValue } }
     }
 
+    private var _onUpgrade: ((Request, WebSocket) async throws -> Void)?
+    /// Called when an HTTP/1.1 connection is upgraded to WebSocket.
+    ///
+    /// Receives the original upgrade `Request` and a live ``WebSocket`` object. Send frames
+    /// via ``WebSocket/send(_:)-text`` / ``WebSocket/send(_:)-binary`` and receive them by
+    /// iterating ``WebSocket/messages``. The connection is closed automatically when the
+    /// handler returns or throws.
+    ///
+    /// Setting this to a non-`nil` value enables WebSocket upgrade support on the server.
+    /// HTTP/1.1 connections that carry an `Upgrade: websocket` header are intercepted before
+    /// reaching ``onReceive``.
+    ///
+    /// ```swift
+    /// server.onUpgrade = { request, ws in
+    ///     for try await message in ws.messages {
+    ///         if case .text(let text) = message {
+    ///             try await ws.send("echo: \(text)")
+    ///         }
+    ///     }
+    /// }
+    /// ```
+    public var onUpgrade: ((Request, WebSocket) async throws -> Void)? {
+        get { lock.withLock { _onUpgrade } }
+        set { lock.withLock { _onUpgrade = newValue } }
+    }
+
     private var _middleware = [Middleware]()
     /// Middleware executed in order for each request before ``onReceive`` is called.
     public var middleware: [Middleware] {
@@ -137,20 +164,35 @@ public final class Server: @unchecked Sendable {
 
         let reuseAddressOption = ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR)
         let reuseAddressOptionValue = SocketOptionValue(configuration.reuseAddress ? 1 : 0)
-        let tcpNoDelayOptionValue = SocketOptionValue(configuration.tcpNoDelay ? 1 : 0)
         let bootstrap = ServerBootstrap(group: eventLoopGroup)
             .serverChannelOption(ChannelOptions.backlog, value: configuration.backlog)
             .serverChannelOption(reuseAddressOption, value: reuseAddressOptionValue)
             .childChannelOption(reuseAddressOption, value: reuseAddressOptionValue)
-            .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: tcpNoDelayOptionValue)
             .childChannelOption(ChannelOptions.maxMessagesPerRead, value: configuration.maxMessagesPerRead)
             .childChannelInitializer { [weak self] channel in
                 guard let server = self else { return channel.close() }
                 return server.initializeChild(channel: channel)
             }
 
-        let channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
-        logger.info("Server has started on: \(configuration.socketAddress)")
+        // TCP_NODELAY (Nagle's algorithm) is a TCP-only option — applying it to a
+        // Unix domain socket would fail with ENOPROTOOPT and close every accepted channel.
+        if configuration.unixSocketPath == nil {
+            _ = bootstrap.childChannelOption(
+                ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY),
+                value: SocketOptionValue(configuration.tcpNoDelay ? 1 : 0)
+            )
+        }
+
+        let channel: Channel
+        if let unixSocketPath = configuration.unixSocketPath {
+            // Remove any stale socket file left by a previous run so that bind succeeds.
+            channel = try bootstrap.bind(unixDomainSocketPath: unixSocketPath, cleanupExistingSocketFile: true).wait()
+            logger.info("Server has started on unix:\(unixSocketPath)")
+        } else {
+            channel = try bootstrap.bind(host: configuration.host, port: configuration.port).wait()
+            logger.info("Server has started on: \(configuration.socketAddress)")
+        }
+
         // Snapshot the closure outside the lock before invoking it.
         let onStart = self.onStart
         onStart?(channel.eventLoop)
@@ -232,7 +274,69 @@ extension Server {
             }
         }
 
-        return channel.pipeline.configureHTTPServerPipeline().flatMap { [weak self] in
+        // Build the WebSocket upgrader when onUpgrade is configured.
+        // The upgrader is wired into configureHTTPServerPipeline so that NIO's
+        // HTTPServerUpgradeHandler intercepts Upgrade: websocket requests before
+        // they reach RequestDecoder.
+        let upgradeConfig: NIOHTTPServerUpgradeConfiguration? = self.onUpgrade.map { onUpgradeHandler in
+            let upgrader = NIOWebSocketServerUpgrader(
+                shouldUpgrade: { channel, _ in
+                    // Accept every WebSocket upgrade unconditionally.
+                    channel.eventLoop.makeSucceededFuture(HTTPHeaders())
+                },
+                upgradePipelineHandler: { [weak self] channel, head in
+                    // Reconstruct a partial Request from the HTTP upgrade head so the
+                    // application handler can inspect headers, path, etc.
+                    let method  = Request.Method(rawValue: head.method.rawValue) ?? .GET
+                    let uri     = URI(head.uri) ?? .default
+                    let version = Version(major: head.version.major, minor: head.version.minor)
+                    var headers = Headers()
+                    for h in head.headers { headers.set(.init(name: h.name, value: h.value)) }
+                    let request = Request(
+                        eventLoop: channel.eventLoop,
+                        method: method, uri: uri, version: version, headers: headers
+                    )
+                    let ws = WebSocket(request: request, channel: channel)
+                    // Kick off the application handler in a Swift concurrency Task.
+                    // Errors are forwarded to onError (if configured).
+                    Task { [weak self] in
+                        do {
+                            try await onUpgradeHandler(request, ws)
+                        } catch {
+                            self?.onError?(error, channel.eventLoop)
+                        }
+                    }
+                    // Add the frame ↔ WebSocket bridge after the NIO WebSocket codecs.
+                    return channel.pipeline.addHandler(WebSocketHandler(webSocket: ws))
+                }
+            )
+
+            return (
+                upgraders: [upgrader],
+                // completionHandler runs after the upgrade is complete (101 sent,
+                // HTTP codec removed). Remove the HTTP application handlers so that
+                // raw WebSocket frames do not flow through RequestDecoder.
+                completionHandler: { ctx in
+                    let pipeline = ctx.pipeline
+                    // Each removal is a no-op (.recover) if the handler was never added
+                    // (e.g. compression was disabled).
+                    func removeIfPresent<H: ChannelHandler>(_ type: H.Type) {
+                        _ = pipeline.context(handlerType: type)
+                            .flatMap { pipeline.removeHandler(context: $0) }
+                            .recover { _ in }
+                    }
+                    removeIfPresent(HTTPServerPipelineHandler.self)
+                    removeIfPresent(HTTPResponseCompressor.self)
+                    removeIfPresent(NIOHTTPRequestDecompressor.self)
+                    removeIfPresent(RequestDecoder.self)
+                    removeIfPresent(ResponseEncoder.self)
+                    removeIfPresent(RequestResponseHandler.self)
+                    removeIfPresent(ErrorHandler.self)
+                }
+            )
+        }
+
+        return channel.pipeline.configureHTTPServerPipeline(withServerUpgrade: upgradeConfig).flatMap { [weak self] in
             guard let server = self else { return channel.close() }
             var handlers = [ChannelHandler]()
 

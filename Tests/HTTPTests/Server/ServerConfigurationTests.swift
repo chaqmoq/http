@@ -22,6 +22,7 @@ final class ServerConfigurationTests: XCTestCase {
         XCTAssertTrue(configuration.reuseAddress)
         XCTAssertTrue(configuration.tcpNoDelay)
         XCTAssertEqual(configuration.maxMessagesPerRead, 16)
+        XCTAssertNil(configuration.unixSocketPath)
     }
 
     func testCustomConfiguration() {
