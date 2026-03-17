@@ -2,7 +2,7 @@ import NIO
 import NIOHTTP1
 import Foundation
 
-final class RequestResponseHandler: ChannelInboundHandler {
+final class RequestResponseHandler: ChannelInboundHandler, RemovableChannelHandler {
     typealias InboundIn = Request
     typealias OutboundOut = Response
 

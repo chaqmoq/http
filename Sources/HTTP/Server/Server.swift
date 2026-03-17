@@ -262,14 +262,16 @@ extension Server {
             let handlers: [ChannelHandler] = [
                 pushHandler,
                 HTTP2FramePayloadToHTTP1ServerCodec(),
-                RequestDecoder(maxBodySize: configuration.maxBodySize, streamingBodyThreshold: configuration.streamingBodyThreshold),
+                RequestDecoder(
+                    maxBodySize: configuration.maxBodySize,
+                    streamingBodyThreshold: configuration.streamingBodyThreshold
+                ),
                 ResponseEncoder(),
                 RequestResponseHandler(server: self, pushHandler: pushHandler)
             ]
 
             return channel.pipeline.addHandlers(handlers).flatMap { [weak self] in
                 guard let server = self else { return channel.close() }
-
                 return channel.pipeline.addHandler(ErrorHandler(server: server))
             }
         }
@@ -322,7 +324,7 @@ extension Server {
                     // (e.g. compression was disabled).
                     func removeIfPresent<H: ChannelHandler>(_ type: H.Type) {
                         _ = pipeline.context(handlerType: type)
-                            .flatMap { pipeline.removeHandler(context: $0) }
+                            .flatMap { pipeline.syncOperations.removeHandler(context: $0) }
                             .recover { _ in }
                     }
                     removeIfPresent(HTTPServerPipelineHandler.self)
@@ -366,7 +368,10 @@ extension Server {
             }
 
             let otherHandlers: [ChannelHandler] = [
-                RequestDecoder(maxBodySize: server.configuration.maxBodySize, streamingBodyThreshold: server.configuration.streamingBodyThreshold),
+                RequestDecoder(
+                    maxBodySize: server.configuration.maxBodySize,
+                    streamingBodyThreshold: server.configuration.streamingBodyThreshold
+                ),
                 ResponseEncoder(),
                 RequestResponseHandler(server: server),
             ]

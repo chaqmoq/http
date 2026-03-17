@@ -1,7 +1,7 @@
 import NIO
 import NIOHTTP1
 
-final class RequestDecoder: ChannelInboundHandler {
+final class RequestDecoder: ChannelInboundHandler, RemovableChannelHandler {
     typealias InboundIn = HTTPServerRequestPart
     typealias InboundOut = Request
 

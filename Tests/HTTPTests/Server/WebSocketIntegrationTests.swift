@@ -1,4 +1,5 @@
 @testable import HTTP
+import Foundation
 import NIO
 import NIOHTTP1
 import NIOWebSocket
@@ -275,7 +276,7 @@ private final class WebSocketMessageCapture: ChannelInboundHandler, @unchecked S
 
     private var _lastText: String?
     private var _lastBinaryBytes: [UInt8]?
-    private let lock = NIOLock()
+    private let lock = NSLock()
 
     var lastText: String? {
         lock.withLock { _lastText }

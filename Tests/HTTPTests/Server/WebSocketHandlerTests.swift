@@ -32,7 +32,7 @@ final class WebSocketHandlerTests: XCTestCase {
         var buffer = channel.allocator.buffer(capacity: 3)
         buffer.writeString("hi!")
         // Client frames carry a mask key per RFC 6455 §5.3.
-        let frame = WebSocketFrame(fin: true, opcode: .text, maskKey: .random(), data: buffer)
+        let frame = WebSocketFrame(fin: true, opcode: .text, maskKey: nil, data: buffer)
         try channel.writeInbound(frame)
 
         var iterator = webSocket.messages.makeAsyncIterator()
@@ -48,7 +48,7 @@ final class WebSocketHandlerTests: XCTestCase {
     func testBinaryFrameYieldsBinaryMessage() async throws {
         var buffer = channel.allocator.buffer(capacity: 3)
         buffer.writeBytes([0xDE, 0xAD, 0xBE])
-        let frame = WebSocketFrame(fin: true, opcode: .binary, maskKey: .random(), data: buffer)
+        let frame = WebSocketFrame(fin: true, opcode: .binary, maskKey: nil, data: buffer)
         try channel.writeInbound(frame)
 
         var iterator = webSocket.messages.makeAsyncIterator()
@@ -64,7 +64,7 @@ final class WebSocketHandlerTests: XCTestCase {
     func testPingFrameRepliesWithPong() throws {
         var buffer = channel.allocator.buffer(capacity: 4)
         buffer.writeString("ping")
-        let frame = WebSocketFrame(fin: true, opcode: .ping, maskKey: .random(), data: buffer)
+        let frame = WebSocketFrame(fin: true, opcode: .ping, maskKey: nil, data: buffer)
         try channel.writeInbound(frame)
 
         let pong = try XCTUnwrap(channel.readOutbound(as: WebSocketFrame.self))
@@ -76,7 +76,7 @@ final class WebSocketHandlerTests: XCTestCase {
     func testFragmentedPingIsIgnored() throws {
         // A fragmented ping (fin = false) is illegal per RFC 6455 §5.5 and must be dropped.
         let buffer = channel.allocator.buffer(capacity: 0)
-        let frame = WebSocketFrame(fin: false, opcode: .ping, maskKey: .random(), data: buffer)
+        let frame = WebSocketFrame(fin: false, opcode: .ping, maskKey: nil, data: buffer)
         try channel.writeInbound(frame)
 
         XCTAssertNil(
@@ -90,7 +90,7 @@ final class WebSocketHandlerTests: XCTestCase {
     func testConnectionCloseEchosCloseFrame() throws {
         var buffer = channel.allocator.buffer(capacity: 2)
         buffer.write(webSocketErrorCode: .normalClosure)
-        let frame = WebSocketFrame(fin: true, opcode: .connectionClose, maskKey: .random(), data: buffer)
+        let frame = WebSocketFrame(fin: true, opcode: .connectionClose, maskKey: nil, data: buffer)
         try channel.writeInbound(frame)
 
         let echo = try XCTUnwrap(channel.readOutbound(as: WebSocketFrame.self))
@@ -100,7 +100,7 @@ final class WebSocketHandlerTests: XCTestCase {
     func testDuplicateConnectionCloseIsIgnored() throws {
         var buffer = channel.allocator.buffer(capacity: 2)
         buffer.write(webSocketErrorCode: .normalClosure)
-        let frame = WebSocketFrame(fin: true, opcode: .connectionClose, maskKey: .random(), data: buffer)
+        let frame = WebSocketFrame(fin: true, opcode: .connectionClose, maskKey: nil, data: buffer)
         // Send first close.
         try channel.writeInbound(frame)
         _ = try channel.readOutbound(as: WebSocketFrame.self) // consume echo
@@ -138,7 +138,7 @@ final class WebSocketHandlerTests: XCTestCase {
 
     func testContinuationFrameIsDiscarded() throws {
         let buffer = channel.allocator.buffer(capacity: 0)
-        let frame = WebSocketFrame(fin: true, opcode: .continuation, maskKey: .random(), data: buffer)
+        let frame = WebSocketFrame(fin: true, opcode: .continuation, maskKey: nil, data: buffer)
         try channel.writeInbound(frame)
 
         // No outbound frame should be produced.
@@ -147,7 +147,7 @@ final class WebSocketHandlerTests: XCTestCase {
 
     func testPongFrameIsDiscarded() throws {
         let buffer = channel.allocator.buffer(capacity: 0)
-        let frame = WebSocketFrame(fin: true, opcode: .pong, maskKey: .random(), data: buffer)
+        let frame = WebSocketFrame(fin: true, opcode: .pong, maskKey: nil, data: buffer)
         try channel.writeInbound(frame)
 
         XCTAssertNil(try channel.readOutbound(as: WebSocketFrame.self))

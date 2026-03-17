@@ -32,12 +32,12 @@ public actor WebSocket: Sendable {
     // MARK: - Properties
 
     /// The HTTP upgrade request that opened this connection.
-    public let request: Request
+    public nonisolated let request: Request
 
     /// An `AsyncStream` of messages received from the remote peer.
     ///
     /// The stream terminates (yields `nil`) when the connection is closed from either side.
-    public let messages: AsyncStream<Message>
+    public nonisolated let messages: AsyncStream<Message>
 
     // Channel reference held for writing outbound frames.
     // Access is always from the actor's executor or from nonisolated helpers, so

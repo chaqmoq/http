@@ -48,7 +48,7 @@ final class WebSocketHandler: ChannelInboundHandler, @unchecked Sendable {
             guard !awaitingClose else { return }
             awaitingClose = true
             // Echo the close frame back, then close the channel.
-            var echo = frame.unmaskedData
+            let echo = frame.unmaskedData
             let closeFrame = WebSocketFrame(
                 fin: true,
                 opcode: .connectionClose,

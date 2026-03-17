@@ -1,7 +1,7 @@
 import NIO
 import NIOHTTP1
 
-final class ErrorHandler: ChannelInboundHandler {
+final class ErrorHandler: ChannelInboundHandler, RemovableChannelHandler {
     typealias InboundIn = Never
 
     let server: Server
