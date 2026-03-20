@@ -7,8 +7,13 @@ import XCTest
 ///
 /// Frames are written directly into the channel's inbound pipeline; the handler's
 /// outbound responses (pong, close echo) are read back from the channel's outbound
-/// buffer. Async `WebSocket.messages` stream assertions are run in `async throws`
-/// test methods so `await` is available.
+/// buffer.
+///
+/// All channel operations (`writeInbound`, `fireChannelInactive`, etc.) are kept
+/// on the XCTest thread — the same thread that created the `EmbeddedChannel` in
+/// `setUp()` — to avoid NIO's "EmbeddedEventLoop is not thread-safe" assertion.
+/// Async `webSocket.messages` assertions are driven through `Task` +
+/// `XCTestExpectation` so `await` never touches the channel.
 final class WebSocketHandlerTests: XCTestCase {
     private var webSocket: WebSocket!
     private var channel: EmbeddedChannel!
@@ -28,35 +33,50 @@ final class WebSocketHandlerTests: XCTestCase {
 
     // MARK: - Text frame
 
-    func testTextFrameYieldsTextMessage() async throws {
+    func testTextFrameYieldsTextMessage() {
         var buffer = channel.allocator.buffer(capacity: 3)
         buffer.writeString("hi!")
         // Client frames carry a mask key per RFC 6455 §5.3.
         let frame = WebSocketFrame(fin: true, opcode: .text, maskKey: nil, data: buffer)
-        try channel.writeInbound(frame)
+        // Channel operation stays on the test thread.
+        try! channel.writeInbound(frame)
 
-        var iterator = webSocket.messages.makeAsyncIterator()
-        let message = await iterator.next()
-        guard case .text(let text) = message else {
-            return XCTFail("Expected .text message, got \(String(describing: message))")
+        let exp = expectation(description: "text message")
+        var receivedText: String?
+        let ws = webSocket!
+        Task {
+            var iterator = ws.messages.makeAsyncIterator()
+            let message = await iterator.next()
+            if case .text(let text) = message {
+                receivedText = text
+            }
+            exp.fulfill()
         }
-        XCTAssertEqual(text, "hi!")
+        waitForExpectations(timeout: 1.0)
+        XCTAssertEqual(receivedText, "hi!")
     }
 
     // MARK: - Binary frame
 
-    func testBinaryFrameYieldsBinaryMessage() async throws {
+    func testBinaryFrameYieldsBinaryMessage() {
         var buffer = channel.allocator.buffer(capacity: 3)
         buffer.writeBytes([0xDE, 0xAD, 0xBE])
         let frame = WebSocketFrame(fin: true, opcode: .binary, maskKey: nil, data: buffer)
-        try channel.writeInbound(frame)
+        try! channel.writeInbound(frame)
 
-        var iterator = webSocket.messages.makeAsyncIterator()
-        let message = await iterator.next()
-        guard case .binary(let data) = message else {
-            return XCTFail("Expected .binary message, got \(String(describing: message))")
+        let exp = expectation(description: "binary message")
+        var receivedBytes: Int?
+        let ws = webSocket!
+        Task {
+            var iterator = ws.messages.makeAsyncIterator()
+            let message = await iterator.next()
+            if case .binary(let data) = message {
+                receivedBytes = data.readableBytes
+            }
+            exp.fulfill()
         }
-        XCTAssertEqual(data.readableBytes, 3)
+        waitForExpectations(timeout: 1.0)
+        XCTAssertEqual(receivedBytes, 3)
     }
 
     // MARK: - Ping → Pong (RFC 6455 §5.5.2)
@@ -115,23 +135,37 @@ final class WebSocketHandlerTests: XCTestCase {
 
     // MARK: - channelInactive finishes message stream
 
-    func testChannelInactiveFinishesMessageStream() async {
+    func testChannelInactiveFinishesMessageStream() {
+        // Channel operation stays on the test thread.
         channel.pipeline.fireChannelInactive()
 
-        var iterator = webSocket.messages.makeAsyncIterator()
-        let message = await iterator.next()
-        XCTAssertNil(message, "AsyncStream must finish (yield nil) after channelInactive")
+        let exp = expectation(description: "stream finishes after channelInactive")
+        let ws = webSocket!
+        Task {
+            var iterator = ws.messages.makeAsyncIterator()
+            let message = await iterator.next()
+            XCTAssertNil(message, "AsyncStream must finish (yield nil) after channelInactive")
+            exp.fulfill()
+        }
+        waitForExpectations(timeout: 1.0)
     }
 
     // MARK: - errorCaught finishes message stream
 
-    func testErrorCaughtFinishesMessageStream() async {
+    func testErrorCaughtFinishesMessageStream() {
         struct TestError: Error {}
+        // Channel operation stays on the test thread.
         channel.pipeline.fireErrorCaught(TestError())
 
-        var iterator = webSocket.messages.makeAsyncIterator()
-        let message = await iterator.next()
-        XCTAssertNil(message, "AsyncStream must finish (yield nil) after errorCaught")
+        let exp = expectation(description: "stream finishes after errorCaught")
+        let ws = webSocket!
+        Task {
+            var iterator = ws.messages.makeAsyncIterator()
+            let message = await iterator.next()
+            XCTAssertNil(message, "AsyncStream must finish (yield nil) after errorCaught")
+            exp.fulfill()
+        }
+        waitForExpectations(timeout: 1.0)
     }
 
     // MARK: - Continuation and pong frames are discarded

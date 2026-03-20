@@ -100,7 +100,7 @@ final class WebSocketIntegrationTests: XCTestCase {
                 // Send a text frame (server frames are unmasked; client frames must be masked).
                 var buf = channel.allocator.buffer(capacity: 5)
                 buf.writeString("hello")
-                let frame = WebSocketFrame(fin: true, opcode: .text, maskKey: .random(), data: buf)
+                let frame = WebSocketFrame(fin: true, opcode: .text, maskKey: WebSocketMaskingKey([0x01, 0x02, 0x03, 0x04]), data: buf)
                 try? channel.writeAndFlush(frame).wait()
 
                 // Give the server a moment to process and echo.
@@ -111,7 +111,7 @@ final class WebSocketIntegrationTests: XCTestCase {
                 // Send a close frame so the server loop exits cleanly.
                 var closeBuf = channel.allocator.buffer(capacity: 2)
                 closeBuf.write(webSocketErrorCode: .normalClosure)
-                let closeFrame = WebSocketFrame(fin: true, opcode: .connectionClose, maskKey: .random(), data: closeBuf)
+                let closeFrame = WebSocketFrame(fin: true, opcode: .connectionClose, maskKey: WebSocketMaskingKey([0x01, 0x02, 0x03, 0x04]), data: closeBuf)
                 try? channel.writeAndFlush(closeFrame).wait()
                 Thread.sleep(forTimeInterval: 0.1)
                 try! self.server.stop()
@@ -179,7 +179,7 @@ final class WebSocketIntegrationTests: XCTestCase {
 
                 var buf = channel.allocator.buffer(capacity: 3)
                 buf.writeBytes([0x01, 0x02, 0x03])
-                let frame = WebSocketFrame(fin: true, opcode: .binary, maskKey: .random(), data: buf)
+                let frame = WebSocketFrame(fin: true, opcode: .binary, maskKey: WebSocketMaskingKey([0x01, 0x02, 0x03, 0x04]), data: buf)
                 try? channel.writeAndFlush(frame).wait()
                 Thread.sleep(forTimeInterval: 0.3)
 
@@ -191,7 +191,7 @@ final class WebSocketIntegrationTests: XCTestCase {
                 var closeBuf = channel.allocator.buffer(capacity: 2)
                 closeBuf.write(webSocketErrorCode: .normalClosure)
                 let closeFrame = WebSocketFrame(
-                    fin: true, opcode: .connectionClose, maskKey: .random(), data: closeBuf
+                    fin: true, opcode: .connectionClose, maskKey: WebSocketMaskingKey([0x01, 0x02, 0x03, 0x04]), data: closeBuf
                 )
                 try? channel.writeAndFlush(closeFrame).wait()
                 Thread.sleep(forTimeInterval: 0.1)
