@@ -1,7 +1,7 @@
 <div align="center">
     <h1>HTTP</h1>
     <p>
-        <a href="https://swift.org/download/#releases"><img src="https://img.shields.io/badge/swift-5.5+-brightgreen.svg" /></a>
+        <a href="https://swift.org/download/#releases"><img src="https://img.shields.io/badge/swift-5.10+-brightgreen.svg" /></a>
         <a href="https://github.com/chaqmoq/http/blob/master/LICENSE/"><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" /></a>
         <a href="https://github.com/chaqmoq/http/actions"><img src="https://github.com/chaqmoq/http/workflows/ci/badge.svg" /></a>
         <a href="https://github.com/chaqmoq/http/blob/master/CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributing-guide-brightgreen.svg" /></a>
@@ -15,11 +15,9 @@
 | Platform | Minimum version |
 |----------|----------------|
 | macOS | 12 |
-| iOS | 13 |
-| tvOS | 13 |
-| watchOS | 6 |
+| Ubuntu | 20.04 |
 
-Requires **Swift 5.5** or later.
+Requires **Swift 5.10** or later.
 
 ## Installation
 

@@ -1,14 +1,11 @@
-// swift-tools-version:5.5
+// swift-tools-version:5.10
 
 import PackageDescription
 
 let package = Package(
     name: "chaqmoq-http",
     platforms: [
-        .iOS(.v13),
-        .macOS(.v12),
-        .tvOS(.v13),
-        .watchOS(.v6)
+        .macOS(.v12)
     ],
     products: [
         .library(name: "HTTP", targets: ["HTTP"])
