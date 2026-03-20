@@ -25,7 +25,7 @@ Add the package to your `Package.swift` dependencies:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/chaqmoq/http.git", from: "1.0.0")
+    .package(url: "https://github.com/chaqmoq/http.git", branch: "master")
 ]
 ```
 
