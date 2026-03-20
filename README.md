@@ -3,10 +3,6 @@
     <p>
         <a href="https://swift.org/download/#releases"><img src="https://img.shields.io/badge/swift-5.5+-brightgreen.svg" /></a>
         <a href="https://github.com/chaqmoq/http/blob/master/LICENSE/"><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" /></a>
-        <a href="https://github.com/chaqmoq/http/actions"><img src="https://github.com/chaqmoq/http/workflows/ci/badge.svg" /></a>
-        <a href="https://www.codacy.com/gh/chaqmoq/http/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=chaqmoq/http&amp;utm_campaign=Badge_Grade"><img src="https://app.codacy.com/project/badge/Grade/e88a672e58bb436c97ebf8ecc678ea18" /></a>
-        <a href="https://codecov.io/gh/chaqmoq/http"><img src="https://codecov.io/gh/chaqmoq/http/branch/master/graph/badge.svg?token=A2LEC0YCYL" /></a>
-        <a href="https://sonarcloud.io/project/overview?id=chaqmoq_http"><img src="https://sonarcloud.io/api/project_badges/measure?project=chaqmoq_http&metric=alert_status" /></a>
         <a href="https://chaqmoq.dev/http/"><img src="https://github.com/chaqmoq/http/raw/gh-pages/badge.svg" /></a>
         <a href="https://github.com/chaqmoq/http/blob/master/CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributing-guide-brightgreen.svg" /></a>
         <a href="https://t.me/chaqmoqdev"><img src="https://img.shields.io/badge/telegram-chaqmoqdev-brightgreen.svg" /></a>
