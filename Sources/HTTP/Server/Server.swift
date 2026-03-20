@@ -289,8 +289,8 @@ extension Server {
                 upgradePipelineHandler: { [weak self] channel, head in
                     // Reconstruct a partial Request from the HTTP upgrade head so the
                     // application handler can inspect headers, path, etc.
-                    let method  = Request.Method(rawValue: head.method.rawValue) ?? .GET
-                    let uri     = URI(head.uri) ?? .default
+                    let method = Request.Method(rawValue: head.method.rawValue) ?? .GET
+                    let uri = URI(head.uri) ?? .default
                     let version = Version(major: head.version.major, minor: head.version.minor)
                     var headers = Headers()
                     for h in head.headers { headers.set(.init(name: h.name, value: h.value)) }

@@ -22,9 +22,9 @@ import NIOHTTP2
 /// Push failures are silently swallowed — they must not prevent the main response
 /// from reaching the client.
 final class HTTP2PushHandler: ChannelDuplexHandler {
-    typealias InboundIn  = HTTP2Frame.FramePayload
+    typealias InboundIn = HTTP2Frame.FramePayload
     typealias InboundOut = HTTP2Frame.FramePayload
-    typealias OutboundIn  = HTTP2Frame.FramePayload
+    typealias OutboundIn = HTTP2Frame.FramePayload
     typealias OutboundOut = HTTP2Frame.FramePayload
 
     private var pendingPushes: [(uri: URI, response: Response)] = []
@@ -125,7 +125,7 @@ final class HTTP2PushHandler: ChannelDuplexHandler {
                 // Build the PUSH_PROMISE request pseudo-headers.
                 var promiseHeaders = HPACKHeaders()
                 promiseHeaders.add(name: ":method", value: "GET")
-                promiseHeaders.add(name: ":path",   value: uri.description)
+                promiseHeaders.add(name: ":path", value: uri.description)
                 promiseHeaders.add(name: ":scheme", value: "https")
 
                 if !authority.isEmpty {
@@ -159,7 +159,7 @@ final class HTTP2PushHandler: ChannelDuplexHandler {
 /// push stream channels are created by the multiplexer and do not have
 /// `HTTP2FramePayloadToHTTP1ServerCodec` in their pipeline.
 final class PushResponseEncoder: ChannelOutboundHandler {
-    typealias OutboundIn  = Response
+    typealias OutboundIn = Response
     typealias OutboundOut = HTTP2Frame.FramePayload
 
     func write(context: ChannelHandlerContext, data: NIOAny, promise: EventLoopPromise<Void>?) {

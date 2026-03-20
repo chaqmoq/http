@@ -20,7 +20,7 @@ final class TLSServerTests: XCTestCase {
 
     func testSchemeIsHTTPSWhenTLSIsConfigured() throws {
         let certPath = try writeTempFile(string: testCertPEM, name: "scheme_cert.pem")
-        let keyPath  = try writeTempFile(string: testKeyPEM,  name: "scheme_key.pem")
+        let keyPath = try writeTempFile(string: testKeyPEM, name: "scheme_key.pem")
         guard let tls = TLS(certificateFiles: [certPath], privateKeyFile: keyPath, encoding: .pem) else {
             return XCTFail("Failed to build TLS configuration from embedded cert/key")
         }
@@ -40,7 +40,7 @@ final class TLSServerTests: XCTestCase {
     ///   - `configure(tls:)` with both `.one` and `.two` in `supportsVersions` (both ALPN values added)
     func testHTTPSServerAcceptsConnections() throws {
         let certPath = try writeTempFile(string: testCertPEM, name: "https_cert.pem")
-        let keyPath  = try writeTempFile(string: testKeyPEM,  name: "https_key.pem")
+        let keyPath = try writeTempFile(string: testKeyPEM, name: "https_key.pem")
         guard let tls = TLS(certificateFiles: [certPath], privateKeyFile: keyPath, encoding: .pem) else {
             return XCTFail("Failed to build TLS configuration from embedded cert/key")
         }
@@ -68,7 +68,7 @@ final class TLSServerTests: XCTestCase {
     /// `"http/1.1"` to `applicationProtocols` and skips the `"h2"` entry.
     func testHTTPSServerWithVersionOneOnly() throws {
         let certPath = try writeTempFile(string: testCertPEM, name: "v1_cert.pem")
-        let keyPath  = try writeTempFile(string: testKeyPEM,  name: "v1_key.pem")
+        let keyPath = try writeTempFile(string: testKeyPEM, name: "v1_key.pem")
         guard let tls = TLS(certificateFiles: [certPath], privateKeyFile: keyPath, encoding: .pem) else {
             return XCTFail("Failed to build TLS configuration from embedded cert/key")
         }
@@ -99,7 +99,7 @@ final class TLSServerTests: XCTestCase {
 
     func testOnStartCallbackIsInvokedForTLSServer() throws {
         let certPath = try writeTempFile(string: testCertPEM, name: "onstart_cert.pem")
-        let keyPath  = try writeTempFile(string: testKeyPEM,  name: "onstart_key.pem")
+        let keyPath = try writeTempFile(string: testKeyPEM, name: "onstart_key.pem")
         guard let tls = TLS(certificateFiles: [certPath], privateKeyFile: keyPath, encoding: .pem) else {
             return XCTFail("Failed to build TLS configuration from embedded cert/key")
         }

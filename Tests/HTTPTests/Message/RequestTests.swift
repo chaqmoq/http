@@ -265,11 +265,11 @@ final class RequestTests: XCTestCase {
         // Arrange
         var request = Request(eventLoop: eventLoop)
         let css = URI("/app.css")!
-        let js  = URI("/app.js")!
+        let js = URI("/app.js")!
 
         // Act
         request.push(Response("/* css */"), for: css)
-        request.push(Response("/* js */"),  for: js)
+        request.push(Response("/* js */"), for: js)
 
         // Assert — order must be preserved (RFC 7540 §8.2)
         XCTAssertEqual(request.pushes.count, 2)

@@ -42,7 +42,7 @@ final class TLSTests: XCTestCase {
 
     func testInitWithPEMEncodingSucceeds() throws {
         let certPath = try writeTempFile(string: testCertPEM, name: "tls_cert.pem")
-        let keyPath  = try writeTempFile(string: testKeyPEM,  name: "tls_key.pem")
+        let keyPath = try writeTempFile(string: testKeyPEM, name: "tls_key.pem")
         let tls = TLS(certificateFiles: [certPath], privateKeyFile: keyPath, encoding: .pem)
 
         XCTAssertNotNil(tls)
@@ -66,7 +66,7 @@ final class TLSTests: XCTestCase {
     func testInitWithDEREncodingSucceeds() throws {
         // Derive DER bytes directly from the embedded PEM (strip headers → base64-decode).
         let certPath = try writeDERTempFile(fromPEM: testCertPEM, name: "tls_cert.der")
-        let keyPath  = try writeDERTempFile(fromPEM: testKeyPEM,  name: "tls_key.der")
+        let keyPath = try writeDERTempFile(fromPEM: testKeyPEM, name: "tls_key.der")
         let tls = TLS(certificateFiles: [certPath], privateKeyFile: keyPath, encoding: .der)
 
         XCTAssertNotNil(tls)
@@ -86,7 +86,7 @@ final class TLSTests: XCTestCase {
 
     func testEquatableSameFilesAreEqual() throws {
         let certPath = try writeTempFile(string: testCertPEM, name: "eq_cert.pem")
-        let keyPath  = try writeTempFile(string: testKeyPEM,  name: "eq_key.pem")
+        let keyPath = try writeTempFile(string: testKeyPEM, name: "eq_key.pem")
         let tls1 = TLS(certificateFiles: [certPath], privateKeyFile: keyPath, encoding: .pem)
         let tls2 = TLS(certificateFiles: [certPath], privateKeyFile: keyPath, encoding: .pem)
 
@@ -99,7 +99,7 @@ final class TLSTests: XCTestCase {
         // Two copies of the same bytes at different paths → paths differ → not equal.
         let certPath1 = try writeTempFile(string: testCertPEM, name: "eq2_cert_a.pem")
         let certPath2 = try writeTempFile(string: testCertPEM, name: "eq2_cert_b.pem")
-        let keyPath   = try writeTempFile(string: testKeyPEM,  name: "eq2_key.pem")
+        let keyPath = try writeTempFile(string: testKeyPEM, name: "eq2_key.pem")
         let tls1 = TLS(certificateFiles: [certPath1], privateKeyFile: keyPath, encoding: .pem)
         let tls2 = TLS(certificateFiles: [certPath2], privateKeyFile: keyPath, encoding: .pem)
 
@@ -110,8 +110,8 @@ final class TLSTests: XCTestCase {
 
     func testEquatableDifferentKeyFilesNotEqual() throws {
         let certPath = try writeTempFile(string: testCertPEM, name: "eq3_cert.pem")
-        let keyPath1 = try writeTempFile(string: testKeyPEM,  name: "eq3_key_a.pem")
-        let keyPath2 = try writeTempFile(string: testKeyPEM,  name: "eq3_key_b.pem")
+        let keyPath1 = try writeTempFile(string: testKeyPEM, name: "eq3_key_a.pem")
+        let keyPath2 = try writeTempFile(string: testKeyPEM, name: "eq3_key_b.pem")
         let tls1 = TLS(certificateFiles: [certPath], privateKeyFile: keyPath1, encoding: .pem)
         let tls2 = TLS(certificateFiles: [certPath], privateKeyFile: keyPath2, encoding: .pem)
 

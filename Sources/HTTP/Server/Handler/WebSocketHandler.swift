@@ -13,7 +13,7 @@ import NIOWebSocket
 /// This handler is added to the pipeline by ``Server`` inside the
 /// `NIOWebSocketServerUpgrader.upgradePipelineHandler` closure.
 final class WebSocketHandler: ChannelInboundHandler, @unchecked Sendable {
-    typealias InboundIn  = WebSocketFrame
+    typealias InboundIn = WebSocketFrame
     typealias OutboundOut = WebSocketFrame
 
     private let webSocket: WebSocket
