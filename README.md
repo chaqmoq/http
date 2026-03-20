@@ -10,6 +10,45 @@
     <p>A non-blocking, event-driven HTTP/1.1 and HTTP/2 server package written in <a href="https://swift.org">Swift</a> and powered by <a href="https://github.com/apple/swift-nio">SwiftNIO</a>. This is one of the core packages of <a href="https://chaqmoq.dev">Chaqmoq</a>.</p>
 </div>
 
+## Table of Contents
+
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Quick Start](#quick-start)
+- [Server Configuration](#server-configuration)
+  - [Body size limits](#body-size-limits)
+  - [Compression and decompression](#compression-and-decompression)
+- [Lifecycle Callbacks](#lifecycle-callbacks)
+- [Handling Requests](#handling-requests)
+  - [Reading headers](#reading-headers)
+  - [Query parameters](#query-parameters)
+  - [Form parameters](#form-parameters)
+  - [Uploaded files](#uploaded-files)
+  - [Cookies](#cookies)
+  - [Request attributes](#request-attributes)
+- [Building Responses](#building-responses)
+  - [Setting headers](#setting-headers)
+  - [Status codes](#status-codes)
+  - [Response cookies](#response-cookies)
+- [Body](#body)
+  - [Typed JSON decoding](#typed-json-decoding)
+- [Body Streaming](#body-streaming)
+  - [Enabling streaming](#enabling-streaming)
+  - [Collecting the full body](#collecting-the-full-body)
+  - [Iterating chunks directly](#iterating-chunks-directly)
+  - [Error handling](#error-handling)
+- [HTTP/2 Server Push](#http2-server-push)
+- [Middleware](#middleware)
+- [Error Middleware](#error-middleware)
+- [Built-in Middleware](#built-in-middleware)
+  - [CORSMiddleware](#corsmiddleware)
+  - [HTTPMethodOverrideMiddleware](#httpmethodoverridemiddleware)
+- [WebSocket](#websocket)
+- [Unix Domain Sockets](#unix-domain-sockets)
+- [HTTPS / TLS](#https--tls)
+- [Full Example](#full-example)
+- [License](#license)
+
 ## Requirements
 
 | Platform | Minimum version |
@@ -83,7 +122,7 @@ let server = Server(configuration: config)
 Two computed properties derive the full address from the configuration:
 
 ```swift
-config.scheme        // "http" (or "https" when TLS is configured)
+config.scheme // "http" (or "https" when TLS is configured)
 config.socketAddress // "http://127.0.0.1:8080"
 ```
 
@@ -148,10 +187,10 @@ Assign a closure to `onReceive`. Return any `Encodable` value — if it is not a
 
 ```swift
 server.onReceive = { request in
-    let method = request.method    // .GET, .POST, .PUT, …
-    let path = request.uri.path    // "/users/42"
-    let version = request.version  // Version(major: 1, minor: 1)
-    let locale = request.locale    // derived from Accept-Language header
+    let method = request.method // .GET, .POST, .PUT, …
+    let path = request.uri.path // "/users/42"
+    let version = request.version // Version(major: 1, minor: 1)
+    let locale = request.locale // derived from Accept-Language header
 
     return Response("OK")
 }
@@ -169,8 +208,8 @@ let custom = request.headers.get("X-My-Header")
 
 ```swift
 // URL: /search?q=swift&page=2
-let query: String? = request.uri.getQueryParameter("q")    // "swift"
-let page: Int? = request.uri.getQueryParameter("page")     // 2
+let query: String? = request.uri.getQueryParameter("q") // "swift"
+let page: Int? = request.uri.getQueryParameter("page") // 2
 ```
 
 ### Form parameters
@@ -220,10 +259,10 @@ let userId: Int? = request.getAttribute("userId")
 `Response` can be created from a string, `Data`, or a `Body`:
 
 ```swift
-Response()                              // 200 OK, empty body
-Response("Created", status: .created)  // 201 Created, text body
-Response(pngData, status: .ok)         // Data body
-Response(Body(bytes: rawBytes))        // byte array body
+Response() // 200 OK, empty body
+Response("Created", status: .created) // 201 Created, text body
+Response(pngData, status: .ok) // Data body
+Response(Body(bytes: rawBytes)) // byte array body
 ```
 
 ### Setting headers
@@ -239,17 +278,17 @@ response.headers.set(.init(name: "X-Request-Id", value: "abc-123"))
 All standard IANA status codes are available as enum cases:
 
 ```swift
-response.status = .ok                   // 200
-response.status = .created              // 201
-response.status = .noContent            // 204
-response.status = .badRequest           // 400
-response.status = .unauthorized         // 401
-response.status = .notFound             // 404
-response.status = .internalServerError  // 500
+response.status = .ok // 200
+response.status = .created // 201
+response.status = .noContent // 204
+response.status = .badRequest // 400
+response.status = .unauthorized // 401
+response.status = .notFound // 404
+response.status = .internalServerError // 500
 
-print(response.status.code)    // 200
-print(response.status.reason)  // "OK"
-print(response.status)         // "200 OK"
+print(response.status.code) // 200
+print(response.status.reason) // "OK"
+print(response.status) // "200 OK"
 ```
 
 ### Response cookies
@@ -267,8 +306,8 @@ response.setCookie(Cookie(
     sameSite: .lax
 ))
 
-response.clearCookie(named: "sessionId")  // remove one cookie
-response.clearCookies()                   // remove all Set-Cookie headers
+response.clearCookie(named: "sessionId") // remove one cookie
+response.clearCookies() // remove all Set-Cookie headers
 ```
 
 Cookie prefixes `__Host-` and `__Secure-` are enforced automatically:
@@ -282,12 +321,12 @@ Cookie prefixes `__Host-` and `__Secure-` are enforced automatically:
 
 ```swift
 let body = Body(string: "Hello")
-body.string   // "Hello" (falls back to "" on invalid UTF-8)
-body.data     // Foundation.Data
-body.bytes    // [UInt8]
-body.buffer   // NIO ByteBuffer (zero-copy)
-body.count    // 5
-body.isEmpty  // false
+body.string // "Hello" (falls back to "" on invalid UTF-8)
+body.data // Foundation.Data
+body.bytes // [UInt8]
+body.buffer // NIO ByteBuffer (zero-copy)
+body.count // 5
+body.isEmpty // false
 
 // Construct directly from a NIO ByteBuffer (no copy)
 let body = Body(byteBuffer)
@@ -525,8 +564,8 @@ server.onUpgrade = { request, ws in
 The `WebSocket` actor exposes three write methods:
 
 ```swift
-try await ws.send("hello")              // UTF-8 text frame
-try await ws.send(byteBuffer)           // binary frame
+try await ws.send("hello") // UTF-8 text frame
+try await ws.send(byteBuffer) // binary frame
 try await ws.close(code: .normalClosure) // send a close frame (default code)
 ```
 

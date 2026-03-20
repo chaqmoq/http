@@ -143,7 +143,7 @@ final class BodyDecodingTests: XCTestCase {
 
         // Assert
         XCTAssertFalse(params.isEmpty, "Expected 'username' in parameters")
-        XCTAssertFalse(files.isEmpty,  "Expected 'avatar' in files")
+        XCTAssertFalse(files.isEmpty, "Expected 'avatar' in files")
         XCTAssertEqual(files["avatar"]?.filename, "photo.jpg")
     }
 
