@@ -41,19 +41,19 @@ final class WebSocketHandlerTests: XCTestCase {
         // Channel operation stays on the test thread.
         try! channel.writeInbound(frame)
 
-        let exp = expectation(description: "text message")
-        var receivedText: String?
+        let exp = expectation(description: "text message yields 'hi!'")
         let ws = webSocket!
         Task {
             var iterator = ws.messages.makeAsyncIterator()
             let message = await iterator.next()
             if case .text(let text) = message {
-                receivedText = text
+                XCTAssertEqual(text, "hi!")
+            } else {
+                XCTFail("Expected .text, got \(String(describing: message))")
             }
             exp.fulfill()
         }
         waitForExpectations(timeout: 1.0)
-        XCTAssertEqual(receivedText, "hi!")
     }
 
     // MARK: - Binary frame
@@ -64,19 +64,19 @@ final class WebSocketHandlerTests: XCTestCase {
         let frame = WebSocketFrame(fin: true, opcode: .binary, maskKey: nil, data: buffer)
         try! channel.writeInbound(frame)
 
-        let exp = expectation(description: "binary message")
-        var receivedBytes: Int?
+        let exp = expectation(description: "binary message yields 3 bytes")
         let ws = webSocket!
         Task {
             var iterator = ws.messages.makeAsyncIterator()
             let message = await iterator.next()
             if case .binary(let data) = message {
-                receivedBytes = data.readableBytes
+                XCTAssertEqual(data.readableBytes, 3)
+            } else {
+                XCTFail("Expected .binary, got \(String(describing: message))")
             }
             exp.fulfill()
         }
         waitForExpectations(timeout: 1.0)
-        XCTAssertEqual(receivedBytes, 3)
     }
 
     // MARK: - Ping → Pong (RFC 6455 §5.5.2)
