@@ -184,15 +184,17 @@ private final class RawHTTPCapture: ChannelInboundHandler, @unchecked Sendable {
     private let lock = NSLock()
 
     var firstLine: String? {
-        lock.withLock {
-            accumulated.components(separatedBy: "\r\n").first
-        }
+        lock.lock()
+        defer { lock.unlock() }
+        return accumulated.components(separatedBy: "\r\n").first
     }
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         var buf = unwrapInboundIn(data)
         if let str = buf.readString(length: buf.readableBytes) {
-            lock.withLock { accumulated += str }
+            lock.lock()
+            accumulated += str
+            lock.unlock()
         }
     }
 

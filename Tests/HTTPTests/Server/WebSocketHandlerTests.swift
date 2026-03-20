@@ -1,4 +1,4 @@
-@preconcurrency @testable import HTTP
+@testable import HTTP
 import NIO
 import NIOWebSocket
 import XCTest

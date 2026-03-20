@@ -1,6 +1,6 @@
 @preconcurrency @testable import HTTP
 import NIO
-@preconcurrency import NIOHTTP2
+import NIOHTTP2
 import XCTest
 
 /// Unit tests for `HTTP2PushHandler` using a synchronous `EmbeddedChannel`.

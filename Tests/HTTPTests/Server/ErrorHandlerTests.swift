@@ -75,7 +75,11 @@ final class ErrorHandlerTests: XCTestCase {
 // MARK: - Raw TCP helper
 
 private func sendMalformedHTTP(toPort port: Int) {
+    #if canImport(Glibc)
+    let sock = socket(AF_INET, Int32(SOCK_STREAM.rawValue), 0)
+    #else
     let sock = socket(AF_INET, SOCK_STREAM, 0)
+    #endif
     guard sock >= 0 else { return }
     defer { close(sock) }
 

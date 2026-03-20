@@ -279,11 +279,15 @@ private final class WebSocketMessageCapture: ChannelInboundHandler, @unchecked S
     private let lock = NSLock()
 
     var lastText: String? {
-        lock.withLock { _lastText }
+        lock.lock()
+        defer { lock.unlock() }
+        return _lastText
     }
 
     var lastBinaryBytes: [UInt8]? {
-        lock.withLock { _lastBinaryBytes }
+        lock.lock()
+        defer { lock.unlock() }
+        return _lastBinaryBytes
     }
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
@@ -292,11 +296,15 @@ private final class WebSocketMessageCapture: ChannelInboundHandler, @unchecked S
         case .text:
             var buf = frame.unmaskedData
             let text = buf.readString(length: buf.readableBytes) ?? ""
-            lock.withLock { _lastText = text }
+            lock.lock()
+            _lastText = text
+            lock.unlock()
         case .binary:
             let buf = frame.unmaskedData
             let bytes = buf.getBytes(at: buf.readerIndex, length: buf.readableBytes) ?? []
-            lock.withLock { _lastBinaryBytes = bytes }
+            lock.lock()
+            _lastBinaryBytes = bytes
+            lock.unlock()
         default:
             break
         }
