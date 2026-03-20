@@ -3,6 +3,7 @@
     <p>
         <a href="https://swift.org/download/#releases"><img src="https://img.shields.io/badge/swift-5.5+-brightgreen.svg" /></a>
         <a href="https://github.com/chaqmoq/http/blob/master/LICENSE/"><img src="https://img.shields.io/badge/license-MIT-brightgreen.svg" /></a>
+        <a href="https://github.com/chaqmoq/http/actions"><img src="https://github.com/chaqmoq/http/workflows/ci/badge.svg" /></a>
         <a href="https://chaqmoq.dev/http/"><img src="https://github.com/chaqmoq/http/raw/gh-pages/badge.svg" /></a>
         <a href="https://github.com/chaqmoq/http/blob/master/CONTRIBUTING.md"><img src="https://img.shields.io/badge/contributing-guide-brightgreen.svg" /></a>
         <a href="https://t.me/chaqmoqdev"><img src="https://img.shields.io/badge/telegram-chaqmoqdev-brightgreen.svg" /></a>
