@@ -207,13 +207,18 @@ final class WebSocketIntegrationTests: XCTestCase {
     // MARK: - close() sends close frame
 
     func testWebSocketCloseFromServer() {
-        let closeSemaphore = DispatchSemaphore(value: 0)
-        var serverClosed = false
+        // Two semaphores: one for the client-side interaction, one to confirm that
+        // the server's onUpgrade handler ran to completion. Using a dedicated semaphore
+        // instead of a plain Bool avoids a TSan data-race between the Swift concurrency
+        // thread that runs onUpgrade and the main thread that reads the result.
+        let clientSemaphore = DispatchSemaphore(value: 0)
+        let serverClosedSemaphore = DispatchSemaphore(value: 0)
 
         server.onUpgrade = { _, ws in
             // Close immediately without waiting for messages.
             try await ws.close()
-            serverClosed = true
+            // Signal after close completes — no shared mutable state.
+            serverClosedSemaphore.signal()
         }
 
         server.onStart = { [weak self] _ in
@@ -242,7 +247,7 @@ final class WebSocketIntegrationTests: XCTestCase {
                     .wait()
 
                 guard let channel else {
-                    closeSemaphore.signal()
+                    clientSemaphore.signal()
                     try! self.server.stop()
                     return
                 }
@@ -256,14 +261,15 @@ final class WebSocketIntegrationTests: XCTestCase {
                 try? channel.writeAndFlush(HTTPClientRequestPart.end(nil)).wait()
                 Thread.sleep(forTimeInterval: 0.5)
 
-                closeSemaphore.signal()
+                clientSemaphore.signal()
                 try! self.server.stop()
             }
         }
 
         try! server.start()
-        closeSemaphore.wait()
-        XCTAssertTrue(serverClosed, "Server's onUpgrade handler should have run to completion")
+        clientSemaphore.wait()
+        // If onUpgrade never ran, this wait would hang (test timeout catches it).
+        serverClosedSemaphore.wait()
     }
 }
 
