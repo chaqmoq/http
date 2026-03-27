@@ -261,6 +261,45 @@ final class CORSMiddlewareTests: XCTestCase {
         )
     }
 
+    // MARK: - ErrorMiddleware
+
+    func testCORSHeadersAppliedToErrorResponse() async throws {
+        // Arrange
+        let middleware = CORSMiddleware(options: .init(allowedOrigin: .all))
+        var request = Request(eventLoop: eventLoop)
+        request.headers.set(.init(name: .origin, value: "https://example.com"))
+
+        struct TestError: Error {}
+
+        // Act
+        let encodable = try await middleware.handle(request: request, error: TestError()) { _, _ in
+            Response(status: .internalServerError)
+        }
+        let response = try XCTUnwrap(encodable as? Response)
+
+        // Assert – CORS headers must be present even on error responses
+        XCTAssertEqual(response.status, .internalServerError)
+        XCTAssertEqual(response.headers.get(.accessControlAllowOrigin), "*")
+    }
+
+    func testErrorResponseWithoutOriginPassesThrough() async throws {
+        // Arrange – no Origin header, so the error responder result is returned unchanged
+        let middleware = CORSMiddleware(options: .init(allowedOrigin: .all))
+        let request = Request(eventLoop: eventLoop)
+
+        struct TestError: Error {}
+
+        // Act
+        let encodable = try await middleware.handle(request: request, error: TestError()) { _, _ in
+            Response(status: .internalServerError)
+        }
+        let response = try XCTUnwrap(encodable as? Response)
+
+        // Assert – no CORS header injected
+        XCTAssertEqual(response.status, .internalServerError)
+        XCTAssertNil(response.headers.get(.accessControlAllowOrigin))
+    }
+
     // MARK: - Non-Response Encodable from responder is wrapped in a Response
 
     /// When the downstream responder returns a non-`Response` `Encodable` the CORS

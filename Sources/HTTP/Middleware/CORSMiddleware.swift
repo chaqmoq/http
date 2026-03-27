@@ -15,7 +15,7 @@ import Foundation
 ///     ))
 /// ]
 /// ```
-public struct CORSMiddleware: Middleware {
+public struct CORSMiddleware: Middleware, ErrorMiddleware {
     /// The CORS policy options applied to each request.
     public var options: Options
 
@@ -32,8 +32,30 @@ public struct CORSMiddleware: Middleware {
     ) async throws -> Encodable {
         guard request.headers.get(.origin) != nil else { return try await responder(request) }
         let encodable = request.isPreflight ? Response(status: .noContent) : try await responder(request)
-        var response = encodable as? Response ?? .init("\(encodable)")
 
+        return addingCORSHeaders(
+            to: encodable,
+            request: request
+        )
+    }
+
+    public func handle(
+        request: Request,
+        error: Error,
+        responder: @escaping ErrorResponder
+    ) async throws -> Encodable {
+        guard request.headers.get(.origin) != nil else { return try await responder(request, error) }
+        return addingCORSHeaders(
+            to: try await responder(request, error),
+            request: request
+        )
+    }
+
+    private func addingCORSHeaders(
+        to encodable: Encodable,
+        request: Request
+    ) -> Response {
+        var response = encodable as? Response ?? .init("\(encodable)")
         setAllowCredentialsHeader(response: &response)
         setAllowHeadersHeader(request: request, response: &response)
         setAllowMethodsHeader(response: &response)
