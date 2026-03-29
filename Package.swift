@@ -1,4 +1,4 @@
-// swift-tools-version:5.10
+// swift-tools-version:6.2
 
 import PackageDescription
 
@@ -34,5 +34,5 @@ let package = Package(
             .product(name: "NIOSSL", package: "swift-nio-ssl")
         ])
     ],
-    swiftLanguageVersions: [.v5]
+    swiftLanguageModes: [.v5]
 )
