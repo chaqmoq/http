@@ -94,6 +94,41 @@ final class RequestResponseHandlerTests: XCTestCase {
         }
     }
 
+    // MARK: - Invalid request target → 400 Bad Request
+
+    func testInvalidURIRequestReturns400() throws {
+        // Drive the handler directly with an EmbeddedChannel: AsyncHTTPClient would
+        // normalise the target before sending, so a malformed URI can't be exercised
+        // over the wire. A Request flagged `isURIValid == false` must short-circuit to
+        // 400 without invoking onReceive.
+        let localServer = Server(configuration: .init(numberOfThreads: 1))
+        var handlerRan = false
+        localServer.onReceive = { _ in
+            handlerRan = true
+            return Response(status: .ok)
+        }
+
+        let channel = EmbeddedChannel()
+        try channel.pipeline.addHandlers([
+            ResponseEncoder(),
+            RequestResponseHandler(server: localServer)
+        ]).wait()
+
+        var request = Request(eventLoop: channel.eventLoop, method: .GET)
+        request.isURIValid = false
+        try channel.writeInbound(request)
+        channel.embeddedEventLoop.run()
+
+        let head = try XCTUnwrap(channel.readOutbound(as: HTTPServerResponsePart.self))
+        guard case let .head(responseHead) = head else {
+            return XCTFail("Expected a response head, got \(head)")
+        }
+        XCTAssertEqual(responseHead.status, .badRequest)
+        XCTAssertFalse(handlerRan, "onReceive must not run for an invalid request target")
+
+        _ = try? channel.finish()
+    }
+
     // MARK: - 500 when error middleware also throws
 
     func testReturns500WhenErrorMiddlewareAlsoThrows() {

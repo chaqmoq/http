@@ -47,6 +47,28 @@ final class RequestDecoderTests: XCTestCase {
         XCTAssertEqual(req.uri.path, "/api/v1/posts")
     }
 
+    func testValidURIIsFlaggedValid() throws {
+        let head = HTTPRequestHead(version: .http1_1, method: .GET, uri: "/ok")
+        try channel.writeInbound(HTTPServerRequestPart.head(head))
+        try channel.writeInbound(HTTPServerRequestPart.end(nil))
+
+        let req = try XCTUnwrap(channel.readInbound(as: Request.self))
+        XCTAssertTrue(req.isURIValid)
+    }
+
+    func testUnparseableURIIsFlaggedInvalid() throws {
+        // An invalid percent-escape is rejected by URI.isValidRequestTarget, which the
+        // decoder consults before URL parsing — deterministic on every platform,
+        // regardless of how lenient Foundation's URLComponents parser is.
+        let head = HTTPRequestHead(version: .http1_1, method: .GET, uri: "/foo%zz")
+        try channel.writeInbound(HTTPServerRequestPart.head(head))
+        try channel.writeInbound(HTTPServerRequestPart.end(nil))
+
+        let req = try XCTUnwrap(channel.readInbound(as: Request.self))
+        // The request is still forwarded (so the handler can reply 400) but flagged.
+        XCTAssertFalse(req.isURIValid)
+    }
+
     func testDecodesVersion() throws {
         let head = HTTPRequestHead(version: .http1_0, method: .GET, uri: "/")
         try channel.writeInbound(HTTPServerRequestPart.head(head))

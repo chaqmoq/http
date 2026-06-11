@@ -47,6 +47,57 @@ public struct URI: Encodable, Sendable {
 }
 
 extension URI {
+    /// Validates a raw HTTP request target (RFC 9112 §3.2) before URL parsing.
+    ///
+    /// `URLComponents` cannot be relied on to reject malformed targets — its parser
+    /// grew increasingly lenient across Foundation versions (newer releases
+    /// percent-encode invalid characters instead of failing). This check provides a
+    /// deterministic, platform-independent floor. It rejects targets that are empty,
+    /// contain control characters (0x00–0x1F, 0x7F) or raw spaces, or contain an
+    /// invalid percent-escape (`%` not followed by two hex digits).
+    ///
+    /// - Parameter target: The raw request target from the request line.
+    /// - Returns: `true` when the target is structurally sound enough to parse.
+    public static func isValidRequestTarget(_ target: String) -> Bool {
+        guard !target.isEmpty else { return false }
+
+        let bytes = Array(target.utf8)
+        var index = 0
+
+        func isHexDigit(_ byte: UInt8) -> Bool {
+            (0x30...0x39).contains(byte)    // 0-9
+                || (0x41...0x46).contains(byte) // A-F
+                || (0x61...0x66).contains(byte) // a-f
+        }
+
+        while index < bytes.count {
+            let byte = bytes[index]
+
+            // Control characters and space terminate or split the request line —
+            // they can never legally appear raw inside a request target.
+            if byte <= 0x20 || byte == 0x7F {
+                return false
+            }
+
+            // A percent sign must introduce a valid two-hex-digit escape.
+            if byte == UInt8(ascii: "%") {
+                guard index + 2 < bytes.count,
+                      isHexDigit(bytes[index + 1]),
+                      isHexDigit(bytes[index + 2]) else {
+                    return false
+                }
+                index += 3
+                continue
+            }
+
+            index += 1
+        }
+
+        return true
+    }
+}
+
+extension URI {
     /// Returns a typed query parameter by name.
     ///
     /// The raw string value stored in ``query`` is converted to the inferred type `T`.

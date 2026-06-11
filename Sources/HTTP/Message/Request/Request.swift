@@ -73,6 +73,13 @@ public struct Request: Message, @unchecked Sendable {
     /// `nil` and ``body`` contains the complete buffered request body.
     public internal(set) var bodyStream: BodyStream? = nil
 
+    /// `false` when the request target could not be parsed into a valid ``URI``.
+    ///
+    /// The server rejects such requests with `400 Bad Request` before any middleware or
+    /// handler runs, instead of letting an unparseable target fall back to `/`. Always
+    /// `true` for requests constructed in application code.
+    public internal(set) var isURIValid: Bool = true
+
     /// Arbitrary key/value attributes attached to the request by middleware.
     public var attributes: [String: AnyEncodable] { mutableAttributes }
 

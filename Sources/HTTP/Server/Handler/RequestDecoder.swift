@@ -28,7 +28,11 @@ final class RequestDecoder: ChannelInboundHandler, RemovableChannelHandler {
             switch state {
             case .idle:
                 let method = Request.Method(rawValue: head.method.rawValue) ?? .GET
-                let uri = URI(head.uri) ?? .default
+                // Validate the raw target first: URLComponents alone is not a reliable
+                // gate because newer Foundation versions parse almost anything (they
+                // percent-encode invalid characters instead of returning nil).
+                let parsedURI = URI.isValidRequestTarget(head.uri) ? URI(head.uri) : nil
+                let uri = parsedURI ?? .default
                 let version = Version(
                     major: head.version.major,
                     minor: head.version.minor
@@ -39,13 +43,23 @@ final class RequestDecoder: ChannelInboundHandler, RemovableChannelHandler {
                     headers.set(.init(name: header.name, value: header.value))
                 }
 
-                let request = Request(
+                var request = Request(
                     eventLoop: context.eventLoop,
                     method: method,
                     uri: uri,
                     version: version,
                     headers: headers
                 )
+
+                // An unparseable request target must not be routed as "/". Flag it so the
+                // RequestResponseHandler replies 400 Bad Request before any middleware or
+                // handler runs. Such a request is always buffered (never streamed) — its
+                // body will be discarded.
+                if parsedURI == nil {
+                    request.isURIValid = false
+                    state = .collecting(request, buffer: context.channel.allocator.buffer(capacity: 0))
+                    return
+                }
 
                 // Decide whether to buffer or stream this request's body.
                 if let threshold = streamingBodyThreshold {

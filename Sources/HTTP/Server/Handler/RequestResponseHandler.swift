@@ -18,6 +18,16 @@ final class RequestResponseHandler: ChannelInboundHandler, RemovableChannelHandl
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         let request = unwrapInboundIn(data)
+
+        // Reject an unparseable request target with 400 Bad Request before running any
+        // middleware or the application handler. Routing/authorization must never see a
+        // malformed target that silently fell back to "/".
+        guard request.isURIValid else {
+            server.onError?(ServerError.invalidURI, context.eventLoop)
+            write(response: Response(status: .badRequest), for: request, in: context)
+            return
+        }
+
         var response = Response()
 
         if let serverName = server.configuration.serverName {

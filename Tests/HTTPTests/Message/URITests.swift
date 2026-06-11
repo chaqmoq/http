@@ -2,6 +2,30 @@
 import XCTest
 
 final class URITests: XCTestCase {
+    // MARK: - isValidRequestTarget
+
+    func testValidRequestTargets() {
+        XCTAssertTrue(URI.isValidRequestTarget("/"))
+        XCTAssertTrue(URI.isValidRequestTarget("/api/v1/posts?page=2"))
+        XCTAssertTrue(URI.isValidRequestTarget("/search?q=hello%20world"))
+        XCTAssertTrue(URI.isValidRequestTarget("/file%2Fname"))
+        XCTAssertTrue(URI.isValidRequestTarget("*"))             // asterisk-form (OPTIONS)
+        XCTAssertTrue(URI.isValidRequestTarget("http://example.com/p")) // absolute-form
+        XCTAssertTrue(URI.isValidRequestTarget("/emoji/%F0%9F%98%80"))
+    }
+
+    func testInvalidRequestTargets() {
+        XCTAssertFalse(URI.isValidRequestTarget(""))               // empty
+        XCTAssertFalse(URI.isValidRequestTarget("/foo bar"))       // raw space
+        XCTAssertFalse(URI.isValidRequestTarget("/foo\tbar"))      // tab
+        XCTAssertFalse(URI.isValidRequestTarget("/foo\r\nX: y"))   // CRLF
+        XCTAssertFalse(URI.isValidRequestTarget("/foo\u{00}"))     // NUL
+        XCTAssertFalse(URI.isValidRequestTarget("/foo\u{7F}"))     // DEL
+        XCTAssertFalse(URI.isValidRequestTarget("/foo%zz"))        // bad escape digits
+        XCTAssertFalse(URI.isValidRequestTarget("/foo%"))          // truncated escape
+        XCTAssertFalse(URI.isValidRequestTarget("/foo%4"))         // one hex digit only
+    }
+
     func testDefault() {
         // Arrange
         let uri = URI.default
