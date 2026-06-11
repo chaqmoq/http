@@ -261,6 +261,39 @@ final class CORSMiddlewareTests: XCTestCase {
         )
     }
 
+    func testRegexAllowedOriginRejectsSubstringMatches() async throws {
+        // The pattern is anchored to the full Origin, so an attacker origin that merely
+        // *contains* a trusted origin as a substring must not be allowed.
+        let middleware = CORSMiddleware(options: .init(allowedOrigin: .regex("https://app\\.example\\.com")))
+
+        // Trailing-domain suffix: "https://app.example.com.evil.com"
+        var suffixRequest = Request(eventLoop: eventLoop)
+        suffixRequest.headers.set(.init(name: .origin, value: "https://app.example.com.evil.com"))
+        let suffixResponse = try await middleware.handle(request: suffixRequest) { _ in Response() }
+        XCTAssertEqual(
+            (suffixResponse as? Response)?.headers.get(.accessControlAllowOrigin),
+            "false"
+        )
+
+        // Trusted origin embedded as a query/path substring.
+        var embeddedRequest = Request(eventLoop: eventLoop)
+        embeddedRequest.headers.set(.init(name: .origin, value: "https://evil.com/?x=https://app.example.com"))
+        let embeddedResponse = try await middleware.handle(request: embeddedRequest) { _ in Response() }
+        XCTAssertEqual(
+            (embeddedResponse as? Response)?.headers.get(.accessControlAllowOrigin),
+            "false"
+        )
+
+        // The exact trusted origin still matches.
+        var exactRequest = Request(eventLoop: eventLoop)
+        exactRequest.headers.set(.init(name: .origin, value: "https://app.example.com"))
+        let exactResponse = try await middleware.handle(request: exactRequest) { _ in Response() }
+        XCTAssertEqual(
+            (exactResponse as? Response)?.headers.get(.accessControlAllowOrigin),
+            "https://app.example.com"
+        )
+    }
+
     // MARK: - ErrorMiddleware
 
     func testCORSHeadersAppliedToErrorResponse() async throws {
