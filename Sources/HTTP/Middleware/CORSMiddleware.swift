@@ -56,10 +56,13 @@ public struct CORSMiddleware: Middleware, ErrorMiddleware {
         request: Request
     ) -> Response {
         var response = encodable as? Response ?? .init("\(encodable)")
-        setAllowCredentialsHeader(response: &response)
+        // Resolve the effective Access-Control-Allow-Origin value once so the
+        // credentials header can be gated on it (see setAllowCredentialsHeader).
+        let originValue = options.allowedOrigin.value(from: request)
+        setAllowCredentialsHeader(originValue: originValue, response: &response)
         setAllowHeadersHeader(request: request, response: &response)
         setAllowMethodsHeader(response: &response)
-        setAllowOriginHeader(request: request, response: &response)
+        setAllowOriginHeader(originValue: originValue, response: &response)
         setExposeHeadersHeader(response: &response)
         setMaxAgeHeader(response: &response)
 
@@ -118,12 +121,25 @@ extension CORSMiddleware.Options {
             }
         }
 
+        /// `true` when the `Access-Control-Allow-Origin` value depends on the request
+        /// `Origin` header and the response should therefore carry `Vary: Origin`.
+        /// `.all` (`*`) and `.none` (empty) produce a fixed value and do not vary.
+        var variesByOrigin: Bool {
+            switch self {
+            case .all, .none: return false
+            case .origins, .regex, .sameAsOrigin: return true
+            }
+        }
+
         private func isAllowed(_ origin: String) -> Bool {
             switch self {
             case .origins(let origins): return origins.contains(origin)
             case .regex(let pattern):
                 guard let regex = HeaderUtil.cachedRegex(for: "^(?:\(pattern))$") else { return false }
-                return regex.firstMatch(in: origin, range: NSRange(location: 0, length: origin.utf16.count)) != nil
+                return regex.firstMatch(
+                    in: origin,
+                    range: NSRange(location: 0, length: origin.utf16.count)
+                ) != nil
             default: return false
             }
         }
@@ -131,47 +147,121 @@ extension CORSMiddleware.Options {
 }
 
 extension CORSMiddleware {
-    private func setAllowCredentialsHeader(response: inout Response) {
-        if options.allowCredentials {
-            response.headers.set(.init(name: .accessControlAllowCredentials, value: "true"))
-        }
+    private func setAllowCredentialsHeader(
+        originValue: String,
+        response: inout Response
+    ) {
+        guard options.allowCredentials else { return }
+
+        // The CORS spec forbids combining credentials with a wildcard origin: a browser
+        // rejects `Access-Control-Allow-Credentials: true` alongside
+        // `Access-Control-Allow-Origin: *`. Emitting it anyway is a misconfiguration that
+        // can mask the real (no-credentials) wildcard behaviour. Only advertise credentials
+        // when the origin is a specific value that was matched/reflected for this request —
+        // never for `*`, the empty value (`.none`), or the `"false"` not-allowed sentinel.
+        guard originValue != "*", originValue != "false", !originValue.isEmpty else { return }
+
+        response.headers.set(
+            .init(
+                name: .accessControlAllowCredentials,
+                value: "true"
+            )
+        )
     }
 
-    private func setAllowHeadersHeader(request: Request, response: inout Response) {
+    private func setAllowHeadersHeader(
+        request: Request,
+        response: inout Response
+    ) {
         if let allowedHeaders = options.allowedHeaders {
             response.headers.set(
-                .init(name: .accessControlAllowHeaders, value: allowedHeaders.joined(separator: ","))
+                .init(
+                    name: .accessControlAllowHeaders,
+                    value: allowedHeaders.joined(separator: ",")
+                )
             )
         } else if let allowedHeaders = request.headers.get(.accessControlRequestHeaders) {
-            response.headers.set(.init(name: .accessControlAllowHeaders, value: allowedHeaders))
+            response.headers.set(
+                .init(
+                    name: .accessControlAllowHeaders,
+                    value: allowedHeaders
+                )
+            )
         }
     }
 
     private func setAllowMethodsHeader(response: inout Response) {
         let allowedMethods = options.allowedMethods.map { $0.rawValue }
-        response.headers.set(.init(name: .accessControlAllowMethods, value: allowedMethods.joined(separator: ",")))
+        response.headers.set(
+            .init(
+                name: .accessControlAllowMethods,
+                value: allowedMethods.joined(separator: ",")
+            )
+        )
     }
 
-    private func setAllowOriginHeader(request: Request, response: inout Response) {
-        let value = options.allowedOrigin.value(from: request)
+    private func setAllowOriginHeader(
+        originValue value: String,
+        response: inout Response
+    ) {
         response.headers.set(.init(name: .accessControlAllowOrigin, value: value))
 
-        if case .sameAsOrigin = options.allowedOrigin, !value.isEmpty {
-            response.headers.set(.init(name: .vary, value: "origin"))
+        // Whenever the `Access-Control-Allow-Origin` value is derived from the request
+        // `Origin` (reflected or allowlist/regex-matched), the response varies by origin.
+        // Emitting `Vary: Origin` prevents a shared/CDN cache from serving the ACAO header
+        // computed for one origin to a request from a different origin (cache poisoning).
+        // Static values (`*` for `.all`, empty for `.none`) do not depend on the origin.
+        if options.allowedOrigin.variesByOrigin {
+            addVaryOrigin(to: &response)
+        }
+    }
+
+    /// Adds `Origin` to the response `Vary` header without discarding any value a
+    /// handler already set (e.g. `Vary: Accept-Encoding`) and without duplicating it.
+    private func addVaryOrigin(to response: inout Response) {
+        guard let existing = response.headers.get(.vary), !existing.isEmpty else {
+            response.headers.set(
+                .init(
+                    name: .vary,
+                    value: "Origin"
+                )
+            )
+            return
+        }
+
+        let alreadyPresent = existing
+            .split(separator: ",")
+            .contains { $0.trimmingCharacters(in: .whitespaces).caseInsensitiveCompare("origin") == .orderedSame }
+
+        if !alreadyPresent {
+            response.headers.set(
+                .init(
+                    name: .vary,
+                    value: "\(existing), Origin"
+                )
+            )
         }
     }
 
     private func setExposeHeadersHeader(response: inout Response) {
         if let exposedHeaders = options.exposedHeaders {
             response.headers.set(
-                .init(name: .accessControlExposeHeaders, value: exposedHeaders.joined(separator: ","))
+                .init(
+                    name: .accessControlExposeHeaders,
+                    value: exposedHeaders.joined(separator: ",")
+                )
             )
         }
     }
 
     private func setMaxAgeHeader(response: inout Response) {
         if let maxAge = options.maxAge {
-            response.headers.set(.init(name: .accessControlMaxAge, value: String(maxAge)))
+            response.headers.set(
+                .init(
+                    name: .accessControlMaxAge,
+                    value: String(maxAge)
+                )
+            )
         }
     }
 }

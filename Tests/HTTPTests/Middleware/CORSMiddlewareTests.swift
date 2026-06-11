@@ -81,14 +81,56 @@ final class CORSMiddlewareTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(response.headers.get(.accessControlAllowOrigin), origin)
-        XCTAssertEqual(response.headers.get(.vary), "origin")
+        XCTAssertEqual(response.headers.get(.vary), "Origin")
+    }
+
+    func testOriginsAndRegexSetVaryOrigin() async throws {
+        // Allowlist and regex matches both derive ACAO from the request Origin, so the
+        // response must carry `Vary: Origin` to be cache-safe.
+        let allowlist = CORSMiddleware(options: .init(allowedOrigin: .origins(["https://myapp.com"])))
+        var allowlistRequest = Request(eventLoop: eventLoop)
+        allowlistRequest.headers.set(.init(name: .origin, value: "https://myapp.com"))
+        let allowlistResponse = try await allowlist.handle(request: allowlistRequest) { _ in Response() }
+        XCTAssertEqual((allowlistResponse as? Response)?.headers.get(.vary), "Origin")
+
+        let regex = CORSMiddleware(options: .init(allowedOrigin: .regex("https://.*\\.example\\.com")))
+        var regexRequest = Request(eventLoop: eventLoop)
+        regexRequest.headers.set(.init(name: .origin, value: "https://sub.example.com"))
+        let regexResponse = try await regex.handle(request: regexRequest) { _ in Response() }
+        XCTAssertEqual((regexResponse as? Response)?.headers.get(.vary), "Origin")
+    }
+
+    func testAllOriginDoesNotSetVary() async throws {
+        // A fixed "*" value does not depend on the request Origin, so no Vary is needed.
+        let middleware = CORSMiddleware(options: .init(allowedOrigin: .all))
+        var request = Request(eventLoop: eventLoop)
+        request.headers.set(.init(name: .origin, value: "https://myapp.com"))
+        let response = try await middleware.handle(request: request) { _ in Response() }
+        XCTAssertNil((response as? Response)?.headers.get(.vary))
+    }
+
+    func testVaryOriginPreservesExistingVaryHeader() async throws {
+        // Adding Origin must not clobber a Vary value the handler already set.
+        let middleware = CORSMiddleware(options: .init(allowedOrigin: .sameAsOrigin))
+        var request = Request(eventLoop: eventLoop)
+        request.headers.set(.init(name: .origin, value: "https://myapp.com"))
+        let response = try await middleware.handle(request: request) { _ in
+            var response = Response()
+            response.headers.set(.init(name: .vary, value: "Accept-Encoding"))
+            return response
+        }
+        XCTAssertEqual((response as? Response)?.headers.get(.vary), "Accept-Encoding, Origin")
     }
 
     // MARK: - Credentials
 
     func testAllowCredentialsHeader() async throws {
-        // Arrange
-        let middleware = CORSMiddleware(options: .init(allowCredentials: true))
+        // Credentials are advertised only when paired with a specific (non-wildcard)
+        // origin, so this uses an explicit allowlist.
+        let middleware = CORSMiddleware(options: .init(
+            allowCredentials: true,
+            allowedOrigin: .origins(["https://example.com"])
+        ))
         var request = Request(eventLoop: eventLoop)
         request.headers.set(.init(name: .origin, value: "https://example.com"))
 
@@ -98,6 +140,32 @@ final class CORSMiddlewareTests: XCTestCase {
 
         // Assert
         XCTAssertEqual(response.headers.get(.accessControlAllowCredentials), "true")
+    }
+
+    func testNoAllowCredentialsHeaderWithWildcardOrigin() async throws {
+        // The CORS spec forbids credentials + "*". With `.all`, the credentials header
+        // must be suppressed rather than emitted alongside the wildcard origin.
+        let middleware = CORSMiddleware(options: .init(allowCredentials: true, allowedOrigin: .all))
+        var request = Request(eventLoop: eventLoop)
+        request.headers.set(.init(name: .origin, value: "https://example.com"))
+
+        let response = try await middleware.handle(request: request) { _ in Response() }
+        XCTAssertEqual((response as? Response)?.headers.get(.accessControlAllowOrigin), "*")
+        XCTAssertNil((response as? Response)?.headers.get(.accessControlAllowCredentials))
+    }
+
+    func testNoAllowCredentialsHeaderWhenOriginNotAllowed() async throws {
+        // When an allowlist does not match, ACAO is the "false" sentinel and credentials
+        // must not be advertised.
+        let middleware = CORSMiddleware(options: .init(
+            allowCredentials: true,
+            allowedOrigin: .origins(["https://example.com"])
+        ))
+        var request = Request(eventLoop: eventLoop)
+        request.headers.set(.init(name: .origin, value: "https://evil.com"))
+
+        let response = try await middleware.handle(request: request) { _ in Response() }
+        XCTAssertNil((response as? Response)?.headers.get(.accessControlAllowCredentials))
     }
 
     func testNoAllowCredentialsHeaderWhenFalse() async throws {
