@@ -271,6 +271,126 @@ final class WebSocketIntegrationTests: XCTestCase {
         // If onUpgrade never ran, this wait would hang (test timeout catches it).
         serverClosedSemaphore.wait()
     }
+
+    // MARK: - shouldUpgrade property
+
+    func testShouldUpgradeIsNilByDefault() {
+        XCTAssertNil(server.shouldUpgrade)
+    }
+
+    func testShouldUpgradeCanBeSetAndCleared() {
+        server.shouldUpgrade = { _ in true }
+        XCTAssertNotNil(server.shouldUpgrade)
+        server.shouldUpgrade = nil
+        XCTAssertNil(server.shouldUpgrade)
+    }
+
+    // MARK: - shouldUpgrade gates the upgrade handshake
+
+    private static let allowedOrigin = "https://app.example.com"
+
+    /// Attempts a WebSocket upgrade from `origin` and reports whether the server
+    /// **accepted** it. Acceptance is observed directly: `onUpgrade` runs only when the
+    /// handshake succeeds, so the result does not depend on parsing the rejection
+    /// response (whose framing is ambiguous when the upgrade is declined).
+    ///
+    /// `shouldUpgrade` is configured to allow only ``allowedOrigin``.
+    private func attemptUpgrade(origin: String) -> Bool {
+        let upgradeRan = DispatchSemaphore(value: 0)
+        let done = DispatchSemaphore(value: 0)
+        let accepted = BoolBox()
+
+        server.shouldUpgrade = { request in
+            request.headers.get(.origin) == Self.allowedOrigin
+        }
+        server.onUpgrade = { _, _ in
+            // Runs only on a successful handshake.
+            upgradeRan.signal()
+        }
+
+        server.onStart = { [weak self] _ in
+            guard let self else { return }
+            DispatchQueue.global().async {
+                let group = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+                defer { try? group.syncShutdownGracefully() }
+
+                // The client upgrade handler injects the Sec-WebSocket-* and
+                // Connection/Upgrade headers; we only supply Host and Origin.
+                let upgrader = NIOWebSocketClientUpgrader(
+                    requestKey: "dGhlIHNhbXBsZSBub25jZQ==",
+                    upgradePipelineHandler: { channel, _ in
+                        channel.eventLoop.makeSucceededVoidFuture()
+                    }
+                )
+                let config: NIOHTTPClientUpgradeConfiguration = (
+                    upgraders: [upgrader],
+                    completionHandler: { _ in }
+                )
+
+                let channel = try? ClientBootstrap(group: group)
+                    .channelInitializer { ch in
+                        ch.pipeline.addHTTPClientHandlers(withClientUpgrade: config)
+                    }
+                    .connect(host: "127.0.0.1", port: Self.port)
+                    .wait()
+
+                guard let channel else {
+                    done.signal()
+                    try! self.server.stop()
+                    return
+                }
+
+                var headers = HTTPHeaders()
+                headers.add(name: "Host", value: "127.0.0.1:\(Self.port)")
+                headers.add(name: "Origin", value: origin)
+                let requestHead = HTTPRequestHead(
+                    version: .http1_1, method: .GET, uri: "/", headers: headers
+                )
+                try? channel.writeAndFlush(HTTPClientRequestPart.head(requestHead)).wait()
+                try? channel.writeAndFlush(HTTPClientRequestPart.end(nil)).wait()
+
+                // An accepted upgrade fires onUpgrade promptly; a rejected one never
+                // does, so a short timeout reliably distinguishes the two.
+                accepted.set(upgradeRan.wait(timeout: .now() + 1.0) == .success)
+                done.signal()
+                try? channel.close().wait()
+                try! self.server.stop()
+            }
+        }
+
+        try! server.start()
+        done.wait()
+        return accepted.value
+    }
+
+    func testShouldUpgradeRejectsDisallowedOrigin() {
+        XCTAssertFalse(attemptUpgrade(origin: "https://evil.example.org"))
+    }
+
+    func testShouldUpgradeAcceptsAllowedOrigin() {
+        XCTAssertTrue(attemptUpgrade(origin: Self.allowedOrigin))
+    }
+}
+
+// MARK: - BoolBox
+
+/// A tiny thread-safe boolean holder, used to pass a result from the client worker
+/// thread back to the test thread without tripping the thread sanitizer.
+private final class BoolBox: @unchecked Sendable {
+    private var _value = false
+    private let lock = NSLock()
+
+    var value: Bool {
+        lock.lock()
+        defer { lock.unlock() }
+        return _value
+    }
+
+    func set(_ newValue: Bool) {
+        lock.lock()
+        _value = newValue
+        lock.unlock()
+    }
 }
 
 // MARK: - WebSocketMessageCapture

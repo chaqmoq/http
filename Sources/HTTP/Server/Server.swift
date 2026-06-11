@@ -102,6 +102,31 @@ public final class Server: @unchecked Sendable {
         set { lock.withLock { _onUpgrade = newValue } }
     }
 
+    private var _shouldUpgrade: ((Request) -> Bool)?
+    /// Decides whether an HTTP/1.1 → WebSocket upgrade request is accepted.
+    ///
+    /// Called on the channel's event loop with a ``Request`` reconstructed from the
+    /// upgrade head (method, URI, headers — no body). Return `false` to refuse the
+    /// upgrade; the request then continues through the normal HTTP pipeline instead.
+    ///
+    /// - Important: When `nil` (the default), **every** upgrade request is accepted.
+    ///   Browsers attach cookies to the WebSocket handshake but do not enforce CORS on
+    ///   it, so any web page can open a socket to this server on a visitor's behalf
+    ///   (Cross-Site WebSocket Hijacking). If the socket exposes authenticated state,
+    ///   validate the `Origin` header here and/or authenticate in ``onUpgrade``:
+    ///
+    /// ```swift
+    /// server.shouldUpgrade = { request in
+    ///     request.headers.get(.origin) == "https://app.example.com"
+    /// }
+    /// ```
+    ///
+    /// Keep this closure fast and non-blocking — it runs on the event loop.
+    public var shouldUpgrade: ((Request) -> Bool)? {
+        get { lock.withLock { _shouldUpgrade } }
+        set { lock.withLock { _shouldUpgrade = newValue } }
+    }
+
     private var _middleware = [Middleware]()
     /// Middleware executed in order for each request before ``onReceive`` is called.
     public var middleware: [Middleware] {
@@ -235,6 +260,21 @@ extension Server {
         }
     }
 
+    /// Reconstructs a partial ``Request`` (method, URI, version, headers — no body)
+    /// from an HTTP upgrade head. Used by both the WebSocket `shouldUpgrade` check
+    /// and the upgrade pipeline handler.
+    static func makeUpgradeRequest(from head: HTTPRequestHead, on eventLoop: EventLoop) -> Request {
+        let method = Request.Method(rawValue: head.method.rawValue) ?? .GET
+        let uri = URI(head.uri) ?? .default
+        let version = Version(major: head.version.major, minor: head.version.minor)
+        var headers = Headers()
+        for h in head.headers { headers.set(.init(name: h.name, value: h.value)) }
+        return Request(
+            eventLoop: eventLoop,
+            method: method, uri: uri, version: version, headers: headers
+        )
+    }
+
     private func configureSSL(for channel: Channel) -> EventLoopFuture<Void> {
         guard let sslContext else {
             logger.error("SSL context not initialised — configureSSL called before start()")
@@ -282,22 +322,31 @@ extension Server {
         // they reach RequestDecoder.
         let upgradeConfig: NIOHTTPServerUpgradeConfiguration? = self.onUpgrade.map { onUpgradeHandler in
             let upgrader = NIOWebSocketServerUpgrader(
-                shouldUpgrade: { channel, _ in
-                    // Accept every WebSocket upgrade unconditionally.
-                    channel.eventLoop.makeSucceededFuture(HTTPHeaders())
+                shouldUpgrade: { [weak self] channel, head in
+                    // Consult the application's shouldUpgrade predicate. Returning a nil
+                    // HTTPHeaders future refuses the upgrade and lets the request continue
+                    // through the normal HTTP pipeline.
+                    //
+                    // When no predicate is configured every upgrade is accepted — see the
+                    // `shouldUpgrade` property documentation for the cross-site WebSocket
+                    // hijacking implications and how to validate the Origin header here.
+                    guard let server = self else {
+                        return channel.eventLoop.makeSucceededFuture(nil)
+                    }
+
+                    if let predicate = server.shouldUpgrade {
+                        let request = Server.makeUpgradeRequest(from: head, on: channel.eventLoop)
+                        guard predicate(request) else {
+                            return channel.eventLoop.makeSucceededFuture(nil)
+                        }
+                    }
+
+                    return channel.eventLoop.makeSucceededFuture(HTTPHeaders())
                 },
                 upgradePipelineHandler: { [weak self] channel, head in
                     // Reconstruct a partial Request from the HTTP upgrade head so the
                     // application handler can inspect headers, path, etc.
-                    let method = Request.Method(rawValue: head.method.rawValue) ?? .GET
-                    let uri = URI(head.uri) ?? .default
-                    let version = Version(major: head.version.major, minor: head.version.minor)
-                    var headers = Headers()
-                    for h in head.headers { headers.set(.init(name: h.name, value: h.value)) }
-                    let request = Request(
-                        eventLoop: channel.eventLoop,
-                        method: method, uri: uri, version: version, headers: headers
-                    )
+                    let request = Server.makeUpgradeRequest(from: head, on: channel.eventLoop)
                     let ws = WebSocket(request: request, channel: channel)
                     // Kick off the application handler in a Swift concurrency Task.
                     // Errors are forwarded to onError (if configured).

@@ -204,7 +204,12 @@ extension CORSMiddleware {
         originValue value: String,
         response: inout Response
     ) {
-        response.headers.set(.init(name: .accessControlAllowOrigin, value: value))
+        response.headers.set(
+            .init(
+                name: .accessControlAllowOrigin,
+                value: value
+            )
+        )
 
         // Whenever the `Access-Control-Allow-Origin` value is derived from the request
         // `Origin` (reflected or allowlist/regex-matched), the response varies by origin.
