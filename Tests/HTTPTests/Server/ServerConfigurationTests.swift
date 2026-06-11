@@ -23,6 +23,15 @@ final class ServerConfigurationTests: XCTestCase {
         XCTAssertTrue(configuration.tcpNoDelay)
         XCTAssertEqual(configuration.maxMessagesPerRead, 16)
         XCTAssertNil(configuration.unixSocketPath)
+        // Secure default: bodies are capped at 1 MiB unless explicitly overridden.
+        XCTAssertEqual(configuration.maxBodySize, Server.Configuration.defaultMaxBodySize)
+        XCTAssertEqual(Server.Configuration.defaultMaxBodySize, 1_048_576)
+    }
+
+    func testMaxBodySizeCanBeExplicitlyDisabled() {
+        // `nil` (unlimited) remains available, but only as an explicit opt-out.
+        let configuration = Server.Configuration(maxBodySize: nil)
+        XCTAssertNil(configuration.maxBodySize)
     }
 
     func testCustomConfiguration() {

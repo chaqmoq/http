@@ -68,9 +68,21 @@ extension Server {
         /// with a `RequestDecoder.Error.bodyTooLarge` channel error and the connection
         /// is closed. Applies to the decompressed body size.
         ///
-        /// Defaults to `nil` (unlimited). Consider setting a sensible limit for
-        /// production deployments to guard against memory exhaustion.
+        /// Defaults to ``defaultMaxBodySize`` (1 MiB) so that a freshly configured
+        /// server is not vulnerable to memory exhaustion from a single oversized
+        /// request. Raise the limit for endpoints that accept large uploads, or set
+        /// it to `nil` **explicitly** to opt out of the limit entirely:
+        ///
+        /// ```swift
+        /// var config = Server.Configuration()
+        /// config.maxBodySize = 50 * 1024 * 1024 // 50 MiB uploads
+        /// // or, opt out (not recommended for internet-facing servers):
+        /// config.maxBodySize = nil
+        /// ```
         public var maxBodySize: Int?
+
+        /// The default value of ``maxBodySize``: 1 MiB (1,048,576 bytes).
+        public static let defaultMaxBodySize = 1_048_576
 
         /// Body size threshold (in bytes) that switches ``RequestDecoder`` into
         /// streaming mode for large request bodies.
@@ -123,7 +135,7 @@ extension Server {
             reuseAddress: Bool = true,
             tcpNoDelay: Bool = true,
             maxMessagesPerRead: UInt = 16,
-            maxBodySize: Int? = nil,
+            maxBodySize: Int? = Configuration.defaultMaxBodySize,
             streamingBodyThreshold: Int? = nil,
             requestDecompression: Decompression = .init(),
             responseCompression: Compression = .init()
