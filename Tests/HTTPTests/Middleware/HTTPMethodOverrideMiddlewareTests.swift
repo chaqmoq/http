@@ -62,8 +62,8 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
         XCTAssertEqual(receivedMethod, .PATCH)
     }
 
-    func testOverrideViaHeaderTRACE() async throws {
-        // Arrange – TRACE is now a supported method
+    func testOverrideToTRACEIsRefusedByDefault() async throws {
+        // TRACE is not in the default allowed-target set — the override must be ignored.
         var request = Request(eventLoop: eventLoop, method: .POST)
         request.headers.set(.init(name: .xHTTPMethodOverride, value: "TRACE"))
 
@@ -73,7 +73,56 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
             return Response()
         }
 
+        XCTAssertEqual(receivedMethod, .POST)
+    }
+
+    func testOverrideToTRACEAllowedWhenConfigured() async throws {
+        // Targets outside the default set can be opted into explicitly.
+        let permissive = HTTPMethodOverrideMiddleware(
+            options: .init(allowedTargetMethods: [.DELETE, .PATCH, .PUT, .TRACE])
+        )
+        var request = Request(eventLoop: eventLoop, method: .POST)
+        request.headers.set(.init(name: .xHTTPMethodOverride, value: "TRACE"))
+
+        var receivedMethod: Request.Method?
+        _ = try await permissive.handle(request: request) { req in
+            receivedMethod = req.method
+            return Response()
+        }
+
         XCTAssertEqual(receivedMethod, .TRACE)
+    }
+
+    // MARK: - Source method restrictions
+
+    func testGETRequestIsNeverOverriddenByDefault() async throws {
+        // Only POST is an eligible source method by default. A GET carrying the
+        // override header must pass through unchanged — otherwise a plain link or
+        // prefetcher could trigger a destructive method.
+        var request = Request(eventLoop: eventLoop, method: .GET)
+        request.headers.set(.init(name: .xHTTPMethodOverride, value: "DELETE"))
+
+        var receivedMethod: Request.Method?
+        _ = try await middleware.handle(request: request) { req in
+            receivedMethod = req.method
+            return Response()
+        }
+
+        XCTAssertEqual(receivedMethod, .GET)
+    }
+
+    func testOverrideToGETIsRefusedByDefault() async throws {
+        // Tunneling to a safe method (GET) is refused to avoid cache interference.
+        var request = Request(eventLoop: eventLoop, method: .POST)
+        request.headers.set(.init(name: .xHTTPMethodOverride, value: "GET"))
+
+        var receivedMethod: Request.Method?
+        _ = try await middleware.handle(request: request) { req in
+            receivedMethod = req.method
+            return Response()
+        }
+
+        XCTAssertEqual(receivedMethod, .POST)
     }
 
     // MARK: - Precedence: form parameter wins over header
