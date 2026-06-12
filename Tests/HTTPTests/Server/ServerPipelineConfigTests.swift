@@ -5,7 +5,7 @@ import XCTest
 
 /// Integration tests that exercise Server.swift branches that are skipped by the default
 /// configuration: HTTP pipelining, and all three decompression-limit variants.
-final class ServerPipelineConfigTests: XCTestCase {
+final class ServerPipelineConfigTests: XCTestCase, @unchecked Sendable {
     var client: HTTPClient!
     var server: Server!
 
@@ -113,18 +113,18 @@ final class ServerPipelineConfigTests: XCTestCase {
     // MARK: - onStop callback is invoked after stop()
 
     func testOnStopCallbackIsInvoked() {
-        var stopCalled = false
+        let expectation = expectation(description: "onStop called")
         let localServer = Server(configuration: .init(numberOfThreads: 1))
-        localServer.onStop = { stopCalled = true }
+        localServer.onStop = { expectation.fulfill() }
         try? localServer.stop()
-        XCTAssertTrue(stopCalled)
+        wait(for: [expectation], timeout: 1)
     }
 }
 
 // MARK: - Helper
 
 extension ServerPipelineConfigTests {
-    func execute(responseHandler: @escaping (Result<Response, Error>) -> Void) {
+    func execute(responseHandler: @escaping @Sendable (Result<Response, Error>) -> Void) {
         let uri = URI(server.configuration.socketAddress)!
 
         server.onStart = { [weak self] _ in

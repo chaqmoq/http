@@ -1,8 +1,8 @@
 /// A closure type that handles a request and returns an encodable response.
-public typealias Responder = (Request) async throws -> Encodable
+public typealias Responder = @Sendable (Request) async throws -> any Encodable & Sendable
 
 /// A closure type that handles a request and an error, returning an encodable response.
-public typealias ErrorResponder = (Request, Error) async throws -> Encodable
+public typealias ErrorResponder = @Sendable (Request, Error) async throws -> any Encodable & Sendable
 
 /// A component that intercepts requests before they reach the application handler.
 ///
@@ -20,7 +20,7 @@ public typealias ErrorResponder = (Request, Error) async throws -> Encodable
 ///     }
 /// }
 /// ```
-public protocol Middleware {
+public protocol Middleware: Sendable {
     /// Handles an incoming request.
     ///
     /// - Parameters:
@@ -30,14 +30,14 @@ public protocol Middleware {
     func handle(
         request: Request,
         responder: @escaping Responder
-    ) async throws -> Encodable
+    ) async throws -> any Encodable & Sendable
 }
 
 public extension Middleware {
     func handle(
         request: Request,
         responder: @escaping Responder
-    ) async throws -> Encodable {
+    ) async throws -> any Encodable & Sendable {
         try await responder(request)
     }
 }
@@ -49,12 +49,12 @@ public extension Middleware {
 ///
 /// ```swift
 /// struct JSONErrorMiddleware: ErrorMiddleware {
-///     func handle(request: Request, error: Error, responder: @escaping ErrorResponder) async throws -> Encodable {
+///     func handle(request: Request, error: Error, responder: @escaping ErrorResponder) async throws -> any Encodable & Sendable {
 ///         Response("{\"error\":\"\(error)\"}", status: .internalServerError)
 ///     }
 /// }
 /// ```
-public protocol ErrorMiddleware {
+public protocol ErrorMiddleware: Sendable {
     /// Handles an error thrown during request processing.
     ///
     /// - Parameters:
@@ -66,7 +66,7 @@ public protocol ErrorMiddleware {
         request: Request,
         error: Error,
         responder: @escaping ErrorResponder
-    ) async throws -> Encodable
+    ) async throws -> any Encodable & Sendable
 }
 
 public extension ErrorMiddleware {
@@ -74,7 +74,7 @@ public extension ErrorMiddleware {
         request: Request,
         error: Error,
         responder: @escaping ErrorResponder
-    ) async throws -> Encodable {
+    ) async throws -> any Encodable & Sendable {
         try await responder(request, error)
     }
 }

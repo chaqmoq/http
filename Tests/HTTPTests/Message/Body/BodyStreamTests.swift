@@ -379,7 +379,7 @@ final class RequestDecoderStreamingTests: XCTestCase {
 private final class DecoderErrorCaptureStreaming: ChannelInboundHandler, @unchecked Sendable {
     typealias InboundIn = NIOAny
 
-    var errors: [Error] = []
+    var errors: [Error] = .init()
 
     func channelRead(context: ChannelHandlerContext, data: NIOAny) {
         context.fireChannelRead(data)

@@ -1,6 +1,11 @@
 @testable import HTTP
 import XCTest
 
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
+
 // MARK: - Concrete types using default protocol implementations
 
 /// A middleware that relies entirely on the default `handle` implementation (pass-through).
@@ -11,7 +16,7 @@ private struct PassThroughErrorMiddleware: ErrorMiddleware {}
 
 // MARK: - Tests
 
-final class MiddlewareTests: XCTestCase {
+final class MiddlewareTests: XCTestCase, @unchecked Sendable {
     let eventLoop = EmbeddedEventLoop()
 
     // MARK: - Middleware default implementation
@@ -20,18 +25,18 @@ final class MiddlewareTests: XCTestCase {
         // Arrange
         let middleware = PassThroughMiddleware()
         let original = Request(eventLoop: eventLoop, method: .GET, uri: URI("/hello")!)
-        var received: Request?
+        let received = Box<Request?>(nil)
 
         // Act
         let result = try await middleware.handle(request: original) { request in
-            received = request
+            received.value = request
 
             return Response("ok")
         }
 
         // Assert
-        XCTAssertEqual(received?.uri, original.uri)
-        XCTAssertEqual(received?.method, original.method)
+        XCTAssertEqual(received.value?.uri, original.uri)
+        XCTAssertEqual(received.value?.method, original.method)
         let response = result as? Response
         XCTAssertEqual(response?.body.string, "ok")
     }
@@ -76,17 +81,17 @@ final class MiddlewareTests: XCTestCase {
 
         struct TestError: Error, Equatable {}
         let thrown = TestError()
-        var receivedError: Error?
+        let receivedError = Box<Error?>(nil)
 
         // Act
         let result = try await middleware.handle(request: request, error: thrown) { _, error in
-            receivedError = error
+            receivedError.value = error
 
             return Response("handled")
         }
 
         // Assert
-        XCTAssertTrue(receivedError is TestError)
+        XCTAssertTrue(receivedError.value is TestError)
         let response = result as? Response
         XCTAssertEqual(response?.body.string, "handled")
     }

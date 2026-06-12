@@ -5,6 +5,11 @@ import NIO
 import NIOHTTP1
 import XCTest
 
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
+
 /// Integration tests that exercise `RequestResponseHandler` logic not covered by
 /// the existing `ClientServerAdvancedTests`.
 ///
@@ -15,7 +20,7 @@ import XCTest
 /// assertion closure so the server's actual wire headers are inspected without the
 /// side-effects of constructing a `Response` value (whose `init` always overwrites
 /// `Content-Length` to match the body length).
-final class RequestResponseHandlerTests: XCTestCase {
+final class RequestResponseHandlerTests: XCTestCase, @unchecked Sendable {
     var client: HTTPClient!
     var server: Server!
 
@@ -139,7 +144,7 @@ final class RequestResponseHandlerTests: XCTestCase {
                 request: Request,
                 error: Error,
                 responder: @escaping ErrorResponder
-            ) async throws -> Encodable {
+            ) async throws -> any Encodable & Sendable {
                 // Both onReceive and this middleware throw — the handler must fall
                 // back to 500 Internal Server Error.
                 throw error
@@ -184,7 +189,7 @@ final class RequestResponseHandlerTests: XCTestCase {
     /// 500 Internal Server Error once the error middleware chain also exhausts.
     func testMiddlewareErrorPropagatesViaPassThroughMiddleware() {
         struct PassThrough: Middleware {
-            func handle(request: Request, responder: @escaping Responder) async throws -> Encodable {
+            func handle(request: Request, responder: @escaping Responder) async throws -> any Encodable & Sendable {
                 try await responder(request)
             }
         }
@@ -269,7 +274,7 @@ final class RequestResponseHandlerTests: XCTestCase {
     /// wraps the result into the *base* response, preserving the `Connection: close` header
     /// that `channelRead` set on it — making the header observable in the wire response.
     func testHTTP10WithoutConnectionHeaderSetsConnectionClose() {
-        var connectionHeader: String?
+        let connectionHeader = Box<String?>(nil)
 
         // Return a String (not a Response) so handle() embeds it in the base response.
         // The base response already has Connection: close set by channelRead for HTTP/1.0
@@ -301,7 +306,7 @@ final class RequestResponseHandlerTests: XCTestCase {
                 // triggers channelInactive on the client side — wait for that signal.
                 capture.waitForClose()
 
-                connectionHeader = capture.connectionHeaderValue
+                connectionHeader.value = capture.connectionHeaderValue
                 try! self.server.stop()
             }
         }
@@ -309,7 +314,7 @@ final class RequestResponseHandlerTests: XCTestCase {
         try! server.start()
 
         XCTAssertEqual(
-            connectionHeader,
+            connectionHeader.value,
             "close",
             "HTTP/1.0 without Connection header should result in Connection: close"
         )
@@ -342,10 +347,10 @@ extension RequestResponseHandlerTests {
     /// Use this when you need to return a non-`Response` value or control middleware.
     func execute(
         method: Request.Method = .GET,
-        middleware: [Middleware] = [],
-        errorMiddleware: [ErrorMiddleware] = [],
+        middleware: [Middleware] = .init(),
+        errorMiddleware: [ErrorMiddleware] = .init(),
         onReceive: @escaping (Request) async throws -> Encodable,
-        responseHandler: @escaping (Result<HTTPClient.Response, Error>) -> Void
+        responseHandler: @escaping @Sendable (Result<HTTPClient.Response, Error>) -> Void
     ) {
         server.middleware = middleware
         server.errorMiddleware = errorMiddleware
@@ -381,8 +386,8 @@ extension RequestResponseHandlerTests {
         method: Request.Method = .GET,
         handlerResponse: Response = Response(),
         throwsInHandler: Bool = false,
-        errorMiddleware: [ErrorMiddleware] = [],
-        responseHandler: @escaping (Result<HTTPClient.Response, Error>) -> Void
+        errorMiddleware: [ErrorMiddleware] = .init(),
+        responseHandler: @escaping @Sendable (Result<HTTPClient.Response, Error>) -> Void
     ) {
         server.errorMiddleware = errorMiddleware
 

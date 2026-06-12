@@ -14,7 +14,7 @@ public enum HeaderUtil {
     // so they vary. Cache by full pattern string to avoid recompiling on repeated calls
     // with the same name (e.g. the same cookie name set many times).
     // NSCache is thread-safe and evicts under memory pressure automatically.
-    private static let regexCache = NSCache<NSString, NSRegularExpression>()
+    nonisolated(unsafe) private static let regexCache = NSCache<NSString, NSRegularExpression>()
 
     static func cachedRegex(for pattern: String) -> NSRegularExpression? {
         if let cached = regexCache.object(forKey: pattern as NSString) {

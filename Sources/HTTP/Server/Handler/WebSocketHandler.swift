@@ -1,5 +1,10 @@
-import NIO
+@preconcurrency import NIO
 import NIOWebSocket
+
+private final class Box<T>: @unchecked Sendable {
+    let value: T
+    init(_ value: T) { self.value = value }
+}
 
 /// Bridges NIO ``WebSocketFrame`` channel events to a ``WebSocket`` actor.
 ///
@@ -54,8 +59,9 @@ final class WebSocketHandler: ChannelInboundHandler, @unchecked Sendable {
                 opcode: .connectionClose,
                 data: echo
             )
-            context.writeAndFlush(wrapOutboundOut(closeFrame)).whenComplete { _ in
-                context.close(promise: nil)
+            let ctxBox = Box(context)
+            context.writeAndFlush(wrapOutboundOut(closeFrame)).whenComplete { [ctxBox] _ in
+                ctxBox.value.close(promise: nil)
             }
 
         case .continuation, .pong:
@@ -90,8 +96,9 @@ final class WebSocketHandler: ChannelInboundHandler, @unchecked Sendable {
         var buffer = context.channel.allocator.buffer(capacity: 2)
         buffer.write(webSocketErrorCode: .protocolError)
         let frame = WebSocketFrame(fin: true, opcode: .connectionClose, data: buffer)
-        context.writeAndFlush(wrapOutboundOut(frame)).whenComplete { _ in
-            context.close(mode: .output, promise: nil)
+        let ctxBox = Box(context)
+        context.writeAndFlush(wrapOutboundOut(frame)).whenComplete { [ctxBox] _ in
+            ctxBox.value.close(mode: .output, promise: nil)
         }
     }
 }

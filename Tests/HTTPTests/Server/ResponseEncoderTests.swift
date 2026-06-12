@@ -4,7 +4,7 @@ import NIO
 import XCTest
 
 /// Tests that drive ResponseEncoder directly via the live server.
-final class ResponseEncoderTests: XCTestCase {
+final class ResponseEncoderTests: XCTestCase, @unchecked Sendable {
     var client: HTTPClient!
     var server: Server!
 
@@ -123,7 +123,7 @@ final class ResponseEncoderTests: XCTestCase {
 extension ResponseEncoderTests {
     func execute(
         response: Response,
-        responseHandler: @escaping (Result<Response, Error>) -> Void
+        responseHandler: @escaping @Sendable (Result<Response, Error>) -> Void
     ) {
         let uri = URI(server.configuration.socketAddress)!
 

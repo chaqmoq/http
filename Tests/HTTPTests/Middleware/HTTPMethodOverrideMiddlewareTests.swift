@@ -1,7 +1,12 @@
 @testable import HTTP
 import XCTest
 
-final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
+
+final class HTTPMethodOverrideMiddlewareTests: XCTestCase, @unchecked Sendable {
     let eventLoop = EmbeddedEventLoop()
     let middleware = HTTPMethodOverrideMiddleware()
 
@@ -16,16 +21,16 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
             body: .init(string: "_method=DELETE&id=42")
         )
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
 
         // Act
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
         // Assert
-        XCTAssertEqual(receivedMethod, .DELETE)
+        XCTAssertEqual(receivedMethod.value, .DELETE)
     }
 
     func testOverrideViaPUTFormParameter() async throws {
@@ -37,13 +42,13 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
             body: .init(string: "_method=PUT")
         )
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
-        XCTAssertEqual(receivedMethod, .PUT)
+        XCTAssertEqual(receivedMethod.value, .PUT)
     }
 
     // MARK: - X-HTTP-Method-Override header
@@ -53,13 +58,13 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
         var request = Request(eventLoop: eventLoop, method: .POST)
         request.headers.set(.init(name: .xHTTPMethodOverride, value: "PATCH"))
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
-        XCTAssertEqual(receivedMethod, .PATCH)
+        XCTAssertEqual(receivedMethod.value, .PATCH)
     }
 
     func testOverrideToTRACEIsRefusedByDefault() async throws {
@@ -67,13 +72,13 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
         var request = Request(eventLoop: eventLoop, method: .POST)
         request.headers.set(.init(name: .xHTTPMethodOverride, value: "TRACE"))
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
-        XCTAssertEqual(receivedMethod, .POST)
+        XCTAssertEqual(receivedMethod.value, .POST)
     }
 
     func testOverrideToTRACEAllowedWhenConfigured() async throws {
@@ -84,13 +89,13 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
         var request = Request(eventLoop: eventLoop, method: .POST)
         request.headers.set(.init(name: .xHTTPMethodOverride, value: "TRACE"))
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await permissive.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
-        XCTAssertEqual(receivedMethod, .TRACE)
+        XCTAssertEqual(receivedMethod.value, .TRACE)
     }
 
     // MARK: - Source method restrictions
@@ -102,13 +107,13 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
         var request = Request(eventLoop: eventLoop, method: .GET)
         request.headers.set(.init(name: .xHTTPMethodOverride, value: "DELETE"))
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
-        XCTAssertEqual(receivedMethod, .GET)
+        XCTAssertEqual(receivedMethod.value, .GET)
     }
 
     func testOverrideToGETIsRefusedByDefault() async throws {
@@ -116,13 +121,13 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
         var request = Request(eventLoop: eventLoop, method: .POST)
         request.headers.set(.init(name: .xHTTPMethodOverride, value: "GET"))
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
-        XCTAssertEqual(receivedMethod, .POST)
+        XCTAssertEqual(receivedMethod.value, .POST)
     }
 
     // MARK: - Precedence: form parameter wins over header
@@ -139,14 +144,14 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
             body: .init(string: "_method=DELETE")
         )
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
         // Form param (_method=DELETE) should win
-        XCTAssertEqual(receivedMethod, .DELETE)
+        XCTAssertEqual(receivedMethod.value, .DELETE)
     }
 
     // MARK: - No override present
@@ -155,13 +160,13 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
         // Arrange – plain GET request, no override
         let request = Request(eventLoop: eventLoop, method: .GET)
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
-        XCTAssertEqual(receivedMethod, .GET)
+        XCTAssertEqual(receivedMethod.value, .GET)
     }
 
     // MARK: - Invalid / unknown method values are ignored
@@ -175,14 +180,14 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
             body: .init(string: "_method=INVALID_METHOD")
         )
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
         // Original method should be preserved when the override value is unknown
-        XCTAssertEqual(receivedMethod, .POST)
+        XCTAssertEqual(receivedMethod.value, .POST)
     }
 
     func testInvalidHeaderValueIsIgnored() async throws {
@@ -190,12 +195,12 @@ final class HTTPMethodOverrideMiddlewareTests: XCTestCase {
         var request = Request(eventLoop: eventLoop, method: .POST)
         request.headers.set(.init(name: .xHTTPMethodOverride, value: "NOT_A_METHOD"))
 
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
         _ = try await middleware.handle(request: request) { req in
-            receivedMethod = req.method
+            receivedMethod.value = req.method
             return Response()
         }
 
-        XCTAssertEqual(receivedMethod, .POST)
+        XCTAssertEqual(receivedMethod.value, .POST)
     }
 }

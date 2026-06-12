@@ -1,11 +1,11 @@
 import Logging
-import NIO
+@preconcurrency import NIO
 import NIOConcurrencyHelpers
-import NIOHTTP1
-import NIOHTTP2
-import NIOHTTPCompression
-import NIOSSL
-import NIOWebSocket
+@preconcurrency import NIOHTTP1
+@preconcurrency import NIOHTTP2
+@preconcurrency import NIOHTTPCompression
+@preconcurrency import NIOSSL
+@preconcurrency import NIOWebSocket
 
 /// A non-blocking HTTP/1.1 and HTTP/2 server powered by SwiftNIO.
 ///
@@ -45,38 +45,38 @@ public final class Server: @unchecked Sendable {
     // event-loop threads and writes from any other thread are race-free.
     private let lock = NIOLock()
 
-    private var _onStart: ((EventLoop) -> Void)?
+    private var _onStart: (@Sendable (EventLoop) -> Void)?
     /// Called on the first event loop when the server has successfully bound its socket.
-    public var onStart: ((EventLoop) -> Void)? {
+    public var onStart: (@Sendable (EventLoop) -> Void)? {
         get { lock.withLock { _onStart } }
         set { lock.withLock { _onStart = newValue } }
     }
 
-    private var _onStop: (() -> Void)?
+    private var _onStop: (@Sendable () -> Void)?
     /// Called after the event-loop group has been shut down gracefully.
-    public var onStop: (() -> Void)? {
+    public var onStop: (@Sendable () -> Void)? {
         get { lock.withLock { _onStop } }
         set { lock.withLock { _onStop = newValue } }
     }
 
-    private var _onError: ((Error, EventLoop) -> Void)?
+    private var _onError: (@Sendable (Error, EventLoop) -> Void)?
     /// Called when an unrecoverable channel-level error occurs.
-    public var onError: ((Error, EventLoop) -> Void)? {
+    public var onError: (@Sendable (Error, EventLoop) -> Void)? {
         get { lock.withLock { _onError } }
         set { lock.withLock { _onError = newValue } }
     }
 
-    private var _onReceive: ((Request) async throws -> Encodable)?
+    private var _onReceive: ((Request) async throws -> any Encodable & Sendable)?
     /// The application handler invoked for every incoming request after all middleware runs.
     ///
-    /// Return any `Encodable` value; if it is not a `Response` it will be wrapped in one
+    /// Return any `Encodable & Sendable` value; if it is not a `Response` it will be wrapped in one
     /// using its string description.
-    public var onReceive: ((Request) async throws -> Encodable)? {
+    public var onReceive: ((Request) async throws -> any Encodable & Sendable)? {
         get { lock.withLock { _onReceive } }
         set { lock.withLock { _onReceive = newValue } }
     }
 
-    private var _onUpgrade: ((Request, WebSocket) async throws -> Void)?
+    private var _onUpgrade: (@Sendable (Request, WebSocket) async throws -> Void)?
     /// Called when an HTTP/1.1 connection is upgraded to WebSocket.
     ///
     /// Receives the original upgrade `Request` and a live ``WebSocket`` object. Send frames
@@ -97,7 +97,7 @@ public final class Server: @unchecked Sendable {
     ///     }
     /// }
     /// ```
-    public var onUpgrade: ((Request, WebSocket) async throws -> Void)? {
+    public var onUpgrade: (@Sendable (Request, WebSocket) async throws -> Void)? {
         get { lock.withLock { _onUpgrade } }
         set { lock.withLock { _onUpgrade = newValue } }
     }
@@ -238,8 +238,8 @@ public final class Server: @unchecked Sendable {
 
 extension Server {
     private func initializeChild(channel: Channel) -> EventLoopFuture<Void> {
-        // Cast to ChannelHandler to select the non-Sendable overload; BackPressureHandler is
-        // intentionally not Sendable (it is always used on its event loop).
+        // Explicit existential type selects the non-Sendable addHandler overload;
+        // BackPressureHandler has an unavailable Sendable conformance (event-loop-bound).
         let backPressureHandler: ChannelHandler = BackPressureHandler()
         return channel.pipeline.addHandler(backPressureHandler).flatMap { [weak self] in
             guard let server = self else { return channel.close() }
@@ -281,8 +281,8 @@ extension Server {
             return channel.close()
         }
 
-        // Cast to ChannelHandler to select the non-Sendable overload; NIOSSLServerHandler is
-        // intentionally not Sendable (it is always used on its event loop).
+        // Explicit existential type selects the non-Sendable addHandler overload;
+        // NIOSSLServerHandler has an unavailable Sendable conformance (event-loop-bound).
         let sslHandler: ChannelHandler = NIOSSLServerHandler(context: sslContext)
 
         return channel.pipeline.addHandler(sslHandler)
@@ -299,7 +299,9 @@ extension Server {
             // and can inject PUSH_PROMISE frames directly into the stream channel's write
             // mechanism without going back through the codec.
             let pushHandler = HTTP2PushHandler()
-            let handlers: [ChannelHandler] = [
+            // HTTP2FramePayloadToHTTP1ServerCodec has an unavailable Sendable conformance, so
+            // the whole array uses the non-Sendable existential to select the right overload.
+            let handlers: [any ChannelHandler] = [
                 pushHandler,
                 HTTP2FramePayloadToHTTP1ServerCodec(),
                 RequestDecoder(
@@ -320,7 +322,7 @@ extension Server {
         // The upgrader is wired into configureHTTPServerPipeline so that NIO's
         // HTTPServerUpgradeHandler intercepts Upgrade: websocket requests before
         // they reach RequestDecoder.
-        let upgradeConfig: NIOHTTPServerUpgradeConfiguration? = self.onUpgrade.map { onUpgradeHandler in
+        let upgradeConfig = self.onUpgrade.map { onUpgradeHandler in
             let upgrader = NIOWebSocketServerUpgrader(
                 shouldUpgrade: { [weak self] channel, head in
                     // Consult the application's shouldUpgrade predicate. Returning a nil
@@ -367,14 +369,16 @@ extension Server {
                 // completionHandler runs after the upgrade is complete (101 sent,
                 // HTTP codec removed). Remove the HTTP application handlers so that
                 // raw WebSocket frames do not flow through RequestDecoder.
-                completionHandler: { ctx in
+                completionHandler: { @Sendable (ctx: ChannelHandlerContext) in
                     let pipeline = ctx.pipeline
                     // Each removal is a no-op (.recover) if the handler was never added
                     // (e.g. compression was disabled).
                     func removeIfPresent<H: ChannelHandler>(_ type: H.Type) {
-                        _ = pipeline.context(handlerType: type)
-                            .flatMap { pipeline.syncOperations.removeHandler(context: $0) }
-                            .recover { _ in }
+                        // Use the synchronous pipeline API — we are already on the event
+                        // loop inside the upgrade completionHandler, so syncOperations is
+                        // safe and does not require H.Type: SendableMetatype.
+                        guard let ctx = try? pipeline.syncOperations.context(handlerType: type) else { return }
+                        _ = pipeline.syncOperations.removeHandler(context: ctx)
                     }
                     removeIfPresent(HTTPServerPipelineHandler.self)
                     removeIfPresent(HTTPResponseCompressor.self)
@@ -389,7 +393,7 @@ extension Server {
 
         return channel.pipeline.configureHTTPServerPipeline(withServerUpgrade: upgradeConfig).flatMap { [weak self] in
             guard let server = self else { return channel.close() }
-            var handlers = [ChannelHandler]()
+            var handlers = [any ChannelHandler]()
 
             if server.configuration.supportsPipelining {
                 handlers.append(HTTPServerPipelineHandler())
@@ -416,7 +420,7 @@ extension Server {
                 handlers.append(NIOHTTPRequestDecompressor(limit: decompressionLimit))
             }
 
-            let otherHandlers: [ChannelHandler] = [
+            let otherHandlers: [any ChannelHandler] = [
                 RequestDecoder(
                     maxBodySize: server.configuration.maxBodySize,
                     streamingBodyThreshold: server.configuration.streamingBodyThreshold

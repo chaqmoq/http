@@ -33,7 +33,7 @@
 /// ```
 public struct HTTPMethodOverrideMiddleware: Middleware {
     /// Configuration for which methods may be overridden, and into what.
-    public struct Options {
+    public struct Options: Sendable {
         /// Request methods eligible for override. Defaults to `[.POST]`.
         public var allowedSourceMethods: Set<Request.Method>
 
@@ -70,7 +70,7 @@ public struct HTTPMethodOverrideMiddleware: Middleware {
     public func handle(
         request: Request,
         responder: @escaping Responder
-    ) async throws -> Encodable {
+    ) async throws -> any Encodable & Sendable {
         // Only requests with an eligible source method may be overridden.
         guard options.allowedSourceMethods.contains(request.method) else {
             return try await responder(request)

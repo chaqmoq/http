@@ -2,6 +2,11 @@
 import NIO
 import XCTest
 
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
+
 #if canImport(Darwin)
 import Darwin
 #else
@@ -11,7 +16,7 @@ import Glibc
 /// Tests that exercise ErrorHandler.errorCaught by sending malformed data over a raw TCP
 /// socket, causing NIO's HTTP decoder to fire a channel error that propagates to the
 /// tail-of-pipeline ErrorHandler.
-final class ErrorHandlerTests: XCTestCase {
+final class ErrorHandlerTests: XCTestCase, @unchecked Sendable {
     var server: Server!
 
     override func setUp() {
@@ -20,12 +25,12 @@ final class ErrorHandlerTests: XCTestCase {
     }
 
     func testErrorHandlerIsInvokedOnMalformedRequest() {
-        var channelErrorReceived: Error?
+        let channelErrorReceived = Box<Error?>(nil)
         let errorExpectation = expectation(description: "onError callback fired")
         errorExpectation.assertForOverFulfill = false
 
         server.onError = { error, _ in
-            channelErrorReceived = error
+            channelErrorReceived.value = error
             errorExpectation.fulfill()
         }
 
@@ -46,7 +51,7 @@ final class ErrorHandlerTests: XCTestCase {
         try? server.stop()
 
         if waited == .completed {
-            XCTAssertNotNil(channelErrorReceived)
+            XCTAssertNotNil(channelErrorReceived.value)
         }
         // If the wait timed out the test is inconclusive rather than a hard failure,
         // because some NIO pipeline configurations absorb malformed-input errors before

@@ -1,6 +1,6 @@
 @preconcurrency @testable import HTTP
-import NIO
-import NIOHTTP2
+@preconcurrency import NIO
+@preconcurrency import NIOHTTP2
 import XCTest
 
 /// Unit tests for `HTTP2PushHandler` using a synchronous `EmbeddedChannel`.
@@ -9,7 +9,7 @@ import XCTest
 /// returns a pre-resolved future (the `parent?.pipeline` guard returns early).
 /// This lets us verify the pass-through and deferral behaviour synchronously,
 /// using `channel.embeddedEventLoop.run()` to drain any scheduled callbacks.
-final class HTTP2PushHandlerTests: XCTestCase {
+final class HTTP2PushHandlerTests: XCTestCase, @unchecked Sendable {
     private var handler: HTTP2PushHandler!
     private var channel: EmbeddedChannel!
 

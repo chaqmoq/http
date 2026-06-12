@@ -10,7 +10,7 @@ final class TLSTests: XCTestCase {
     // MARK: - nil-returning guard paths
 
     func testInitWithEmptyCertificateFilesReturnsNil() {
-        let tls = TLS(certificateFiles: [], privateKeyFile: "key.pem", encoding: .pem)
+        let tls = TLS(certificateFiles: .init(), privateKeyFile: "key.pem", encoding: .pem)
         XCTAssertNil(tls)
     }
 

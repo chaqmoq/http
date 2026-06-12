@@ -4,9 +4,14 @@ import NIO
 import NIOHTTP1
 import XCTest
 
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
+
 /// Extended integration tests that drive paths in RequestResponseHandler and ResponseEncoder
 /// not covered by the basic ClientServerTests.
-final class ClientServerAdvancedTests: XCTestCase {
+final class ClientServerAdvancedTests: XCTestCase, @unchecked Sendable {
     var client: HTTPClient!
     var server: Server!
     let eventLoop = EmbeddedEventLoop()
@@ -76,16 +81,16 @@ final class ClientServerAdvancedTests: XCTestCase {
 
     func testErrorMiddlewareReceivesHandlerError() {
         struct TestError: Error {}
-        var errorMiddlewareCalled = false
+        let errorMiddlewareCalled = Box(false)
 
-        struct CapturingErrorMiddleware: ErrorMiddleware {
-            let onError: () -> Void
+        struct CapturingErrorMiddleware: ErrorMiddleware, @unchecked Sendable {
+            let onError: @Sendable () -> Void
 
             func handle(
                 request: Request,
                 error: Error,
                 responder: @escaping ErrorResponder
-            ) async throws -> Encodable {
+            ) async throws -> any Encodable & Sendable {
                 onError()
 
                 return Response("caught", status: .internalServerError)
@@ -94,11 +99,11 @@ final class ClientServerAdvancedTests: XCTestCase {
 
         execute(
             throwingHandler: { throw TestError() },
-            errorMiddleware: [CapturingErrorMiddleware(onError: { errorMiddlewareCalled = true })]
+            errorMiddleware: [CapturingErrorMiddleware(onError: { errorMiddlewareCalled.value = true })]
         ) { result in
             switch result {
             case .success(let response):
-                XCTAssertTrue(errorMiddlewareCalled)
+                XCTAssertTrue(errorMiddlewareCalled.value)
                 XCTAssertEqual(response.status, .internalServerError)
                 XCTAssertEqual(response.body.string, "caught")
             case .failure(let error):
@@ -110,15 +115,15 @@ final class ClientServerAdvancedTests: XCTestCase {
     // MARK: - Server onError callback is set and accessible
 
     func testServerOnErrorCallbackIsAssignable() {
-        var errorReceived: Error?
-        server.onError = { error, _ in errorReceived = error }
+        let errorReceived = Box<Error?>(nil)
+        server.onError = { error, _ in errorReceived.value = error }
 
         XCTAssertNotNil(server.onError)
         // Trigger the callback directly to verify the closure is stored
         struct SyntheticError: Error {}
         let el = EmbeddedEventLoop()
         server.onError?(SyntheticError(), el)
-        XCTAssertTrue(errorReceived is SyntheticError)
+        XCTAssertTrue(errorReceived.value is SyntheticError)
     }
 
     // MARK: - Middleware returning non-Response Encodable is stringified
@@ -130,7 +135,7 @@ final class ClientServerAdvancedTests: XCTestCase {
 
     func testMiddlewareReturningNonResponseIsStringified() {
         struct StringMiddleware: Middleware {
-            func handle(request: Request, responder: @escaping Responder) async throws -> Encodable {
+            func handle(request: Request, responder: @escaping Responder) async throws -> any Encodable & Sendable {
                 return "from-middleware"
             }
         }
@@ -160,7 +165,7 @@ final class ClientServerAdvancedTests: XCTestCase {
                 request: Request,
                 error: Error,
                 responder: @escaping ErrorResponder
-            ) async throws -> Encodable {
+            ) async throws -> any Encodable & Sendable {
                 return "from-error-middleware"
             }
         }
@@ -209,11 +214,11 @@ extension ClientServerAdvancedTests {
         method: Request.Method = .GET,
         responseStatus: Response.Status = .ok,
         responseBody: Body = Body(),
-        encodableResponse: (any Encodable)? = nil,
+        encodableResponse: (any Encodable & Sendable)? = nil,
         throwingHandler: (() throws -> Void)? = nil,
         middleware: [Middleware] = [],
         errorMiddleware: [ErrorMiddleware] = [],
-        responseHandler: @escaping (Result<Response, Error>) -> Void
+        responseHandler: @escaping @Sendable (Result<Response, Error>) -> Void
     ) {
         server.middleware = middleware
         server.errorMiddleware = errorMiddleware

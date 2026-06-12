@@ -14,7 +14,7 @@ import XCTest
 /// `setUp()` — to avoid NIO's "EmbeddedEventLoop is not thread-safe" assertion.
 /// Async `webSocket.messages` assertions are driven through `Task` +
 /// `XCTestExpectation` so `await` never touches the channel.
-final class WebSocketHandlerTests: XCTestCase {
+final class WebSocketHandlerTests: XCTestCase, @unchecked Sendable {
     private var webSocket: WebSocket!
     private var channel: EmbeddedChannel!
 
@@ -53,7 +53,7 @@ final class WebSocketHandlerTests: XCTestCase {
             }
             exp.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        _ = XCTWaiter.wait(for: [exp], timeout: 1.0)
     }
 
     // MARK: - Binary frame
@@ -76,7 +76,7 @@ final class WebSocketHandlerTests: XCTestCase {
             }
             exp.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        _ = XCTWaiter.wait(for: [exp], timeout: 1.0)
     }
 
     // MARK: - Ping → Pong (RFC 6455 §5.5.2)
@@ -147,7 +147,7 @@ final class WebSocketHandlerTests: XCTestCase {
             XCTAssertNil(message, "AsyncStream must finish (yield nil) after channelInactive")
             exp.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        _ = XCTWaiter.wait(for: [exp], timeout: 1.0)
     }
 
     // MARK: - errorCaught finishes message stream
@@ -165,7 +165,7 @@ final class WebSocketHandlerTests: XCTestCase {
             XCTAssertNil(message, "AsyncStream must finish (yield nil) after errorCaught")
             exp.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        _ = XCTWaiter.wait(for: [exp], timeout: 1.0)
     }
 
     // MARK: - Continuation and pong frames are discarded

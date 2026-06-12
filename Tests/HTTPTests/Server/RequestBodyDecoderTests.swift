@@ -4,9 +4,14 @@ import NIO
 import NIOHTTP1
 import XCTest
 
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
+
 /// Integration tests that send requests with non-empty bodies, ensuring RequestDecoder's
 /// `.body(chunk)` state-machine branch is exercised.
-final class RequestBodyDecoderTests: XCTestCase {
+final class RequestBodyDecoderTests: XCTestCase, @unchecked Sendable {
     var client: HTTPClient!
     var server: Server!
 
@@ -20,15 +25,15 @@ final class RequestBodyDecoderTests: XCTestCase {
 
     func testPOSTWithJSONBodyIsDecoded() {
         let jsonString = #"{"name":"swift","version":6}"#
-        var receivedBody: String?
+        let receivedBody = Box<String?>(nil)
 
         execute(method: .POST, body: jsonString, contentType: "application/json") { request in
-            receivedBody = request.body.string
+            receivedBody.value = request.body.string
         } responseHandler: { result in
             switch result {
             case .success(let response):
                 XCTAssertEqual(response.status, .ok)
-                XCTAssertEqual(receivedBody, jsonString)
+                XCTAssertEqual(receivedBody.value, jsonString)
             case .failure(let error):
                 XCTFail("Unexpected error: \(error)")
             }
@@ -37,16 +42,16 @@ final class RequestBodyDecoderTests: XCTestCase {
 
     func testPOSTWithFormBodyIsDecoded() {
         let formBody = "username=sukhrob&password=secret"
-        var receivedParameters: [String: Any] = [:]
+        let receivedParameters = Box<[String: Any]>([:])
 
         execute(method: .POST, body: formBody, contentType: "application/x-www-form-urlencoded") { request in
-            receivedParameters["username"] = request.parameters["username"]?.value
-            receivedParameters["password"] = request.parameters["password"]?.value
+            receivedParameters.value["username"] = request.parameters["username"]?.value
+            receivedParameters.value["password"] = request.parameters["password"]?.value
         } responseHandler: { result in
             switch result {
             case .success:
-                XCTAssertEqual(receivedParameters["username"] as? String, "sukhrob")
-                XCTAssertEqual(receivedParameters["password"] as? String, "secret")
+                XCTAssertEqual(receivedParameters.value["username"] as? String, "sukhrob")
+                XCTAssertEqual(receivedParameters.value["password"] as? String, "secret")
             case .failure(let error):
                 XCTFail("Unexpected error: \(error)")
             }
@@ -57,14 +62,14 @@ final class RequestBodyDecoderTests: XCTestCase {
         // A larger body forces NIO to split it into multiple chunks,
         // exercising the append path inside the .body(chunk) case.
         let largeBody = String(repeating: "A", count: 4096)
-        var receivedCount = 0
+        let receivedCount = Box(0)
 
         execute(method: .PUT, body: largeBody, contentType: "text/plain") { request in
-            receivedCount = request.body.count
+            receivedCount.value = request.body.count
         } responseHandler: { result in
             switch result {
             case .success:
-                XCTAssertEqual(receivedCount, 4096)
+                XCTAssertEqual(receivedCount.value, 4096)
             case .failure(let error):
                 XCTFail("Unexpected error: \(error)")
             }
@@ -73,15 +78,15 @@ final class RequestBodyDecoderTests: XCTestCase {
 
     func testPATCHWithBodyReturnsCorrectResponse() {
         let body = "patch-payload"
-        var receivedBody: String?
+        let receivedBody = Box<String?>(nil)
 
         execute(method: .PATCH, body: body, contentType: "text/plain") { request in
-            receivedBody = request.body.string
+            receivedBody.value = request.body.string
         } responseHandler: { result in
             switch result {
             case .success(let response):
                 XCTAssertEqual(response.status, .ok)
-                XCTAssertEqual(receivedBody, body)
+                XCTAssertEqual(receivedBody.value, body)
             case .failure(let error):
                 XCTFail("Unexpected error: \(error)")
             }
@@ -97,7 +102,7 @@ extension RequestBodyDecoderTests {
         body: String,
         contentType: String,
         requestHandler: @escaping (Request) -> Void,
-        responseHandler: @escaping (Result<Response, Error>) -> Void
+        responseHandler: @escaping @Sendable (Result<Response, Error>) -> Void
     ) {
         let uri = URI(server.configuration.socketAddress)!
 

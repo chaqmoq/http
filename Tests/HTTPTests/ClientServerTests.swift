@@ -4,7 +4,7 @@ import NIO
 import NIOHTTP1
 import XCTest
 
-class ClientServerTests: XCTestCase {
+class ClientServerTests: XCTestCase, @unchecked Sendable {
     var client: HTTPClient!
     var server: Server!
     let eventLoop = EmbeddedEventLoop()
@@ -50,7 +50,7 @@ extension ClientServerTests {
         _ request: Request,
         expecting response: Response,
         requestHandler: @escaping (Request) -> Void,
-        responseHandler: @escaping (Result<Response, Error>) -> Void
+        responseHandler: @escaping @Sendable (Result<Response, Error>) -> Void
     ) {
         server.onStart = { [weak self] _ in
             guard let self else { return }

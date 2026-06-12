@@ -29,7 +29,7 @@ public struct CORSMiddleware: Middleware, ErrorMiddleware {
     public func handle(
         request: Request,
         responder: @escaping Responder
-    ) async throws -> Encodable {
+    ) async throws -> any Encodable & Sendable {
         guard request.headers.get(.origin) != nil else { return try await responder(request) }
         let encodable = request.isPreflight ? Response(status: .noContent) : try await responder(request)
 
@@ -43,7 +43,7 @@ public struct CORSMiddleware: Middleware, ErrorMiddleware {
         request: Request,
         error: Error,
         responder: @escaping ErrorResponder
-    ) async throws -> Encodable {
+    ) async throws -> any Encodable & Sendable {
         guard request.headers.get(.origin) != nil else { return try await responder(request, error) }
         return addingCORSHeaders(
             to: try await responder(request, error),
@@ -71,7 +71,7 @@ public struct CORSMiddleware: Middleware, ErrorMiddleware {
 }
 
 extension CORSMiddleware {
-    public struct Options {
+    public struct Options: Sendable {
         public var allowCredentials: Bool
         public var allowedHeaders: [String]?
         public var allowedMethods: [Request.Method]
@@ -98,7 +98,7 @@ extension CORSMiddleware {
 }
 
 extension CORSMiddleware.Options {
-    public enum AllowedOrigin {
+    public enum AllowedOrigin: Sendable {
         case all
         case none
         case origins(Set<String>)

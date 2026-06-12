@@ -3,9 +3,14 @@ import AsyncHTTPClient
 import NIO
 import XCTest
 
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
+
 /// Tests for the full middleware pipeline executed through the live server,
 /// covering chained middleware, error middleware, and middleware mutation of requests.
-final class MiddlewarePipelineTests: XCTestCase {
+final class MiddlewarePipelineTests: XCTestCase, @unchecked Sendable {
     var client: HTTPClient!
     var server: Server!
 
@@ -18,13 +23,13 @@ final class MiddlewarePipelineTests: XCTestCase {
     // MARK: - Middleware chain executes in order
 
     func testMiddlewareChainExecutesInOrder() {
-        var order: [Int] = []
+        let order = Box<[Int]>([])
 
         struct OrderMiddleware: Middleware {
             let index: Int
-            let record: (Int) -> Void
+            let record: @Sendable (Int) -> Void
 
-            func handle(request: Request, responder: @escaping Responder) async throws -> Encodable {
+            func handle(request: Request, responder: @escaping Responder) async throws -> any Encodable & Sendable {
                 record(index)
 
                 return try await responder(request)
@@ -32,15 +37,15 @@ final class MiddlewarePipelineTests: XCTestCase {
         }
 
         server.middleware = [
-            OrderMiddleware(index: 1, record: { order.append($0) }),
-            OrderMiddleware(index: 2, record: { order.append($0) }),
-            OrderMiddleware(index: 3, record: { order.append($0) })
+            OrderMiddleware(index: 1, record: { order.value.append($0) }),
+            OrderMiddleware(index: 2, record: { order.value.append($0) }),
+            OrderMiddleware(index: 3, record: { order.value.append($0) })
         ]
 
         execute { result in
             switch result {
             case .success:
-                XCTAssertEqual(order, [1, 2, 3])
+                XCTAssertEqual(order.value, [1, 2, 3])
             case .failure(let error):
                 XCTFail("Unexpected error: \(error)")
             }
@@ -50,17 +55,17 @@ final class MiddlewarePipelineTests: XCTestCase {
     // MARK: - Middleware can short-circuit the chain
 
     func testMiddlewareCanShortCircuit() {
-        var handlerCalled = false
+        let handlerCalled = Box(false)
 
         struct ShortCircuitMiddleware: Middleware {
-            func handle(request: Request, responder: @escaping Responder) async throws -> Encodable {
+            func handle(request: Request, responder: @escaping Responder) async throws -> any Encodable & Sendable {
                 Response("short-circuited", status: .forbidden)
             }
         }
 
         server.middleware = [ShortCircuitMiddleware()]
         server.onReceive = { _ in
-            handlerCalled = true
+            handlerCalled.value = true
 
             return Response("should not reach here")
         }
@@ -68,7 +73,7 @@ final class MiddlewarePipelineTests: XCTestCase {
         execute(customHandler: false) { result in
             switch result {
             case .success(let response):
-                XCTAssertFalse(handlerCalled)
+                XCTAssertFalse(handlerCalled.value)
                 XCTAssertEqual(response.status, .forbidden)
                 XCTAssertEqual(response.body.string, "short-circuited")
             case .failure(let error):
@@ -80,10 +85,10 @@ final class MiddlewarePipelineTests: XCTestCase {
     // MARK: - Middleware can mutate the request
 
     func testMiddlewareCanMutateRequest() {
-        var receivedMethod: Request.Method?
+        let receivedMethod = Box<Request.Method?>(nil)
 
         struct MethodOverride: Middleware {
-            func handle(request: Request, responder: @escaping Responder) async throws -> Encodable {
+            func handle(request: Request, responder: @escaping Responder) async throws -> any Encodable & Sendable {
                 var mutated = request
                 mutated.method = .DELETE
 
@@ -93,7 +98,7 @@ final class MiddlewarePipelineTests: XCTestCase {
 
         server.middleware = [MethodOverride()]
         server.onReceive = { request in
-            receivedMethod = request.method
+            receivedMethod.value = request.method
 
             return Response()
         }
@@ -101,7 +106,7 @@ final class MiddlewarePipelineTests: XCTestCase {
         execute(customHandler: false) { result in
             switch result {
             case .success:
-                XCTAssertEqual(receivedMethod, .DELETE)
+                XCTAssertEqual(receivedMethod.value, .DELETE)
             case .failure(let error):
                 XCTFail("Unexpected error: \(error)")
             }
@@ -111,17 +116,17 @@ final class MiddlewarePipelineTests: XCTestCase {
     // MARK: - Error middleware receives chained errors
 
     func testErrorMiddlewareChainIsTraversed() {
-        var chainOrder: [Int] = []
+        let chainOrder = Box<[Int]>([])
 
         struct ChainedErrorMiddleware: ErrorMiddleware {
             let index: Int
-            let record: (Int) -> Void
+            let record: @Sendable (Int) -> Void
 
             func handle(
                 request: Request,
                 error: Error,
                 responder: @escaping ErrorResponder
-            ) async throws -> Encodable {
+            ) async throws -> any Encodable & Sendable {
                 record(index)
 
                 return try await responder(request, error)
@@ -133,7 +138,7 @@ final class MiddlewarePipelineTests: XCTestCase {
                 request: Request,
                 error: Error,
                 responder: @escaping ErrorResponder
-            ) async throws -> Encodable {
+            ) async throws -> any Encodable & Sendable {
                 Response("error handled", status: .badRequest)
             }
         }
@@ -142,8 +147,8 @@ final class MiddlewarePipelineTests: XCTestCase {
 
         server.middleware = []
         server.errorMiddleware = [
-            ChainedErrorMiddleware(index: 1, record: { chainOrder.append($0) }),
-            ChainedErrorMiddleware(index: 2, record: { chainOrder.append($0) }),
+            ChainedErrorMiddleware(index: 1, record: { chainOrder.value.append($0) }),
+            ChainedErrorMiddleware(index: 2, record: { chainOrder.value.append($0) }),
             TerminalErrorMiddleware()
         ]
         server.onReceive = { _ in throw TestError() }
@@ -151,7 +156,7 @@ final class MiddlewarePipelineTests: XCTestCase {
         execute(customHandler: false) { result in
             switch result {
             case .success(let response):
-                XCTAssertEqual(chainOrder, [1, 2])
+                XCTAssertEqual(chainOrder.value, [1, 2])
                 XCTAssertEqual(response.status, .badRequest)
             case .failure(let error):
                 XCTFail("Unexpected error: \(error)")
@@ -182,7 +187,7 @@ final class MiddlewarePipelineTests: XCTestCase {
 extension MiddlewarePipelineTests {
     func execute(
         customHandler: Bool = true,
-        responseHandler: @escaping (Result<Response, Error>) -> Void
+        responseHandler: @escaping @Sendable (Result<Response, Error>) -> Void
     ) {
         let uri = URI(server.configuration.socketAddress)!
 

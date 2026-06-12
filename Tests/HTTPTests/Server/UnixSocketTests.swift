@@ -3,6 +3,11 @@ import Foundation
 import NIO
 import NIOHTTP1
 import XCTest
+
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
 #if canImport(Darwin)
 import Darwin
 #elseif canImport(Glibc)
@@ -14,7 +19,7 @@ import Glibc
 /// Each test binds the server to a temporary socket path in `/tmp`, connects via
 /// `ClientBootstrap.connect(unixDomainSocketPath:)`, and exchanges a minimal
 /// HTTP/1.1 request/response pair.
-final class UnixSocketTests: XCTestCase {
+final class UnixSocketTests: XCTestCase, @unchecked Sendable {
     var server: Server!
     private var socketPath: String!
 
@@ -64,7 +69,7 @@ final class UnixSocketTests: XCTestCase {
     /// `RequestResponseHandlerTests.testHTTP10WithoutConnectionHeaderSetsConnectionClose`.
     /// HTTP/1.1 keep-alive would leave the connection open indefinitely and hang the test.
     func testHTTP10RequestOverUnixSocket() {
-        var responseStatus: String?
+        let responseStatus = Box<String?>(nil)
         let semaphore = DispatchSemaphore(value: 0)
 
         server.onReceive = { _ in Response("unix-ok") }
@@ -94,7 +99,7 @@ final class UnixSocketTests: XCTestCase {
 
                 // Server closes its output half after responding; channelInactive fires here.
                 capture.waitForClose(timeout: 5)
-                responseStatus = capture.firstLine
+                responseStatus.value = capture.firstLine
                 semaphore.signal()
                 try! self.server.stop()
             }
@@ -103,10 +108,10 @@ final class UnixSocketTests: XCTestCase {
         try! server.start()
         semaphore.wait()
 
-        XCTAssertNotNil(responseStatus)
+        XCTAssertNotNil(responseStatus.value)
         XCTAssertTrue(
-            responseStatus?.hasPrefix("HTTP/1.0 200") == true,
-            "Expected HTTP/1.0 200, got \(responseStatus ?? "nil")"
+            responseStatus.value?.hasPrefix("HTTP/1.0 200") == true,
+            "Expected HTTP/1.0 200, got \(responseStatus.value ?? "nil")"
         )
     }
 

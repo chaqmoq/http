@@ -1,7 +1,7 @@
 import NIO
 import NIOHTTP1
 
-final class ResponseEncoder: ChannelOutboundHandler, RemovableChannelHandler {
+final class ResponseEncoder: ChannelOutboundHandler, RemovableChannelHandler, @unchecked Sendable {
     typealias OutboundIn = Response
     typealias OutboundOut = HTTPServerResponsePart
 

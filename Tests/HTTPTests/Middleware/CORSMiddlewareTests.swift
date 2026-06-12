@@ -1,7 +1,12 @@
 @testable import HTTP
 import XCTest
 
-final class CORSMiddlewareTests: XCTestCase {
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
+
+final class CORSMiddlewareTests: XCTestCase, @unchecked Sendable {
     let eventLoop = EmbeddedEventLoop()
 
     // MARK: - Non-CORS requests (no Origin header)
@@ -294,15 +299,15 @@ final class CORSMiddlewareTests: XCTestCase {
         request.headers.set(.init(name: .origin, value: "https://example.com"))
         // No Access-Control-Request-Method header
 
-        var responderCalled = false
+        let responderCalled = Box(false)
         let encodable = try await middleware.handle(request: request) { _ in
-            responderCalled = true
+            responderCalled.value = true
             return Response(status: .ok)
         }
         let response = try XCTUnwrap(encodable as? Response)
 
         // Assert
-        XCTAssertTrue(responderCalled)
+        XCTAssertTrue(responderCalled.value)
         XCTAssertEqual(response.status, .ok)
     }
 
@@ -413,7 +418,7 @@ final class CORSMiddlewareTests: XCTestCase {
 
         // Return a plain String (not a Response) from the responder
         let result = try await middleware.handle(request: request) { _ in
-            "plain string body" as Encodable
+            "plain string body"
         }
 
         let response = try XCTUnwrap(result as? Response)

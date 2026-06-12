@@ -1,8 +1,13 @@
-import NIO
+@preconcurrency import NIO
 import NIOHTTP1
 import Foundation
 
-final class RequestResponseHandler: ChannelInboundHandler, RemovableChannelHandler {
+private final class Box<T>: @unchecked Sendable {
+    let value: T
+    init(_ value: T) { self.value = value }
+}
+
+final class RequestResponseHandler: ChannelInboundHandler, RemovableChannelHandler, @unchecked Sendable {
     typealias InboundIn = Request
     typealias OutboundOut = Response
 
@@ -62,21 +67,24 @@ extension RequestResponseHandler {
         for request: Request,
         in context: ChannelHandlerContext
     ) {
+        let ctxBox = Box(context)
         let future = processMiddleware(
             server.middleware,
             request: request,
             response: response
         )
-        future.whenSuccess { [weak self] request, response in
-            self?.write(
-                response: response as? Response ?? .init("\(response)"),
-                for: request,
-                in: context
-            )
+        future.whenSuccess { [weak self, ctxBox] request, response in
+            ctxBox.value.eventLoop.execute { [self, ctxBox] in
+                self?.write(
+                    response: response as? Response ?? .init("\(response)"),
+                    for: request,
+                    in: ctxBox.value
+                )
+            }
         }
-        future.whenFailure { [weak self] error in
+        future.whenFailure { [weak self, ctxBox] error in
             guard let self else { return }
-            let future: EventLoopFuture<(Request, Encodable)>
+            let future: EventLoopFuture<(Request, any Encodable & Sendable)>
 
             if let middlewareError = error as? MiddlewareError {
                 future = processMiddleware(
@@ -94,20 +102,24 @@ extension RequestResponseHandler {
                 )
             }
 
-            future.whenSuccess { [weak self] request, response in
-                self?.write(
-                    response: response as? Response ?? .init("\(response)"),
-                    for: request,
-                    in: context
-                )
+            future.whenSuccess { [self, ctxBox] request, response in
+                ctxBox.value.eventLoop.execute { [self, ctxBox] in
+                    self.write(
+                        response: response as? Response ?? .init("\(response)"),
+                        for: request,
+                        in: ctxBox.value
+                    )
+                }
             }
-            future.whenFailure { [weak self] error in
-                self?.server.logger.error("Server error: \(error)")
-                self?.write(
-                    response: .init(status: .internalServerError),
-                    for: request,
-                    in: context
-                )
+            future.whenFailure { [self, ctxBox] error in
+                self.server.logger.error("Server error: \(error)")
+                ctxBox.value.eventLoop.execute { [self, ctxBox] in
+                    self.write(
+                        response: .init(status: .internalServerError),
+                        for: request,
+                        in: ctxBox.value
+                    )
+                }
             }
         }
     }
@@ -162,10 +174,12 @@ extension RequestResponseHandler {
                 promise: nil
             )
         } else {
+            let isConnectionClose = response.headers.get(.connection)?.lowercased() == "close"
+            let ctxBox = Box(context)
             let future = context.write(wrapOutboundOut(response))
-            future.whenComplete { _ in
-                if response.headers.get(.connection)?.lowercased() == "close" {
-                    context.close(
+            future.whenComplete { [ctxBox] _ in
+                if isConnectionClose {
+                    ctxBox.value.close(
                         mode: .output,
                         promise: nil
                     )
@@ -180,8 +194,8 @@ extension RequestResponseHandler {
 extension RequestResponseHandler {
     private func handle(
         request: Request,
-        response: Encodable
-    ) async throws -> Encodable {
+        response: any Encodable & Sendable
+    ) async throws -> any Encodable & Sendable {
         if let onReceive = server.onReceive {
             let result = try await onReceive(request)
 
@@ -206,9 +220,9 @@ extension RequestResponseHandler {
     private func processMiddleware(
         _ middleware: [Middleware],
         request: Request,
-        response: Encodable
-    ) -> EventLoopFuture<(Request, Encodable)> {
-        let promise = request.eventLoop.makePromise(of: (Request, Encodable).self)
+        response: any Encodable & Sendable
+    ) -> EventLoopFuture<(Request, any Encodable & Sendable)> {
+        let promise = request.eventLoop.makePromise(of: (Request, any Encodable & Sendable).self)
         promise.completeWithTask { [weak self] in
             guard let self else { throw CancellationError() }
             return try await self.runMiddleware(middleware, index: 0, request: request, response: response)
@@ -220,8 +234,8 @@ extension RequestResponseHandler {
         _ middleware: [Middleware],
         index: Int,
         request: Request,
-        response: Encodable
-    ) async throws -> (Request, Encodable) {
+        response: any Encodable & Sendable
+    ) async throws -> (Request, any Encodable & Sendable) {
         guard index < middleware.count else {
             do {
                 let response = try await handle(request: request, response: response)
@@ -256,10 +270,10 @@ extension RequestResponseHandler {
     private func processMiddleware(
         _ middleware: [ErrorMiddleware],
         request: Request,
-        response: Encodable,
+        response: any Encodable & Sendable,
         error: Error
-    ) -> EventLoopFuture<(Request, Encodable)> {
-        let promise = request.eventLoop.makePromise(of: (Request, Encodable).self)
+    ) -> EventLoopFuture<(Request, any Encodable & Sendable)> {
+        let promise = request.eventLoop.makePromise(of: (Request, any Encodable & Sendable).self)
         promise.completeWithTask { [weak self] in
             guard let self else { throw CancellationError() }
             return try await self.runErrorMiddleware(middleware, index: 0, request: request, response: response, error: error)
@@ -271,9 +285,9 @@ extension RequestResponseHandler {
         _ middleware: [ErrorMiddleware],
         index: Int,
         request: Request,
-        response: Encodable,
+        response: any Encodable & Sendable,
         error: Error
-    ) async throws -> (Request, Encodable) {
+    ) async throws -> (Request, any Encodable & Sendable) {
         guard index < middleware.count else {
             throw error
         }
@@ -288,6 +302,6 @@ extension RequestResponseHandler {
 
 struct MiddlewareError: Error {
     let request: Request
-    let response: Encodable
+    let response: any Encodable & Sendable
     let error: Error
 }

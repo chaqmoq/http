@@ -1,8 +1,8 @@
 @testable import HTTP
 import Foundation
-import NIO
-import NIOHTTP1
-import NIOWebSocket
+@preconcurrency import NIO
+@preconcurrency import NIOHTTP1
+@preconcurrency import NIOWebSocket
 import XCTest
 
 /// Integration tests for WebSocket upgrade support in `Server`.
@@ -12,7 +12,7 @@ import XCTest
 ///
 /// The server is stopped from within `onStart` after the client interaction
 /// completes, following the same pattern as the rest of the integration test suite.
-final class WebSocketIntegrationTests: XCTestCase {
+final class WebSocketIntegrationTests: XCTestCase, @unchecked Sendable {
     private static let port = 8090
     var server: Server!
 
@@ -39,7 +39,7 @@ final class WebSocketIntegrationTests: XCTestCase {
     // MARK: - Echo server: text messages are echoed back
 
     func testWebSocketTextEcho() {
-        var receivedText: String?
+        let receivedText = Box<String?>(nil)
         let semaphore = DispatchSemaphore(value: 0)
 
         server.onUpgrade = { _, ws in
@@ -63,14 +63,15 @@ final class WebSocketIntegrationTests: XCTestCase {
                         channel.pipeline.addHandler(capture)
                     }
                 )
-                let config: NIOHTTPClientUpgradeConfiguration = (
+                let config = (
                     upgraders: [upgrader],
-                    completionHandler: { _ in }
+                    completionHandler: { @Sendable (_: ChannelHandlerContext) in }
                 )
+                let configBox = Box(config)
 
                 let channel = try? ClientBootstrap(group: group)
-                    .channelInitializer { ch in
-                        ch.pipeline.addHTTPClientHandlers(withClientUpgrade: config)
+                    .channelInitializer { [configBox] ch in
+                        ch.pipeline.addHTTPClientHandlers(withClientUpgrade: configBox.value)
                     }
                     .connect(host: "127.0.0.1", port: Self.port)
                     .wait()
@@ -105,7 +106,7 @@ final class WebSocketIntegrationTests: XCTestCase {
 
                 // Give the server a moment to process and echo.
                 Thread.sleep(forTimeInterval: 0.3)
-                receivedText = capture.lastText
+                receivedText.value = capture.lastText
                 semaphore.signal()
 
                 // Send a close frame so the server loop exits cleanly.
@@ -120,13 +121,13 @@ final class WebSocketIntegrationTests: XCTestCase {
 
         try! server.start()
         semaphore.wait()
-        XCTAssertEqual(receivedText, "echo: hello")
+        XCTAssertEqual(receivedText.value, "echo: hello")
     }
 
     // MARK: - Binary echo
 
     func testWebSocketBinaryEcho() {
-        var receivedBytes: [UInt8]?
+        let receivedBytes = Box<[UInt8]?>(nil)
         let semaphore = DispatchSemaphore(value: 0)
 
         server.onUpgrade = { _, ws in
@@ -150,14 +151,15 @@ final class WebSocketIntegrationTests: XCTestCase {
                         channel.pipeline.addHandler(capture)
                     }
                 )
-                let config: NIOHTTPClientUpgradeConfiguration = (
+                let config = (
                     upgraders: [upgrader],
-                    completionHandler: { _ in }
+                    completionHandler: { @Sendable (_: ChannelHandlerContext) in }
                 )
+                let configBox = Box(config)
 
                 let channel = try? ClientBootstrap(group: group)
-                    .channelInitializer { ch in
-                        ch.pipeline.addHTTPClientHandlers(withClientUpgrade: config)
+                    .channelInitializer { [configBox] ch in
+                        ch.pipeline.addHTTPClientHandlers(withClientUpgrade: configBox.value)
                     }
                     .connect(host: "127.0.0.1", port: Self.port)
                     .wait()
@@ -184,7 +186,7 @@ final class WebSocketIntegrationTests: XCTestCase {
                 Thread.sleep(forTimeInterval: 0.3)
 
                 if let bytes = capture.lastBinaryBytes {
-                    receivedBytes = bytes
+                    receivedBytes.value = bytes
                 }
                 semaphore.signal()
 
@@ -201,7 +203,7 @@ final class WebSocketIntegrationTests: XCTestCase {
 
         try! server.start()
         semaphore.wait()
-        XCTAssertEqual(receivedBytes, [0x01, 0x02, 0x03])
+        XCTAssertEqual(receivedBytes.value, [0x01, 0x02, 0x03])
     }
 
     // MARK: - close() sends close frame
@@ -234,14 +236,15 @@ final class WebSocketIntegrationTests: XCTestCase {
                         channel.pipeline.addHandler(capture)
                     }
                 )
-                let config: NIOHTTPClientUpgradeConfiguration = (
+                let config = (
                     upgraders: [upgrader],
-                    completionHandler: { _ in }
+                    completionHandler: { @Sendable (_: ChannelHandlerContext) in }
                 )
+                let configBox = Box(config)
 
                 let channel = try? ClientBootstrap(group: group)
-                    .channelInitializer { ch in
-                        ch.pipeline.addHTTPClientHandlers(withClientUpgrade: config)
+                    .channelInitializer { [configBox] ch in
+                        ch.pipeline.addHTTPClientHandlers(withClientUpgrade: configBox.value)
                     }
                     .connect(host: "127.0.0.1", port: Self.port)
                     .wait()
@@ -322,14 +325,15 @@ final class WebSocketIntegrationTests: XCTestCase {
                         channel.eventLoop.makeSucceededVoidFuture()
                     }
                 )
-                let config: NIOHTTPClientUpgradeConfiguration = (
+                let config = (
                     upgraders: [upgrader],
-                    completionHandler: { _ in }
+                    completionHandler: { @Sendable (_: ChannelHandlerContext) in }
                 )
+                let configBox = Box(config)
 
                 let channel = try? ClientBootstrap(group: group)
-                    .channelInitializer { ch in
-                        ch.pipeline.addHTTPClientHandlers(withClientUpgrade: config)
+                    .channelInitializer { [configBox] ch in
+                        ch.pipeline.addHTTPClientHandlers(withClientUpgrade: configBox.value)
                     }
                     .connect(host: "127.0.0.1", port: Self.port)
                     .wait()
@@ -370,6 +374,13 @@ final class WebSocketIntegrationTests: XCTestCase {
     func testShouldUpgradeAcceptsAllowedOrigin() {
         XCTAssertTrue(attemptUpgrade(origin: Self.allowedOrigin))
     }
+}
+
+// MARK: - Box
+
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
 }
 
 // MARK: - BoolBox
@@ -427,7 +438,7 @@ private final class WebSocketMessageCapture: ChannelInboundHandler, @unchecked S
             lock.unlock()
         case .binary:
             let buf = frame.unmaskedData
-            let bytes = buf.getBytes(at: buf.readerIndex, length: buf.readableBytes) ?? []
+            let bytes = buf.getBytes(at: buf.readerIndex, length: buf.readableBytes) ?? .init()
             lock.lock()
             _lastBinaryBytes = bytes
             lock.unlock()

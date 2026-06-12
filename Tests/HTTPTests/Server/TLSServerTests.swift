@@ -5,6 +5,11 @@ import NIO
 import NIOSSL
 import XCTest
 
+private final class Box<T>: @unchecked Sendable {
+    var value: T
+    init(_ value: T) { self.value = value }
+}
+
 /// Integration tests for the TLS path in `Server.swift`.
 ///
 /// These tests exercise:
@@ -12,7 +17,7 @@ import XCTest
 /// - `Server.configure(tls:for:)`  (NIOSSLServerHandler installation)
 /// - `Server.addHandlers(to:isHTTP2:false)` over a TLS connection
 /// - `Server.Configuration.scheme` returning `"https"` when TLS is set
-final class TLSServerTests: XCTestCase {
+final class TLSServerTests: XCTestCase, @unchecked Sendable {
     var client: HTTPClient!
     var server: Server!
 
@@ -111,13 +116,13 @@ final class TLSServerTests: XCTestCase {
         client = HTTPClient(eventLoopGroupProvider: .singleton, configuration: clientConfig)
         server = Server(configuration: .init(port: 8445, tls: tls, numberOfThreads: 1))
 
-        var startEventLoop: EventLoop?
+        let startEventLoop = Box<(any EventLoop)?>(nil)
 
         execute(onStart: { eventLoop in
-            startEventLoop = eventLoop
+            startEventLoop.value = eventLoop
         }) { _ in }
 
-        XCTAssertNotNil(startEventLoop)
+        XCTAssertNotNil(startEventLoop.value)
     }
 }
 
@@ -127,8 +132,8 @@ extension TLSServerTests {
     /// Starts the server, fires one GET request, calls `responseHandler` with the result,
     /// then tears everything down synchronously before returning.
     func execute(
-        onStart: ((EventLoop) -> Void)? = nil,
-        responseHandler: @escaping (Result<Response, Error>) -> Void
+        onStart: (@Sendable (EventLoop) -> Void)? = nil,
+        responseHandler: @escaping @Sendable (Result<Response, Error>) -> Void
     ) {
         server.onStart = { [weak self] eventLoop in
             guard let self else { return }

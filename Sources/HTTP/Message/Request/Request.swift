@@ -59,7 +59,7 @@ public struct Request: Message, @unchecked Sendable {
     /// Populate this via ``push(_:for:)`` inside a handler or middleware. Each entry
     /// is sent to the client as a `PUSH_PROMISE` + push-stream response before the
     /// main response is written. Entries are silently discarded on HTTP/1.x connections.
-    public var pushes: [(uri: URI, response: Response)] = []
+    public var pushes = [(uri: URI, response: Response)]()
 
     /// A stream of incoming body chunks. Non-`nil` only when the server is configured
     /// with a ``Server/Configuration/streamingBodyThreshold`` and the request body meets

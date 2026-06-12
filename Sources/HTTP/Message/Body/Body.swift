@@ -29,7 +29,7 @@ public struct Body: Sendable {
     /// Copies bytes out of the internal `ByteBuffer`. Prefer ``buffer`` in NIO
     /// channel handlers to avoid the extra allocation.
     public var bytes: [UInt8] {
-        _buffer.getBytes(at: _buffer.readerIndex, length: _buffer.readableBytes) ?? []
+        _buffer.getBytes(at: _buffer.readerIndex, length: _buffer.readableBytes) ?? .init()
     }
 
     /// The body content as `Foundation.Data`.
@@ -61,7 +61,7 @@ public struct Body: Sendable {
     /// Creates an empty body or one initialised from a raw byte array.
     ///
     /// - Parameter bytes: The raw bytes for the body. Defaults to an empty array.
-    public init(bytes: [UInt8] = []) {
+    public init(bytes: [UInt8] = .init()) {
         var buf = ByteBufferAllocator().buffer(capacity: bytes.count)
         buf.writeBytes(bytes)
         _buffer = buf

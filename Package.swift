@@ -33,6 +33,5 @@ let package = Package(
             .product(name: "AsyncHTTPClient", package: "async-http-client"),
             .product(name: "NIOSSL", package: "swift-nio-ssl")
         ])
-    ],
-    swiftLanguageModes: [.v5]
+    ]
 )

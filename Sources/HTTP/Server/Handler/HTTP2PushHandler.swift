@@ -1,6 +1,11 @@
-import NIO
+@preconcurrency import NIO
 import NIOHPACK
-import NIOHTTP2
+@preconcurrency import NIOHTTP2
+
+private final class Box<T>: @unchecked Sendable {
+    let value: T
+    init(_ value: T) { self.value = value }
+}
 
 /// Sits at the network-facing end of every HTTP/2 stream channel pipeline and
 /// intercepts the first outbound write (which is always the HEADERS frame) to
@@ -21,13 +26,13 @@ import NIOHTTP2
 ///
 /// Push failures are silently swallowed — they must not prevent the main response
 /// from reaching the client.
-final class HTTP2PushHandler: ChannelDuplexHandler {
+final class HTTP2PushHandler: ChannelDuplexHandler, @unchecked Sendable {
     typealias InboundIn = HTTP2Frame.FramePayload
     typealias InboundOut = HTTP2Frame.FramePayload
     typealias OutboundIn = HTTP2Frame.FramePayload
     typealias OutboundOut = HTTP2Frame.FramePayload
 
-    private var pendingPushes: [(uri: URI, response: Response)] = []
+    private var pendingPushes: [(uri: URI, response: Response)] = .init()
     private var authority: String = ""
     /// Guards against sending push promises on the second/third write of the same
     /// response (DATA, END_STREAM frames that follow the initial HEADERS frame).
@@ -64,11 +69,13 @@ final class HTTP2PushHandler: ChannelDuplexHandler {
         pushesHandled = true
         let pushes = pendingPushes
         let authority = self.authority
-        pendingPushes = []
+        pendingPushes = .init()
 
-        sendPushes(pushes, authority: authority, in: context).whenComplete { _ in
+        let ctxBox = Box(context)
+        let dataBox = Box(data)
+        sendPushes(pushes, authority: authority, in: context).whenComplete { [ctxBox, dataBox] _ in
             // RFC 7540 §8.2: PUSH_PROMISE must precede the HEADERS on the associated stream.
-            context.write(data, promise: promise)
+            ctxBox.value.write(dataBox.value, promise: promise)
         }
     }
 
@@ -87,9 +94,11 @@ final class HTTP2PushHandler: ChannelDuplexHandler {
             return context.eventLoop.makeSucceededFuture(())
         }
 
+        let ctxBox = Box(context)
         return parentPipeline
             .handler(type: HTTP2StreamMultiplexer.self)
-            .flatMap { multiplexer in
+            .flatMap { [self, ctxBox] multiplexer in
+                let context = ctxBox.value
                 let futures = pushes.map { push in
                     self.sendOnePush(
                         uri: push.uri,
@@ -112,16 +121,17 @@ final class HTTP2PushHandler: ChannelDuplexHandler {
         in context: ChannelHandlerContext
     ) -> EventLoopFuture<Void> {
         let channelPromise = context.eventLoop.makePromise(of: Channel.self)
+        let ctxBox = Box(context)
 
         // Create a server-push stream channel. NIOHTTP2 automatically assigns an
         // even stream ID (server-initiated) to this channel.
         multiplexer.createStreamChannel(promise: channelPromise) { pushChannel in
-            let pushResponseEncoder: ChannelHandler = PushResponseEncoder()
+            let pushResponseEncoder = PushResponseEncoder()
             return pushChannel.pipeline.addHandler(pushResponseEncoder)
         }
 
-        return channelPromise.futureResult.flatMap { pushChannel in
-            pushChannel.getOption(HTTP2StreamChannelOptions.streamID).flatMap { streamID in
+        return channelPromise.futureResult.flatMap { [self, ctxBox] pushChannel in
+            pushChannel.getOption(HTTP2StreamChannelOptions.streamID).flatMap { [ctxBox, self] streamID in
                 // Build the PUSH_PROMISE request pseudo-headers.
                 var promiseHeaders = HPACKHeaders()
                 promiseHeaders.add(name: ":method", value: "GET")
@@ -140,8 +150,8 @@ final class HTTP2PushHandler: ChannelDuplexHandler {
                 let pushPromisePayload = HTTP2Frame.FramePayload.pushPromise(
                     .init(pushedStreamID: streamID, headers: promiseHeaders)
                 )
-                context.write(self.wrapOutboundOut(pushPromisePayload), promise: nil)
-                context.flush()
+                ctxBox.value.write(self.wrapOutboundOut(pushPromisePayload), promise: nil)
+                ctxBox.value.flush()
 
                 // Write the push response on the new stream channel.
                 // PushResponseEncoder converts Response → HTTP2Frame.FramePayload directly.
@@ -158,7 +168,7 @@ final class HTTP2PushHandler: ChannelDuplexHandler {
 /// Unlike `ResponseEncoder`, this handler writes `HTTP2Frame.FramePayload` directly —
 /// push stream channels are created by the multiplexer and do not have
 /// `HTTP2FramePayloadToHTTP1ServerCodec` in their pipeline.
-final class PushResponseEncoder: ChannelOutboundHandler {
+final class PushResponseEncoder: ChannelOutboundHandler, @unchecked Sendable {
     typealias OutboundIn = Response
     typealias OutboundOut = HTTP2Frame.FramePayload
 
