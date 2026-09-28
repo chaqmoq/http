@@ -45,6 +45,19 @@ public struct Response: Encodable, Message, Sendable {
         didSet { setContentLengthHeader() }
     }
 
+    /// A body produced incrementally after the head has been sent. See ``ResponseStream``.
+    ///
+    /// When set, ``body`` is ignored and `Content-Length` is removed, because the length of a
+    /// streamed body is not known in advance.
+    public var stream: ResponseStream? {
+        didSet {
+            if stream != nil { headers.remove(.contentLength) }
+        }
+    }
+
+    /// `true` when the body is produced by a ``stream``.
+    public var isStreaming: Bool { stream != nil }
+
     /// Creates a response with a ``Body`` payload.
     ///
     /// - Parameters:
@@ -97,6 +110,25 @@ public struct Response: Encodable, Message, Sendable {
         version: Version = .init()
     ) {
         self.init(.init(data: data), status: status, headers: headers, version: version)
+    }
+
+    /// Creates a response whose body is produced incrementally.
+    ///
+    /// - Parameters:
+    ///   - stream: The body producer.
+    ///   - status: The HTTP status code. Defaults to `.ok`.
+    ///   - headers: The response headers. Defaults to empty.
+    ///   - version: The HTTP version. Defaults to HTTP/1.1.
+    public init(
+        stream: ResponseStream,
+        status: Status = .ok,
+        headers: Headers = .init(),
+        version: Version = .init()
+    ) {
+        self.init(Body(), status: status, headers: headers, version: version)
+        // Property observers do not run inside an initializer, so drop Content-Length explicitly.
+        self.stream = stream
+        self.headers.remove(.contentLength)
     }
 }
 

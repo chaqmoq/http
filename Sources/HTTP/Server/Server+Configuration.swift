@@ -45,6 +45,11 @@ extension Server {
         public var supportsVersions: Set<Version.Major>
 
         /// Whether HTTP pipelining is enabled for HTTP/1.x connections. Defaults to `false`.
+        ///
+        /// When enabled, NIO's `HTTPServerPipelineHandler` queues pipelined requests and stops
+        /// reading while a response is in flight. A client that disconnects during a streamed
+        /// response (``Response/stream``) is then only noticed on the next failed write, so keep
+        /// this off for Server-Sent Events or other long-lived streams.
         public var supportsPipelining: Bool
 
         /// The number of NIO event-loop threads. Defaults to `System.coreCount`.

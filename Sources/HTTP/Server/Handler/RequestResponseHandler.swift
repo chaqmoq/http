@@ -155,6 +155,7 @@ extension RequestResponseHandler {
             // the byte size that a GET would return, so we preserve the header value that
             // the handler set, then clear the body without letting body.didSet overwrite it.
             let contentLength = response.headers.get(.contentLength)
+            response.stream = nil
             response.body = Body()   // didSet sets Content-Length to "0"
 
             if let contentLength {
@@ -164,8 +165,16 @@ extension RequestResponseHandler {
             }
         } else if response.status == .noContent {
             // RFC 9110 §15.3.5: 204 No Content must not include a body or Content-Length.
+            response.stream = nil
             response.body = Body()
             response.headers.remove(.contentLength)
+        } else if response.isStreaming,
+                  request.version.major == Version.Major.one.rawValue,
+                  request.version.minor == 0 {
+            // HTTP/1.0 has no chunked encoding, so a streamed body can only be delimited by closing
+            // the connection. Setting it here (not just on the wire in ResponseEncoder) is what
+            // makes the close-after-write below actually happen.
+            response.headers.set(.init(name: .connection, value: "close"))
         }
 
         if request.version.major >= Version.Major.two.rawValue {

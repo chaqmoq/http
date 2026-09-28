@@ -238,10 +238,7 @@ public final class Server: @unchecked Sendable {
 
 extension Server {
     private func initializeChild(channel: Channel) -> EventLoopFuture<Void> {
-        // Explicit existential type selects the non-Sendable addHandler overload;
-        // BackPressureHandler has an unavailable Sendable conformance (event-loop-bound).
-        let backPressureHandler: ChannelHandler = BackPressureHandler()
-        return channel.pipeline.addHandler(backPressureHandler).flatMap { [weak self] in
+        return Self.addHandlers([BackPressureHandler()], to: channel).flatMap { [weak self] in
             guard let server = self else { return channel.close() }
 
             if server.configuration.tls != nil {
@@ -281,11 +278,24 @@ extension Server {
             return channel.close()
         }
 
-        // Explicit existential type selects the non-Sendable addHandler overload;
-        // NIOSSLServerHandler has an unavailable Sendable conformance (event-loop-bound).
-        let sslHandler: ChannelHandler = NIOSSLServerHandler(context: sslContext)
+        return Self.addHandlers([NIOSSLServerHandler(context: sslContext)], to: channel)
+    }
 
-        return channel.pipeline.addHandler(sslHandler)
+    /// Adds event-loop-bound handlers (those with an unavailable `Sendable` conformance, such as
+    /// `BackPressureHandler`, `NIOSSLServerHandler` or `HTTP2FramePayloadToHTTP1ServerCodec`).
+    ///
+    /// The future-returning `pipeline.addHandler(s)` requires `Sendable` handlers because it may
+    /// hop threads; `syncOperations` does not, and is safe here because every caller — the child
+    /// channel initializer and the futures chained off it — already runs on the channel's loop.
+    private static func addHandlers(
+        _ handlers: [ChannelHandler],
+        to channel: Channel
+    ) -> EventLoopFuture<Void> {
+        channel.eventLoop.assertInEventLoop()
+
+        return channel.eventLoop.makeCompletedFuture(withResultOf: {
+            try channel.pipeline.syncOperations.addHandlers(handlers)
+        })
     }
 
     private func addHandlers(to channel: Channel, isHTTP2: Bool = false) -> EventLoopFuture<Void> {
@@ -299,9 +309,7 @@ extension Server {
             // and can inject PUSH_PROMISE frames directly into the stream channel's write
             // mechanism without going back through the codec.
             let pushHandler = HTTP2PushHandler()
-            // HTTP2FramePayloadToHTTP1ServerCodec has an unavailable Sendable conformance, so
-            // the whole array uses the non-Sendable existential to select the right overload.
-            let handlers: [any ChannelHandler] = [
+            let handlers: [ChannelHandler] = [
                 pushHandler,
                 HTTP2FramePayloadToHTTP1ServerCodec(),
                 RequestDecoder(
@@ -312,7 +320,7 @@ extension Server {
                 RequestResponseHandler(server: self, pushHandler: pushHandler)
             ]
 
-            return channel.pipeline.addHandlers(handlers).flatMap { [weak self] in
+            return Self.addHandlers(handlers, to: channel).flatMap { [weak self] in
                 guard let server = self else { return channel.close() }
                 return channel.pipeline.addHandler(ErrorHandler(server: server))
             }
@@ -391,13 +399,17 @@ extension Server {
             )
         }
 
-        return channel.pipeline.configureHTTPServerPipeline(withServerUpgrade: upgradeConfig).flatMap { [weak self] in
+        // Pipelining assistance follows `supportsPipelining` instead of NIO's default of `true`.
+        // `HTTPServerPipelineHandler` withholds reads while a response is in flight, so with it in
+        // the pipeline the server cannot notice a client hanging up during a long streamed response
+        // (`Response(stream:)`) until a write fails. It used to be added unconditionally here and
+        // then a second time when `supportsPipelining` was set.
+        return channel.pipeline.configureHTTPServerPipeline(
+            withPipeliningAssistance: configuration.supportsPipelining,
+            withServerUpgrade: upgradeConfig
+        ).flatMap { [weak self] in
             guard let server = self else { return channel.close() }
-            var handlers = [any ChannelHandler]()
-
-            if server.configuration.supportsPipelining {
-                handlers.append(HTTPServerPipelineHandler())
-            }
+            var handlers = [ChannelHandler]()
 
             if server.configuration.responseCompression.isEnabled {
                 let initialByteBufferCapacity = server.configuration.responseCompression.initialByteBufferCapacity
@@ -420,7 +432,7 @@ extension Server {
                 handlers.append(NIOHTTPRequestDecompressor(limit: decompressionLimit))
             }
 
-            let otherHandlers: [any ChannelHandler] = [
+            let otherHandlers: [ChannelHandler] = [
                 RequestDecoder(
                     maxBodySize: server.configuration.maxBodySize,
                     streamingBodyThreshold: server.configuration.streamingBodyThreshold
@@ -430,7 +442,7 @@ extension Server {
             ]
             handlers.append(contentsOf: otherHandlers)
 
-            return channel.pipeline.addHandlers(handlers).flatMap {
+            return Self.addHandlers(handlers, to: channel).flatMap {
                 channel.pipeline.addHandler(ErrorHandler(server: server))
             }
         }

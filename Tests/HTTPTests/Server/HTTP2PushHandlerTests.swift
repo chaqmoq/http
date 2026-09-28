@@ -159,8 +159,9 @@ final class HTTP2PushHandlerTests: XCTestCase, @unchecked Sendable {
             channel: parentChannel,
             inboundStreamInitializer: nil
         )
-        let channelHandler: ChannelHandler = multiplexer
-        try parentChannel.pipeline.addHandler(channelHandler).wait()
+        // EmbeddedChannel runs on the test thread, so the synchronous API is safe and avoids the
+        // Sendable requirement of the future-returning one.
+        try parentChannel.pipeline.syncOperations.addHandler(multiplexer)
 
         // 2. Create a child stream channel; its `parent` points to parentChannel.
         //    Adding HTTP2PushHandler here means sendPushes will find the multiplexer
